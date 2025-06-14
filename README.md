@@ -2,7 +2,7 @@
 
 
 **Project Title:**
-ChartIt
+EasyChart
 
 **Group Members:**
 Nick Ze Kun Lei, Javier Deng Xu, Shelby Haines, Tony Junxiang Wu
