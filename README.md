@@ -9,3 +9,6 @@ Nick Ze Kun Lei, Javier Deng Xu, Shelby Haines, Tony Junxiang Wu
 
 **Brief Description of Project:**
 A website that provides a simple way for users to visualize data, without having to learn complex tools. Users can upload data in various formats, and the platform will automatically generate relevant visualizations such as charts and graphs. These visuals can then be exported in various formats.
+
+**Brief Description of API changes from Milestone 0:**
+In milestone 0, our team mentioned to use the OpenAI API for chart analysis, NLQ parsing, and smart selection. However, during our process in working on milestone 1, we figured that the OpenAI API did not offer a free tier. To compensate, we will be changing our API to DeepSeek's free APIs (Using Hugging Face, which allows free access to DeepSeek models) while maintaining identical features.
