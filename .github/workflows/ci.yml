@@ -21,14 +21,14 @@ jobs:
 
     # Install and build frontend
     - name: Install frontend dependencies
-      working-directory: ./client
+      working-directory: ./src/frontend
       run: npm install
 
     - name: Build frontend
-      working-directory: ./client
+      working-directory: ./src/frontend
       run: npm run build
 
     # Install and test backend
     - name: Install backend dependencies
-      working-directory: ./server
+      working-directory: ./src/backend
       run: npm install
