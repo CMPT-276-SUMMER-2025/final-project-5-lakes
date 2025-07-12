@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "node-fetch": "^2.7.0"
+  }
+}
