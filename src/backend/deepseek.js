@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({ path: "../../.env" });
 const fetch = require("node-fetch");
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
@@ -35,5 +35,11 @@ async function queryDeepSeekV3(prompt) {
     console.error("Error calling API: ", err);
   }
 };
+
+// This block runs only when file is run directly from CLI
+if (require.main === module) {
+  const prompt = process.argv.slice(2).join(" ") || "Hello!";
+  queryDeepSeekV3(prompt);
+}
 
 module.exports = {queryDeepSeekV3};

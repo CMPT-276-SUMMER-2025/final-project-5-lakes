@@ -1,6 +1,11 @@
 {
   "dependencies": {
     "dotenv": "^17.2.0",
-    "node-fetch": "^2.7.0"
+    "express": "^5.1.0",
+    "multer": "^2.0.1",
+    "node-fetch": "^2.7.0",
+    "papaparse": "^5.5.3",
+    "pdf-parse": "^1.1.1",
+    "xlsx": "^0.18.5"
   }
 }
