@@ -15,6 +15,7 @@ const upload = multer({ dest: 'uploads/' });
 app.post('/upload', upload.single('file'), async (req, res) => {
     const file = req.file;
     const query = req.body.query;
+    const summaryQuery = "Give me only summaries of trend or key insights in bullet point form of this data:";
 
     if (!file) {
         return res.status(400).send('No file uploaded.');
@@ -48,6 +49,7 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
         // Send parsed data to DeepSeek API for further analysis
         const analysisResponse = await sendToDeepSeek(query, data);
+        const summaryInsights = await sendToDeepSeek(summaryQuery, data);
         res.json(analysisResponse);  // Send back processed data or insights
     } catch (error) {
         res.status(500).send('Error processing the file.');
