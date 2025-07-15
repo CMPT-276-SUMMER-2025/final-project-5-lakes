@@ -28,8 +28,7 @@ jobs:
       working-directory: ./src/frontend
       run: npm run build
 
-    # Uncomment this after starting backend implementation
     # Install and test backend
-    # - name: Install backend dependencies
-    #  working-directory: ./src/backend
-    #  run: npm install
+    - name: Install backend dependencies
+      working-directory: ./src/backend
+      run: npm install
