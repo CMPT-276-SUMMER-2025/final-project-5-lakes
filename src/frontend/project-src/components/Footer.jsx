@@ -1,3 +1,4 @@
+import React from 'react';
 // resuable footer component 
 function Footer() {
 

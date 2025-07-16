@@ -11,9 +11,9 @@ function Header() {
        <img src={websiteLogo} alt="Website Logo" className="h-8 w-auto" />
 
        {/* displays the website name next to the logo */}
-       <h1 className="font-semibold text-2xl text-blue-600">
+       <h3 className="text-blue-600">
          EasyChart
-       </h1>
+       </h3>
      </div>
    </header>
  );
