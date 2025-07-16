@@ -1,0 +1,38 @@
+.grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.grid-cols-auto {
+    grid-template-columns: auto auto;
+}
+
+.grid-cols-responsive {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.grid-gap-sm {
+    gap: 0.5rem;
+}
+
+.grid-gap-md {
+    gap: 1rem;
+}
+
+.grid-gap-lg {
+    gap: 2rem;
+}
+
+/* How to use: <div class="grid grid-cols-3 grid-gap-md">...</div> */

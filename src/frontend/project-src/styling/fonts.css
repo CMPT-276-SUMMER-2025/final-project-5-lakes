@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Montserrat:wght@400;700&display=swap');
+
+/* Base font settings */
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    font-size: 16px;
+    color: #222;
+    background: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+/* Headings */
+h1, .heading-1 {
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+h2, .heading-2 {
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+h3, .heading-3 {
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+/* Paragraph text sizes */
+.text-small {
+    font-size: 0.875rem;
+}
+
+.text-normal {
+    font-size: 1rem;
+}
+
+.text-large {
+    font-size: 1.25rem;
+}
+
+.text-xlarge {
+    font-size: 1.5rem;
+}
+
+/* Example font families */
+.font-roboto {
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+.font-montserrat {
+    font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.font-serif {
+    font-family: 'Times New Roman', Times, serif;
+}
+
+.font-mono {
+    font-family: 'Courier New', Courier, monospace;
+}

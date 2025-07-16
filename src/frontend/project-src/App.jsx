@@ -12,6 +12,7 @@ const App = () => {
         {/* <Route path="/data-confirm" element={<DataConfirm/>} /> */}
         {/* <Route path="/visual-select" element={<VisualSelect />} /> */}
         {/* <Route path="/edit-save" element={<EditSave />} /> */}
+        <Route path="/preview" element={<Preview />} />
       </Routes>
       <Footer />
     </>
