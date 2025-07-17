@@ -36,6 +36,7 @@ if (ext === '.csv') {
         const pdfText = await pdfParse(pdfContent);
         data = pdfText.text.split('\n');
         sendToDeepSeek("Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response", data);
+        sendToDeepSeek(summaryQuery, data);
     })();
 } else if (ext === '.txt') {
     // Parse plain text
@@ -56,4 +57,5 @@ async function sendToDeepSeek(query, data) {
 if (!isPDF) {
     // sendToDeepSeek("Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response", data);
     sendToDeepSeek("Extract the info from this txt file and Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response", data);
+    sendToDeepSeek(summaryQuery, data);
 }
