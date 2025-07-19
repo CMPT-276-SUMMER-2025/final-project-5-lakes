@@ -1,17 +1,26 @@
-const { queryDeepSeekV3 } = require('./deepseek');
+const { queryDeepSeekV3 } = require('./deepseek.js');
 const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
 const pdfParse = require('pdf-parse'); // For PDF parsing
 const Papa = require('papaparse'); // For CSV parsing
 
+// import { queryDeepSeekV3 } from './deepseek.js';  // Change require to import
+// import fs from 'fs';  // Change require to import
+// import path from 'path';  // Change require to import
+// import { fileURLToPath } from 'url';
+// import * as XLSX from 'xlsx';  // Change require to import
+// import pdfParse from 'pdf-parse';  // Change require to import
+// import Papa from 'papaparse';  // Change require to import
+
 // const file = path.join(__dirname, 'excel-test.xlsx');
 // const file = path.join(__dirname, "pdf_test.pdf");
 // const file = path.join(__dirname, 'csv-test.csv');
-const file = path.join(__dirname, "txt-test.txt");
+
+const file = path.join(__dirname, "./txt-test.txt");
 
 const ext = path.extname(file).toLowerCase();
-const summaryQuery = "Give me only summaries of trend or key insights in bullet point form of this data:";
+const summaryQuery = "Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):";
 
 
 let isPDF = false;
@@ -51,11 +60,19 @@ if (ext === '.csv') {
 async function sendToDeepSeek(query, data) {
     const prompt = `${query}\n\nHere is the data:\n${JSON.stringify(data, null, 2)}`;
     const result = await queryDeepSeekV3(prompt);
+    return result;
 }
 // sendToDeepSeek("convert it into format that the QuickChart API accepts for the chart and tell me what kind of chart can be used to chart this data set", data);
 
-if (!isPDF) {
-    // sendToDeepSeek("Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response", data);
-    sendToDeepSeek("Extract the info from this txt file and Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response", data);
-    sendToDeepSeek(summaryQuery, data);
+async function printResponse(data) {
+    if (!isPDF) {
+        // sendToDeepSeek("Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response", data);
+        const chartFormat = await sendToDeepSeek("Extract the info from this txt file and Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response", data);
+        const summary = await sendToDeepSeek(summaryQuery, data);
+        console.log(JSON.parse(chartFormat));
+        console.log(JSON.parse(summary));
+    }
 }
+
+printResponse(data);
+
