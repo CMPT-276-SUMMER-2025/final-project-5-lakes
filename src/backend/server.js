@@ -11,6 +11,13 @@ const { queryDeepSeekV3 } = require('./deepseek');
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
+// Function to send data to DeepSeek API
+async function sendToDeepSeek(query, data) {
+    const prompt = `${query}\n\nHere is the data:\n${JSON.stringify(data, null, 2)}`;
+    const result = await queryDeepSeekV3(prompt);
+    return result;
+}
+
 // File upload endpoint
 app.post('/upload', upload.single('file'), async (req, res) => {
     const file = req.file;
@@ -50,7 +57,10 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         // Send parsed data to DeepSeek API for further analysis
         const analysisResponse = await sendToDeepSeek(query, data);
         const summaryInsights = await sendToDeepSeek(summaryQuery, data);
-        res.json(analysisResponse);  // Send back processed data or insights
+        res.json({
+            analysis: analysisResponse,
+            summary: summaryInsights,
+        });  // Send back processed data or insights
     } catch (error) {
         res.status(500).send('Error processing the file.');
     } finally {
@@ -58,13 +68,6 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         fs.unlinkSync(file.path);
     }
 });
-
-// Function to send data to DeepSeek API
-async function sendToDeepSeek(query, data) {
-    const prompt = `${query}\n\nHere is the data:\n${JSON.stringify(data, null, 2)}`;
-    const result = await queryDeepSeekV3(prompt);
-    return { response: result };
-}
 
 // Start the server
 app.listen(3000, () => {
