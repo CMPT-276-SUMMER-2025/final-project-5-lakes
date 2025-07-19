@@ -15,7 +15,7 @@ const upload = multer({ dest: 'uploads/' });
 app.post('/upload', upload.single('file'), async (req, res) => {
     const file = req.file;
     const query = req.body.query;
-    const summaryQuery = "Give me only summaries of trend or key insights in bullet point form of this data:";
+    const summaryQuery = "Extract the info from this txt file and Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response";
 
     if (!file) {
         return res.status(400).send('No file uploaded.');
