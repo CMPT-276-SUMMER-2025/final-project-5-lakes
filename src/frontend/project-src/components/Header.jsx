@@ -1,4 +1,3 @@
-import React from 'react';
 // imports the website logo from our assets folder
 import websiteLogo from '../assets/websitelogo.png';
 
@@ -11,9 +10,9 @@ function Header() {
        <img src={websiteLogo} alt="Website Logo" className="h-8 w-auto" />
 
        {/* displays the website name next to the logo */}
-       <h3 className="text-blue-600">
+       <p className=" font-bold text-blue-600">
          EasyChart
-       </h3>
+       </p>
      </div>
    </header>
  );

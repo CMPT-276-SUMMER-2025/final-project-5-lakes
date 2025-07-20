@@ -2,7 +2,6 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";      
 import Header from "./components/Header";     
 import Footer from "./components/Footer";     
-import Preview from "./pages/Preview";
 
 const App = () => {
   return (
@@ -13,7 +12,6 @@ const App = () => {
         {/* <Route path="/data-confirm" element={<DataConfirm/>} /> */}
         {/* <Route path="/visual-select" element={<VisualSelect />} /> */}
         {/* <Route path="/edit-save" element={<EditSave />} /> */}
-        <Route path="/preview" element={<Preview />} />
       </Routes>
       <Footer />
     </>
