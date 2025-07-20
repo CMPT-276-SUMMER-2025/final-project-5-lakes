@@ -1,5 +1,6 @@
 // import { Link } from 'react-router-dom';
 import TextInputArea from '../components/TextInputArea';
+import FileUploadArea from '../components/FileUploadArea';
 
 function HomePage() {
   return (
@@ -14,7 +15,10 @@ function HomePage() {
        </p>
      </header>
 
-     <TextInputArea />
+    <div className="w-full max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+       <FileUploadArea />
+       <TextInputArea />
+    </div>
 
    </div>
 
