@@ -4,6 +4,7 @@ const path = require('path');
 const XLSX = require('xlsx');
 const pdfParse = require('pdf-parse'); // For PDF parsing
 const Papa = require('papaparse'); // For CSV parsing
+const prompts = require('./prompts/deepseekPrompts');
 
 // const file = path.join(__dirname, 'excel-test.xlsx');
 // const file = path.join(__dirname, "pdf_test.pdf");
@@ -46,7 +47,7 @@ if (ext === '.csv') {
 
 // Function to send data to DeepSeek API
 async function sendToDeepSeek(query, data) {
-    const prompt = `${query}\n\nHere is the data:\n${JSON.stringify(data, null, 2)}`;
+    prompt = prompts.takeData(query, data);
     const result = await queryDeepSeekV3(prompt);
 }
 // sendToDeepSeek("convert it into format that the QuickChart API accepts for the chart and tell me what kind of chart can be used to chart this data set", data);
