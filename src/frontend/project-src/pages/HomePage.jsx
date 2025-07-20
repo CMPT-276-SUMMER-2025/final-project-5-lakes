@@ -1,5 +1,5 @@
 // import { Link } from 'react-router-dom';
-
+import TextInputArea from '../components/TextInputArea';
 
 function HomePage() {
   return (
@@ -13,7 +13,9 @@ function HomePage() {
          To get started, upload your file or simply write your information below.
        </p>
      </header>
-     
+
+     <TextInputArea />
+
    </div>
 
   );
