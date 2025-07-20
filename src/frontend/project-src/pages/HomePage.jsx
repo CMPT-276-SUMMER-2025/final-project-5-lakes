@@ -1,4 +1,4 @@
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import TextInputArea from '../components/homepage/TextInputArea';
 import FileUploadArea from '../components/homepage/FileUploadArea';
 import { ChevronRight } from 'lucide-react';
@@ -21,10 +21,12 @@ function HomePage() {
        <TextInputArea />
     </div>
 
+    <Link to="/data-confirm">
     <button className="primary-button">
        Go to the next step
        <ChevronRight size={25} className="ml-2" />
     </button>
+    </Link>
 
    </div>
 
