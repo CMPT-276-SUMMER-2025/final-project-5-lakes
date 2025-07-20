@@ -1,6 +1,7 @@
 // import { Link } from 'react-router-dom';
-import TextInputArea from '../components/TextInputArea';
-import FileUploadArea from '../components/FileUploadArea';
+import TextInputArea from '../components/homepage/TextInputArea';
+import FileUploadArea from '../components/homepage/FileUploadArea';
+import { ChevronRight } from 'lucide-react';
 
 function HomePage() {
   return (
@@ -19,6 +20,11 @@ function HomePage() {
        <FileUploadArea />
        <TextInputArea />
     </div>
+
+    <button className="primary-button">
+       Go to the next step
+       <ChevronRight size={25} className="ml-2" />
+    </button>
 
    </div>
 

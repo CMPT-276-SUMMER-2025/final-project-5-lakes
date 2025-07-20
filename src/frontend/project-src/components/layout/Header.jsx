@@ -1,5 +1,5 @@
 // imports the website logo from our assets folder
-import websiteLogo from '../assets/websitelogo.png';
+import websiteLogo from '../../assets/websitelogo.png';
 
 // our main header component that includes the website name and logo
 function Header() {
