@@ -1,7 +1,9 @@
-import { Link } from 'react-router-dom';
 import TextInputArea from '../components/homepage/TextInputArea';
 import FileUploadArea from '../components/homepage/FileUploadArea';
-import { ChevronRight } from 'lucide-react';
+import HomeStepper from '../components/homepage/HomeStepper';
+import { Link } from 'react-router-dom';
+import { ChevronRight, CircleChevronRight } from 'lucide-react';
+
 
 function HomePage() {
   return (
@@ -11,9 +13,10 @@ function HomePage() {
        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
          Welcome to <span className="text-blue-600">EasyChart!</span>
        </h1>
-       <p className="text-lg md:text-xl text-gray-600">
+       <p className="text-lg md:text-xl text-gray-600 mb-6">
          To get started, upload your file or simply write your information below.
        </p>
+       <HomeStepper />
      </header>
 
     <div className="w-full max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
@@ -22,7 +25,7 @@ function HomePage() {
     </div>
 
     <Link to="/data-confirm">
-    <button className="primary-button">
+    <button className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
        Go to the next step
        <ChevronRight size={25} className="ml-2" />
     </button>
