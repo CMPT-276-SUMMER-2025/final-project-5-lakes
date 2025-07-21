@@ -40,4 +40,4 @@ export async function queryDeepSeekV3(prompt) {
   }
 };
 
-// module.exports = {queryDeepSeekV3};
+module.exports = {queryDeepSeekV3};
