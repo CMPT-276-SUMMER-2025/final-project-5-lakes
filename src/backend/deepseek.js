@@ -37,10 +37,4 @@ async function queryDeepSeekV3(prompt) {
   }
 };
 
-// This block runs only when file is run directly from CLI
-if (require.main === module) {
-  const prompt = process.argv.slice(2).join(" ") || "Hello!";
-  queryDeepSeekV3(prompt);
-}
-
 module.exports = {queryDeepSeekV3};
