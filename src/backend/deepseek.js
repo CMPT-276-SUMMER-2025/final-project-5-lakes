@@ -1,12 +1,9 @@
-import dotenv from 'dotenv';
-import fetch from 'node-fetch';
-
-// Load environment variables from .env file
-dotenv.config({ path: "../../.env" });
+require('dotenv').config({ path: "../../.env" });
+const fetch = require("node-fetch");
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-export async function queryDeepSeekV3(prompt) {
+async function queryDeepSeekV3(prompt) {
   try{
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
