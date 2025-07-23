@@ -1,7 +1,7 @@
 import { ChevronRight, Upload, Check, SquareMousePointer, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-function HomeStepper() {
+function EditSaveStepper() {
     return (
         <div className="items-center justify-center space-y-4 mb-8">
             <Link to="/" className="primary-button mb-4 mr-5">
@@ -14,18 +14,18 @@ function HomeStepper() {
                 Confirm Data
                 <ChevronRight size={25} className="ml-2" />
             </Link>
-            <button className="secondary-button mb-4 mr-5">
+            <Link to="/choose-visual" className="primary-button mb-4 mr-5">
                 <SquareMousePointer size={20} className="mr-2" />
                 Choose Visual
                 <ChevronRight size={25} className="ml-2" />
-            </button>
-            <button className="secondary-button mb-4 mr-5">
+            </Link>
+            <Link to="/edit-save" className="primary-button mb-4 mr-5">
                 <Pencil size={20} className="mr-2" />
                 Edit & Save
                 <ChevronRight size={25} className="ml-2" />
-            </button>
+            </Link>
         </div>
     );
 }
 
-export default HomeStepper;
+export default EditSaveStepper;
