@@ -1,12 +1,18 @@
+import { useState } from "react";
 import DataConfirmStepper from "../components/dataconfirm/DataConfirmStepper";
 import EditableTable from "../components/dataconfirm/EditableTable";
 import ViewUpload from "../components/dataconfirm/ViewUpload";
 import AdditionalInfo from "../components/dataconfirm/AdditionalInfo";
 import DataConfirmButtons from "../components/dataconfirm/DataConfirmButtons";
+import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
 
 function DataConfirm() {
+  const [isLoading, setIsLoading] = useState(false);
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
+      <LoadingPopUp show={isLoading} />
+
       <DataConfirmStepper />
       <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
         <div className="flex flex-col md:flex-row gap-8 w-full">
@@ -36,7 +42,7 @@ function DataConfirm() {
           </div>
         </div>
       </div>
-      <DataConfirmButtons />
+      <DataConfirmButtons setIsLoading={setIsLoading} />
     </div>
   );
 }
