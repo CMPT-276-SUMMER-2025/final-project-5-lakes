@@ -69,3 +69,26 @@
   border-bottom: 16px solid transparent;
   border-left: 16px solid #2563eb;
 }
+
+
+/* React Data Grid */
+.rdg {
+  --rdg-background-color: white;
+  --rdg-header-background-color: #f9fafb; /* light gray header */
+  --rdg-row-hover-background-color: #f1f5f9;
+  --rdg-color: #111827; /* text color */
+  --rdg-border-color: #d1d5db; /* light gray borders */
+  font-size: 14px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rdg-cell {
+  border: 1px solid var(--rdg-border-color);
+  padding: 6px 8px;
+}
+
+.rdg-header-cell {
+  font-weight: 600;
+  border: 1px solid var(--rdg-border-color);
+}
