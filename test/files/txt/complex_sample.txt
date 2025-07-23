@@ -1,0 +1,14 @@
+2024 Annual Report - Summary
+
+In the first quarter, the fruit market saw steady growth. The following data was collected:
+
+Table A: Fruit Prices (USD)
+Apple - $1.00
+Banana - $0.80
+Orange - $1.20
+
+Table B: Sales Numbers (Units)
+Week 1: Apple - 100, Banana - 120
+Week 2: Apple - 90, Banana - 150
+
+This data reflects regional trends and may be updated.
