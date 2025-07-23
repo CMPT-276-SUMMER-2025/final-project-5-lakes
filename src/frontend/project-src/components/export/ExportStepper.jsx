@@ -1,7 +1,7 @@
-import { ChevronRight, Upload, Check, SquareMousePointer, Pencil } from 'lucide-react';
+import { ChevronRight, Upload, Check, SquareMousePointer, Pencil, ArrowRightFromLine } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-function EditSaveStepper() {
+function EditChartStepper() {
     return (
         <div className="items-center justify-center space-y-4 mb-8">
             <Link to="/" className="primary-button mb-4 mr-5">
@@ -24,8 +24,12 @@ function EditSaveStepper() {
                 Edit & Save
                 <ChevronRight size={25} className="ml-2" />
             </Link>
+            <button className="primary-button mb-4 mr-5">
+                <ArrowRightFromLine size={20} className="mr-2" />
+                Export Chart
+            </button>
         </div>
     );
 }
 
-export default EditSaveStepper;
+export default EditChartStepper;
