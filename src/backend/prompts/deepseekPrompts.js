@@ -16,12 +16,29 @@ const promptPrefix =
         The following is the actual request:
         `;
 
+const promptExtractStructuredData =
+        `
+        You are given a dataset extracted from a file. Your task is to:
+        1. Identify meaningful variables (e.g. months, categories, values).
+        2. Structure the data into a format compatible with the QuickChart API:
+        {
+        labels: [...],
+        datasets: [
+        {
+                label: "...",
+                data: [...]
+        }
+        ]
+        }
+        Only return the JSON object. Do not include any explanation, formatting, or extra text. Do not wrap it in \`\`\`.
+        `;
+
 const graphRecommendationLogic = ``;
 
 const prompts = {
-    takeData: (query, data) => 
+    feature1: (query, data) => 
         `
-        ${promptPrefix}${query}\n\nHere is the data:\n${JSON.stringify(data, null, 2)}
+        ${promptPrefix}${promptExtractStructuredData}${query}\n\nHere is the data:\n${JSON.stringify(data, null, 2)}
         `
 };
 

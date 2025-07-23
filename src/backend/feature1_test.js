@@ -62,7 +62,7 @@ async function sendToDeepSeek(query, data) {
         console.warn("No data extracted from file.");
         return;
     }
-    const prompt = prompts.takeData(query, data);
+    const prompt = prompts.feature1(query, data);
     const result = await queryDeepSeekV3(prompt);
     console.log(result);
 }
