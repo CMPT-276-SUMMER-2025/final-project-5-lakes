@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config({path: './.env'});
 
 //import the two functions for unit testing
 const { parseFileAndSendToDeepSeek } = require('../feature1.js');
