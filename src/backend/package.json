@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint ."
+  },
   "dependencies": {
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
@@ -6,7 +10,11 @@
     "node-fetch": "^2.7.0",
     "papaparse": "^5.5.3",
     "pdf-parse": "^1.1.1",
-    "url": "^0.11.4",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "mammoth": "^1.9.1",
+    "url": "^0.11.4"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
   }
 }
