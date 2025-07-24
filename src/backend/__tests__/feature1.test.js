@@ -1,5 +1,4 @@
 require('dotenv').config();
-console.log(process.env.OPENROUTER_API_KEY);
 
 //import the two functions for unit testing
 const { parseFileAndSendToDeepSeek } = require('../feature1.js');

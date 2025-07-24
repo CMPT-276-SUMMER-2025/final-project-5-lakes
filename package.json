@@ -2,8 +2,5 @@
   "scripts": {
     "build": "npm --prefix frontend build",
     "test": "npm --prefix backend test"
-  },
-  "devDependencies": {
-    "jest": "^29.0.0"
   }
 }
