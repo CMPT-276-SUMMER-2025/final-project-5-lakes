@@ -27,7 +27,7 @@ async function queryDeepSeekV3(prompt) {
     const data = await response.json();
     if(data.choices && data.choices[0]){
       console.log("Raw API response data: ", data.choices[0].message.content);
-      console.log(JSON.parse(data.choices[0].message.content));
+      // console.log(JSON.parse(data.choices[0].message.content));
     }
     else{
       console.error("Unexpected/empty response: ", data);

@@ -1,4 +1,4 @@
-const { queryDeepSeekV3 } = require('./deepseek');
+const { queryDeepSeekV3 } = require('./deepseek.js');
 const fs = require('fs');
 const path = require('path');
 const pdfParse = require('pdf-parse'); // For PDF parsing
