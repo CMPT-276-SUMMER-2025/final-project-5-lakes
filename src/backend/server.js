@@ -5,7 +5,9 @@ const path = require('path');
 const Papa = require('papaparse'); // For CSV parsing
 const XLSX = require('xlsx'); // For Excel parsing
 const pdfParse = require('pdf-parse'); // For PDF parsing
+const mammoth = require('mammoth'); // For DOCX parsing
 const { queryDeepSeekV3 } = require('./deepseek');
+const prompts = require('./prompts/deepseekPrompts');
 
 
 const app = express();
@@ -46,6 +48,11 @@ app.post('/upload', upload.single('file'), async (req, res) => {
             const pdfContent = fs.readFileSync(file.path);
             const pdfText = await pdfParse(pdfContent);
             data = pdfText.text.split('\n');
+        } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+            // Parse DOCX
+            const docxBuffer = fs.readFileSync(file.path);
+            const docxText = await mammoth.extractRawText({ buffer: docxBuffer });
+            data = docxText.value.split('\n');
         } else if (file.mimetype === 'text/plain') {
             // Parse plain text
             const txtContent = fs.readFileSync(file.path, 'utf8');
@@ -62,12 +69,24 @@ app.post('/upload', upload.single('file'), async (req, res) => {
             summary: JSON.parse(summaryInsights),
         });  // Send back processed data or insights
     } catch (error) {
+        console.error('Error processing file:', error); //Log for backend view
         res.status(500).send('Error processing the file.');
     } finally {
         // Clean up uploaded file
         fs.unlinkSync(file.path);
     }
 });
+
+// Function to send data to DeepSeek API
+async function sendToDeepSeek(query, data) {
+    if (!data || data.length === 0) {
+        console.warn("No data extracted from file.");
+        return;
+    }
+    const prompt = prompts.feature1(query, data);
+    const result = await queryDeepSeekV3(prompt);
+    console.log(result);
+}
 
 // Start the server
 app.listen(3000, () => {

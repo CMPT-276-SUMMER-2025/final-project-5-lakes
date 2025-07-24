@@ -1,58 +1,75 @@
 const { queryDeepSeekV3 } = require('./deepseek.js');
 const fs = require('fs');
 const path = require('path');
-const XLSX = require('xlsx');
 const pdfParse = require('pdf-parse'); // For PDF parsing
+const XLSX = require('xlsx'); // For Excel parsing
 const Papa = require('papaparse'); // For CSV parsing
+const mammoth = require('mammoth'); // For Docx parsing
 const prompts = require('./prompts/deepseekPrompts');
 
-// const file = path.join(__dirname, 'excel-test.xlsx');
-// const file = path.join(__dirname, "pdf_test.pdf");
-// const file = path.join(__dirname, 'csv-test.csv');
-const file = path.join(__dirname, "txt-test.txt");
+//Feature 1
+async function parseFileAndSendToDeepSeek(file, query){
+    //Set the file to read/test
+    const ext = path.extname(file).toLowerCase();
 
-const ext = path.extname(file).toLowerCase();
+    let data = [];
 
-let isPDF = false;
+    // Parse based on file type
+    try{
+        if (ext === '.csv') {
+            // Parse CSV
+            const csvContent = fs.readFileSync(file, 'utf8');
+            const parsedCsv = Papa.parse(csvContent, { header: true });
+            data = parsedCsv.data;
 
-let data = [];
-// Parse based on file type
-if (ext === '.csv') {
-    // Parse CSV
-    const csvContent = fs.readFileSync(file, 'utf8');
-    const parsedCsv = Papa.parse(csvContent, { header: true });
-    data = parsedCsv.data;
-} else if (ext === '.xlsx') {
-    // Parse Excel
-    const workbook = XLSX.readFile(file);
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    data = XLSX.utils.sheet_to_json(sheet);
-} else if (ext === '.pdf') {
-    // Parse PDF
-    const pdfContent = fs.readFileSync(file);
-    isPDF = true;
-    (async () => {
-        const pdfText = await pdfParse(pdfContent);
-        data = pdfText.text.split('\n');
-        sendToDeepSeek("Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response", data);
-    })();
-} else if (ext === '.txt') {
-    // Parse plain text
-    const txtContent = fs.readFileSync(file, 'utf8');
-    data = txtContent.split('\n');
-} else {
-    console.error("Unsupported file type.");
-    process.exit(1);
+        } else if (ext === '.xlsx') {
+            // Parse Excel
+            const workbook = XLSX.readFile(file);
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            data = XLSX.utils.sheet_to_json(sheet);
+
+        } else if (ext === '.pdf') {
+            // Parse PDF
+            const pdfContent = fs.readFileSync(file);
+            const pdfText = await pdfParse(pdfContent);
+            data = pdfText.text.split('\n');
+
+        } else if (ext == '.docx') {
+            //parse DOCX
+            const docxBuffer = fs.readFileSync(file);
+            const result = await mammoth.extractRawText({ buffer: docxBuffer });
+            data = result.value.split('\n');
+
+        } else if (ext === '.txt') {
+            // Parse plain text
+            const txtContent = fs.readFileSync(file, 'utf8');
+            data = txtContent.split('\n');
+
+        } else {
+            throw new Error(`Unsupported file type: ${ext}`);
+            process.exit(1);
+        }
+
+        console.log(await sendToDeepSeek(query, data));
+
+    } catch (error) {
+        console.error("Error processing file:", error);
+    }
 }
 
 // Function to send data to DeepSeek API
 async function sendToDeepSeek(query, data) {
-    prompt = prompts.takeData(query, data);
-    const result = await queryDeepSeekV3(prompt);
+    if (!data || data.length === 0) {
+        console.warn("No data extracted from file.");
+        return;
+    }
+    const prompt1 = prompts.feature1(query, data);
+    const result1 = await queryDeepSeekV3(prompt1)
+    const prompt2 = prompts.feature2(query, result1)
+    const result2 = await queryDeepSeekV3(prompt2);
+    return ("");
 }
-// sendToDeepSeek("convert it into format that the QuickChart API accepts for the chart and tell me what kind of chart can be used to chart this data set", data);
 
-if (!isPDF) {
-    // sendToDeepSeek("Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response", data);
-    sendToDeepSeek("Extract the info from this txt file and Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response", data);
-}
+parseFileAndSendToDeepSeek("test/files/pdf/complex_sample.pdf", "");
+
+module.exports = {parseFileAndSendToDeepSeek};

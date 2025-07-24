@@ -1,16 +1,18 @@
-require('dotenv').config({ path: "../../.env" });
-const fetch = require("node-fetch");
+require('dotenv').config();
 
+//API key linking to the DeekSeek Model
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 async function queryDeepSeekV3(prompt) {
   try{
+    //get response from OpenRouter, after reponse run API key
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
       },
+      //base DeepSeek configuration
       body: JSON.stringify({
         model: "deepseek/deepseek-chat-v3-0324:free",
         messages: [{ role: "user", content: prompt }],
@@ -21,6 +23,7 @@ async function queryDeepSeekV3(prompt) {
       }),
     });
 
+    //get/check API returns
     const data = await response.json();
     if(data.choices && data.choices[0]){
       console.log("Raw API response data: ", data.choices[0].message.content);
