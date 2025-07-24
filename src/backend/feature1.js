@@ -63,6 +63,4 @@ async function parseFileAndSendToDeepSeek(file, query){
     }
 }
 
-parseFileAndSendToDeepSeek("src/backend/__tests__/files/pdf/complex_sample.pdf", "");
-
 module.exports = {parseFileAndSendToDeepSeek};
