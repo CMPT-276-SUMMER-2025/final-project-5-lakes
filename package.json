@@ -1,13 +1,6 @@
 {
-  "dependencies": {
-    "dotenv": "^17.2.0",
-    "mammoth": "^1.9.1",
-    "node-fetch": "^3.3.2",
-    "papaparse": "^5.5.3",
-    "pdf-parse": "^1.1.1",
-    "xlsx": "^0.18.5"
-  },
-  "devDependencies": {
-    "jest": "^30.0.5"
+  "scripts": {
+    "start": "npm --prefix backend start",
+    "test": "npm --prefix backend test"
   }
 }
