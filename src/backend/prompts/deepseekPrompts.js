@@ -85,6 +85,8 @@ const graphRecommendationLogic =
         ]
         `;
 
+const summaryQuery = "Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):";
+
 const prompts = {
         feature1: (query, data) => 
         `

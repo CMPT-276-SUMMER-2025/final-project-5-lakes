@@ -37,7 +37,7 @@ function HomePage() {
 
     // replace with real backend
     /***************************/
-    fetch('/api/submit', {
+    fetch('http://localhost:3000/file-submit', {
       method: 'POST',
       body: formData,
     })
@@ -47,10 +47,10 @@ function HomePage() {
       if (!response.ok) {
         throw new Error('error sending info');
       }
-      return response.text();
+      return response.json();
     })
     .then((data) => {
-      navigate('/data-confirm');
+      navigate('/data-confirm', { state: data });
     })
   };
 

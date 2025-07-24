@@ -7,11 +7,16 @@ const XLSX = require('xlsx'); // For Excel parsing
 const pdfParse = require('pdf-parse'); // For PDF parsing
 const mammoth = require('mammoth'); // For DOCX parsing
 const { queryDeepSeekV3 } = require('./deepseek');
-const prompts = require('./prompts/deepseekPrompts');
+const { prompts, summaryQuery } = require('./prompts/deepseekPrompts');
+const cors = require('cors');
 
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+}));
 
 // Function to send data to DeepSeek API
 async function sendToDeepSeek(query, data) {
@@ -21,21 +26,43 @@ async function sendToDeepSeek(query, data) {
 }
 
 // File upload endpoint
-app.post('/upload', upload.single('file'), async (req, res) => {
-    const file = req.file;
-    const query = req.body.query;
-    const summaryQuery = "Extract the info from this txt file and Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response";
+app.post('/file-submit', upload.array('files'), async (req, res) => {
+    const files = req.files;
+    const text = req.body.text;
 
-    if (!file) {
-        return res.status(400).send('No file uploaded.');
+    // Handle text input if no files are uploaded
+    if (!files || files.length === 0) {
+        if (!text || text.trim() === '') {
+            return res.status(400).send('No file or text provided.');
+        }
+        
+        try {
+            // Process text input
+            const textData = text.split('\n').filter(line => line.trim() !== '');
+            const analysisResponse = await sendToDeepSeek(prompts.feature1("Analyze and structure this text data", textData));
+            // const summaryInsights = await sendToDeepSeek("Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):" + JSON.stringify(textData));
+            
+            return res.json({
+                analysis: JSON.parse(analysisResponse),
+                summary: JSON.parse(summaryInsights),
+            });
+        } catch (error) {
+            console.error('Error processing text:', error);
+            return res.status(500).send('Error processing the text.');
+        }
     }
 
+    let filePath = null;
     try {
         let data = [];
+        const file = files[0]; // Process first file for 
+        console.log("This is the file: ", file);
+        filePath = file.path; // Store for cleanup
+        console.log("This is the file path: ", filePath);
         // Parse based on file type
         if (file.mimetype === 'text/csv') {
             // Parse CSV
-            const csvContent = fs.readFileSync(file.path, 'utf8');
+            const csvContent = fs.readFileSync(filePath, 'utf8');
             const parsedCsv = Papa.parse(csvContent, { header: true });
             data = parsedCsv.data;
         } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
@@ -62,18 +89,18 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         }
 
         // Send parsed data to DeepSeek API for further analysis
-        const analysisResponse = await sendToDeepSeek(query, data);
-        const summaryInsights = await sendToDeepSeek(summaryQuery, data);
+        const analysisResponse = await sendToDeepSeek(prompts.extractStructuredData, data);
         res.json({
             analysis: JSON.parse(analysisResponse),
-            summary: JSON.parse(summaryInsights),
         });  // Send back processed data or insights
     } catch (error) {
         console.error('Error processing file:', error); //Log for backend view
         res.status(500).send('Error processing the file.');
     } finally {
         // Clean up uploaded file
-        fs.unlinkSync(file.path);
+        if (filePath && fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
     }
 });
 
