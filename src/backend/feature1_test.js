@@ -70,6 +70,6 @@ async function sendToDeepSeek(query, data) {
     return ("");
 }
 
-parseFileAndSendToDeepSeek("test/files/docx/complex_sample.docx", "");
+parseFileAndSendToDeepSeek("test/files/pdf/complex_sample.pdf", "");
 
 module.exports = {parseFileAndSendToDeepSeek};

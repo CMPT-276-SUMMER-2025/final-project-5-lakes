@@ -97,4 +97,4 @@ const prompts = {
         `
 };
 
-module.exports = prompts;
+module.exports = {prompts};
