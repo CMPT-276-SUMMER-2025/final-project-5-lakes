@@ -13,10 +13,18 @@ const prompts = require('./prompts/deepseekPrompts');
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
+// Function to send data to DeepSeek API
+async function sendToDeepSeek(query, data) {
+    const prompt = `${query}\n\nHere is the data:\n${JSON.stringify(data, null, 2)}`;
+    const result = await queryDeepSeekV3(prompt);
+    return result;
+}
+
 // File upload endpoint
 app.post('/upload', upload.single('file'), async (req, res) => {
     const file = req.file;
     const query = req.body.query;
+    const summaryQuery = "Extract the info from this txt file and Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response";
 
     if (!file) {
         return res.status(400).send('No file uploaded.');
@@ -55,7 +63,11 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
         // Send parsed data to DeepSeek API for further analysis
         const analysisResponse = await sendToDeepSeek(query, data);
-        res.json(analysisResponse);  // Send back processed data or insights
+        const summaryInsights = await sendToDeepSeek(summaryQuery, data);
+        res.json({
+            analysis: JSON.parse(analysisResponse),
+            summary: JSON.parse(summaryInsights),
+        });  // Send back processed data or insights
     } catch (error) {
         console.error('Error processing file:', error); //Log for backend view
         res.status(500).send('Error processing the file.');

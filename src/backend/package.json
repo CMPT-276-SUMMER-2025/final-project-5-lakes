@@ -11,7 +11,8 @@
     "papaparse": "^5.5.3",
     "pdf-parse": "^1.1.1",
     "xlsx": "^0.18.5",
-    "mammoth": "^1.9.1"
+    "mammoth": "^1.9.1",
+    "url": "^0.11.4"
   },
   "devDependencies": {
     "jest": "^29.0.0"
