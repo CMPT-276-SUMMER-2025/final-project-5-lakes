@@ -32,3 +32,8 @@ jobs:
     - name: Install backend dependencies
       working-directory: ./src/backend
       run: npm install
+
+    # Run backend tests
+    - name: Run backend tests
+      working-directory: ./src/backend
+      run: npm test
