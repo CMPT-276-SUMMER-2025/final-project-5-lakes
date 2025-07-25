@@ -1,12 +1,15 @@
-import { CloudUpload, Paperclip } from 'lucide-react';
+import { CloudUpload, Paperclip, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 
-function FileUploadArea() {
+function FileUploadArea({setFiles }) {
 
   const [isDragOver, setIsDragOver] = useState(false);
 
+  const [hasUploaded, setHasUploaded] = useState(false);
+
   const handleDragEnter = (event) => {
     event.preventDefault();
+    console.log('[FileUploadArea] Drag enter correct');
     setIsDragOver(true);
   };
 
@@ -23,15 +26,21 @@ function FileUploadArea() {
     event.preventDefault();
     setIsDragOver(false);
 
-    // "files" is a FileList object for accessing the files
-    const files = event.dataTransfer.files;
+    
+    const droppedFiles = Array.from(event.dataTransfer.files);
+    console.log('[FileUploadArea] dropped files:', droppedFiles);
+    setFiles(droppedFiles);
 
-    // you could write how the files should be handled here
-    // we could maybe verify some things here (like check to make
-    // sure it is one of the types we accept) and then you could
-    // save it or upload it where needed
+    setHasUploaded(true);
   };
-  
+
+  const handleFileSelect = (event) => {
+  const selectedFiles = Array.from(event.target.files); 
+  console.log("Selected files:", selectedFiles);
+  setFiles(selectedFiles);
+
+  setHasUploaded(true);
+};
 
   const dragHandlers = {
     onDragEnter: handleDragEnter,
@@ -59,9 +68,18 @@ function FileUploadArea() {
 
      <CloudUpload className="w-16 h-16 text-black-600 mb-6" />
 
-     <button className="white-base-button">
-       Choose file to upload
-     </button>
+     <input
+        type="file"
+        name="files"
+        multiple
+        style={{ display: 'none' }}
+        onChange={handleFileSelect}
+        id="hidden-file-input"
+      />
+
+     <label htmlFor="hidden-file-input" className="white-base-button">
+      Choose file to upload
+    </label>
 
      <p className="text-gray-600 text-lg mb-4 font-sans mb-2">
         Or drag and drop it here
@@ -70,6 +88,13 @@ function FileUploadArea() {
      <p className="text-sm text-gray-400">
        Accepted formats: PDF, DOC, XLS, CSV, JPEG, PNG
      </p>
+
+     {hasUploaded && (
+        <div className="flex items-center mt-4 text-green-600">
+          <CheckCircle className="w-5 h-5 mr-2" />
+          <span className="text-sm font-medium">File uploaded</span>
+        </div>
+      )}
      
    </div>
  );

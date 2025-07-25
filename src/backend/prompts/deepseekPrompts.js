@@ -38,7 +38,7 @@ const promptExtractStructuredData =
                 }
         }
 
-        Return all structured datasets as a JSON array of arrays - each inner array is one group of data set:
+        Return all structured datasets as a JSON array of objects - each object is one group of data set:
         [
                 [ {"type": ..., "data": { ... }} ],
                 [ {"type": ..., "data": { ... }} ]
@@ -84,6 +84,8 @@ const graphRecommendationLogic =
                 ["Line", "Point", "Exponential Smoothing"]
         ]
         `;
+
+const summaryQuery = "Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):";
 
 const prompts = {
         feature1: (query, data) => 
