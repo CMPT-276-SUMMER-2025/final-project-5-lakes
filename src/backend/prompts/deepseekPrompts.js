@@ -38,7 +38,7 @@ const promptExtractStructuredData =
                 }
         }
 
-        Return all structured datasets as a JSON array of arrays - each inner array is one group of data set:
+        Return all structured datasets as a JSON array of objects - each object is one group of data set:
         [
                 [ {"type": ..., "data": { ... }} ],
                 [ {"type": ..., "data": { ... }} ]
