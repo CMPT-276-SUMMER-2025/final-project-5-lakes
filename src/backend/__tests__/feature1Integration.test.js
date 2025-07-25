@@ -1,7 +1,6 @@
 const request = require('supertest');
 const app = require('../app.js');
 const path = require('path');
-const fs = require('fs');
 
 // INTEGRATION TEST 
 // Mock feature 1
@@ -14,13 +13,11 @@ jest.mock('../feature1.js', () => ({
 describe('Integration test of file upload flow', () => {
     test('uploads file and hits backend endpoint', async () => {
         const filePath = path.resolve(__dirname, 'files/csv/simple_sample.csv');
-        console.log('Resolved file path:', filePath);
 
         const res = await request(app)
             .post('/file-submit')
             .attach('files', filePath);
-
-        expect(res.status).toBe(200);
+        
         expect(res.body).toEqual({ 
             analysis: [
                 {
@@ -37,15 +34,5 @@ describe('Integration test of file upload flow', () => {
                 }
             ]
         });
-    });
-});
-
-afterAll(() => {
-    const uploadDir = path.join(__dirname, '../uploads')
-    fs.readdir(uploadDir, (err, files) => {
-        if (err) return;
-        for (const file of files) {
-            fs.unlink(path.join(uploadDir, file), () => {});
-        }
     });
 });

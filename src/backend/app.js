@@ -30,9 +30,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             const textData = text.split('\n').filter(line => line.trim() !== '');
             const result = await queryDeepSeekV3(prompts.feature1("", textData));
             
-            return res.json({
-                analysis: JSON.parse(result),
-            });
+            return res.json(result);
         } catch (error) {
             console.error('Error processing text:', error);
             return res.status(500).send('Error processing the text.');
@@ -43,9 +41,9 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     try {
         const file = files[0]; // Process first file uploaded
         const result = await parseFileAndSendToDeepSeek (file, '');
-        res.json(result);
+        return res.json(result);
     } catch (error) {
-        res.status(500).send('Failed to process file.');
+        return res.status(500).send('Failed to process file.');
     }
 });
 
