@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import DataConfirmStepper from "../components/dataconfirm/DataConfirmStepper";
 import EditableTable from "../components/dataconfirm/EditableTable";
 import ViewUpload from "../components/dataconfirm/ViewUpload";
@@ -7,6 +8,10 @@ import DataConfirmButtons from "../components/dataconfirm/DataConfirmButtons";
 import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
 
 function DataConfirm() {
+  const location = useLocation();
+  console.log(location);
+  const { analysis, summary } = location.state || {}; // get passed data
+
   const [isLoading, setIsLoading] = useState(false);
 
   return (

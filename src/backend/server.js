@@ -7,35 +7,65 @@ const XLSX = require('xlsx'); // For Excel parsing
 const pdfParse = require('pdf-parse'); // For PDF parsing
 const mammoth = require('mammoth'); // For DOCX parsing
 const { queryDeepSeekV3 } = require('./deepseek');
-const prompts = require('./prompts/deepseekPrompts');
+const { prompts, summaryQuery } = require('./prompts/deepseekPrompts');
+const cors = require('cors');
 
 
 const app = express();
 const upload = multer({ dest: 'uploads/' });
 
+app.use(cors({
+    origin: 'http://localhost:5173',
+}));
+
 // Function to send data to DeepSeek API
 async function sendToDeepSeek(query, data) {
-    const prompt = `${query}\n\nHere is the data:\n${JSON.stringify(data, null, 2)}`;
+    if (!data || data.length === 0) {
+        console.warn("No data extracted from file.");
+        return null;
+    }
+    const prompt = prompts.feature1(query, data);
     const result = await queryDeepSeekV3(prompt);
-    return result;
+    console.log("Raw API response data:", result);
+    return result; // ← This was missing!
 }
 
-// File upload endpoint
-app.post('/upload', upload.single('file'), async (req, res) => {
-    const file = req.file;
-    const query = req.body.query;
-    const summaryQuery = "Extract the info from this txt file and Just give me the QuickChart API configuration of this data, dont give my anything else at all, give it to me in the JSON format so I can convert it into json. remove ```json ``` from your response";
 
-    if (!file) {
-        return res.status(400).send('No file uploaded.');
+// File upload endpoint
+app.post('/file-submit', upload.array('files'), async (req, res) => {
+    const files = req.files;
+    const text = req.body.text;
+
+    // Handle text input if no files are uploaded
+    if (!files || files.length === 0) {
+        if (!text || text.trim() === '') {
+            return res.status(400).send('No file or text provided.');
+        }
+        
+        try {
+            // Process text input
+            const textData = text.split('\n').filter(line => line.trim() !== '');
+            const analysisResponse = await sendToDeepSeek(prompts.feature1("", textData), textData);
+            // const summaryInsights = await sendToDeepSeek("Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):" + JSON.stringify(textData));
+            
+            return res.json({
+                analysis: JSON.parse(analysisResponse),
+            });
+        } catch (error) {
+            console.error('Error processing text:', error);
+            return res.status(500).send('Error processing the text.');
+        }
     }
 
+    let filePath = null;
     try {
         let data = [];
+        const file = files[0]; // Process first file for 
+        filePath = file.path; // Store for cleanup
         // Parse based on file type
         if (file.mimetype === 'text/csv') {
             // Parse CSV
-            const csvContent = fs.readFileSync(file.path, 'utf8');
+            const csvContent = fs.readFileSync(filePath, 'utf8');
             const parsedCsv = Papa.parse(csvContent, { header: true });
             data = parsedCsv.data;
         } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
@@ -62,31 +92,21 @@ app.post('/upload', upload.single('file'), async (req, res) => {
         }
 
         // Send parsed data to DeepSeek API for further analysis
-        const analysisResponse = await sendToDeepSeek(query, data);
-        const summaryInsights = await sendToDeepSeek(summaryQuery, data);
+        const analysisResponse = await sendToDeepSeek(prompts.feature1("", data), data);
         res.json({
             analysis: JSON.parse(analysisResponse),
-            summary: JSON.parse(summaryInsights),
         });  // Send back processed data or insights
     } catch (error) {
         console.error('Error processing file:', error); //Log for backend view
         res.status(500).send('Error processing the file.');
     } finally {
         // Clean up uploaded file
-        fs.unlinkSync(file.path);
+        if (filePath && fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
     }
 });
 
-// Function to send data to DeepSeek API
-async function sendToDeepSeek(query, data) {
-    if (!data || data.length === 0) {
-        console.warn("No data extracted from file.");
-        return;
-    }
-    const prompt = prompts.feature1(query, data);
-    const result = await queryDeepSeekV3(prompt);
-    console.log(result);
-}
 
 // Start the server
 app.listen(3000, () => {
