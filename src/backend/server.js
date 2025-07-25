@@ -36,7 +36,8 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 
     try {
         const file = files[0]; // Process first file
-        const result = await parseFileAndSendToDeepSeek (file, '');
+        let result = await parseFileAndSendToDeepSeek(file, '');
+        result.file = file;
         res.json(result);
     } catch (error) {
         res.status(500).send('Failed to process file.');
