@@ -10,7 +10,7 @@ import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
 function DataConfirm() {
   const location = useLocation();
   console.log(location);
-  const { analysis, summary } = location.state || {}; // get passed data
+  const { analysis, file } = location.state || {}; // get passed data
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,7 +40,7 @@ function DataConfirm() {
                 <p className="text-md text-gray-600 text-center mb-10">
                   Review your uploaded files and make any necessary adjustments before proceeding to the next step.
                 </p>
-                <ViewUpload />
+                <ViewUpload fileName={file.originalname} fileSize={file.size} />
                 <AdditionalInfo />
               </div>
             </div>

@@ -12,7 +12,6 @@ const cors = require('cors');
 
 
 const app = express();
-const upload = multer({ dest: 'uploads/' });
 
 app.use(cors({
     origin: 'http://localhost:5173',
@@ -30,6 +29,10 @@ async function sendToDeepSeek(query, data) {
     return result; // ← This was missing!
 }
 
+// Utility function to convert bytes to MB
+function bytesToMB(bytes) {
+    return (bytes / (1024 * 1024)).toFixed(2);
+}
 
 // File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
@@ -70,22 +73,22 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             data = parsedCsv.data;
         } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
             // Parse Excel
-            const workbook = XLSX.readFile(file.path);
+            const workbook = XLSX.readFile(filePath);
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             data = XLSX.utils.sheet_to_json(sheet);
         } else if (file.mimetype === 'application/pdf') {
             // Parse PDF
-            const pdfContent = fs.readFileSync(file.path);
+            const pdfContent = fs.readFileSync(filePath);
             const pdfText = await pdfParse(pdfContent);
             data = pdfText.text.split('\n');
         } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
             // Parse DOCX
-            const docxBuffer = fs.readFileSync(file.path);
+            const docxBuffer = fs.readFileSync(filePath);
             const docxText = await mammoth.extractRawText({ buffer: docxBuffer });
             data = docxText.value.split('\n');
         } else if (file.mimetype === 'text/plain') {
             // Parse plain text
-            const txtContent = fs.readFileSync(file.path, 'utf8');
+            const txtContent = fs.readFileSync(filePath, 'utf8');
             data = txtContent.split('\n');
         } else {
             return res.status(400).send('Unsupported file type.');
@@ -95,6 +98,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         const analysisResponse = await sendToDeepSeek(prompts.feature1("", data), data);
         res.json({
             analysis: JSON.parse(analysisResponse),
+            file: file,
         });  // Send back processed data or insights
     } catch (error) {
         console.error('Error processing file:', error); //Log for backend view
