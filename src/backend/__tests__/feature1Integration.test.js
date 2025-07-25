@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../server.js');
+const app = require('../app.js');
 const path = require('path');
 const fs = require('fs');
 
@@ -14,10 +14,7 @@ jest.mock('../feature1.js', () => ({
 describe('Integration test of file upload flow', () => {
     test('uploads file and hits backend endpoint', async () => {
         const filePath = path.resolve(__dirname, 'files/csv/simple_sample.csv');
-
-        if (!fs.existsSync(filePath)) {
-            throw new Error(`Test file not found: ${filePath}`);
-        }
+        console.log('Resolved file path:', filePath);
 
         const res = await request(app)
             .post('/file-submit')
