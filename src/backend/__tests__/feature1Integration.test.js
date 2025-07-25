@@ -5,8 +5,8 @@ const path = require('path');
 // INTEGRATION TEST 
 // Mock feature 1
 jest.mock('../feature1.js', () => ({
-    parseFileAndSendToDeepSeek: jest.fn((req,res) => {
-        return res.status(200).json({ message: 'Mocked feature 1 called'});
+    parseFileAndSendToDeepSeek: jest.fn(() => {
+        return Promise.resolve({analysis: [{type: 'bar', data: {labels: ['A'], datasets: [{label: 'Value', data: [10]}] } }] });
     })
 }));
 
@@ -16,9 +16,13 @@ describe('Integration test of file upload flow', () => {
 
         const res = await request(app)
             .post('/file-submit')
-            .attach('uploads', filePath);
+            .attach('files', filePath);
 
         expect(res.status).toBe(200);
         expect(res.body).toEqual({ message: 'Mocked feature handler called' });
     });
+});
+
+afterAll(() => {
+  // close timers, intervals, DBs, etc. if any
 });

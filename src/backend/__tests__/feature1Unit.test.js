@@ -38,12 +38,12 @@ describe('parseFileAndSendToDeepSeek', () => {
             datasets: [
               {
                 label: 'Value',
-                data: [10],
-              },
-            ],
-          },
-        },
-      ],
+                data: [10]
+              }
+            ]
+          }
+        }
+      ]
     });
   });  
 
@@ -64,12 +64,12 @@ describe('parseFileAndSendToDeepSeek', () => {
             datasets: [
               {
                 label: 'Value',
-                data: [10],
-              },
-            ],
-          },
-        },
-      ],
+                data: [10]
+              }
+            ]
+          }
+        }
+      ]
     });
   });
 
@@ -90,12 +90,12 @@ describe('parseFileAndSendToDeepSeek', () => {
             datasets: [
               {
                 label: 'Value',
-                data: [10],
-              },
-            ],
-          },
-        },
-      ],
+                data: [10]
+              }
+            ]
+          }
+        }
+      ]
     });
   });
 
@@ -116,12 +116,12 @@ describe('parseFileAndSendToDeepSeek', () => {
             datasets: [
               {
                 label: 'Value',
-                data: [10],
-              },
-            ],
-          },
-        },
-      ],
+                data: [10]
+              }
+            ]
+          }
+        }
+      ]
     });
   });
 
@@ -142,12 +142,12 @@ describe('parseFileAndSendToDeepSeek', () => {
             datasets: [
               {
                 label: 'Value',
-                data: [10],
-              },
-            ],
-          },
-        },
-      ],
+                data: [10]
+              }
+            ]
+          }
+        }
+      ]
     });
   });
 });
