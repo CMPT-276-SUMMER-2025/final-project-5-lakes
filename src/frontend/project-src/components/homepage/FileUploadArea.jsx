@@ -1,9 +1,11 @@
-import { CloudUpload, Paperclip } from 'lucide-react';
+import { CloudUpload, Paperclip, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 
 function FileUploadArea({setFiles }) {
 
   const [isDragOver, setIsDragOver] = useState(false);
+
+  const [hasUploaded, setHasUploaded] = useState(false);
 
   const handleDragEnter = (event) => {
     event.preventDefault();
@@ -28,12 +30,16 @@ function FileUploadArea({setFiles }) {
     const droppedFiles = Array.from(event.dataTransfer.files);
     console.log('[FileUploadArea] dropped files:', droppedFiles);
     setFiles(droppedFiles);
+
+    setHasUploaded(true);
   };
 
   const handleFileSelect = (event) => {
   const selectedFiles = Array.from(event.target.files); 
   console.log("Selected files:", selectedFiles);
   setFiles(selectedFiles);
+
+  setHasUploaded(true);
 };
 
   const dragHandlers = {
@@ -82,6 +88,13 @@ function FileUploadArea({setFiles }) {
      <p className="text-sm text-gray-400">
        Accepted formats: PDF, DOC, XLS, CSV, JPEG, PNG
      </p>
+
+     {hasUploaded && (
+        <div className="flex items-center mt-4 text-green-600">
+          <CheckCircle className="w-5 h-5 mr-2" />
+          <span className="text-sm font-medium">File uploaded</span>
+        </div>
+      )}
      
    </div>
  );
