@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 
 //import the two functions for unit testing
 const { parseFileAndSendToDeepSeek } = require('../feature1.js');
@@ -14,7 +15,7 @@ describe('parseFileAndSendToDeepSeek', () => {
     // Example test mock file
     const mockFile = {
       mimetype: 'text/csv',
-      path: 'src/backend/__tests__/files/csv/simple_sample.csv'
+      path: path.resolve(__dirname, 'files/csv/simple_sample.csv')
     };
 
     //example query to pass the function
@@ -34,7 +35,7 @@ describe('parseFileAndSendToDeepSeek', () => {
   test('parses XLSX and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      path: 'src/backend/__tests__/files/csv/simple_sample.xlsx'
+      path: path.resolve(__dirname,'files/xlsx/simple_sample.xlsx')
     };    
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
@@ -45,7 +46,7 @@ describe('parseFileAndSendToDeepSeek', () => {
   test('parses PDF and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'application/pdf',
-      path: 'src/backend/__tests__/files/csv/simple_sample.pdf'
+      path: path.resolve(__dirname, 'files/pdf/simple_sample.pdf')
     };    
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
@@ -56,7 +57,7 @@ describe('parseFileAndSendToDeepSeek', () => {
   test('parses DOCX and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      path: 'src/backend/__tests__/files/csv/simple_sample.docx'
+      path: path.resolve(__dirname, 'files/docx/simple_sample.docx')
     };    
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
@@ -67,7 +68,7 @@ describe('parseFileAndSendToDeepSeek', () => {
   test('parses TXT and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'text/plain',
-      path: 'src/backend/__tests__/files/csv/simple_sample.txt'
+      path: path.resolve(__dirname, 'files/txt/simple_sample.txt')
     };    
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
