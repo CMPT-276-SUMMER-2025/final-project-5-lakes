@@ -56,11 +56,11 @@ function VisualSelect() {
           ))}
         </div>
 
-        {/* <div className="w-full max-w-6xl mt-6 mb-6 text-left">
+        <div className="w-full max-w-6xl mt-6 mb-6 text-left">
            <h3 className="text-lg font-semibold">Summary</h3>
-           {summary && summary[0] && Array.isArray(summary[0]) ? (
+           {summary && summary[0] ? (
              <ul className="text-gray-600 text-lg space-y-2 mt-2">
-               {summary[0].map((item, index) => (
+               {summary.map((item, index) => (
                  <li key={index} className="flex items-start">
                    <span className="text-blue-600 mr-3 mt-1">•</span>
                    <span>{item}</span>
@@ -74,7 +74,7 @@ function VisualSelect() {
            )}
          </div>
 
-        <div className="w-full max-w-6xl mt-6 mb-6 text-left">
+        {/* <div className="w-full max-w-6xl mt-6 mb-6 text-left">
           <p className="text-gray-600 text-lg line-clamp-3">
             {graphRecommendation[0] || 'No recommendation available'}
           </p>
