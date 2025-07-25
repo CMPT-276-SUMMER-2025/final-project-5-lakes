@@ -50,26 +50,17 @@ async function parseFileAndSendToDeepSeek(file, query){
             process.exit(1);
         }
 
-        console.log(await sendToDeepSeek(query, data));
+        if (!data || data.length === 0) {
+            console.warn("No data extracted from file.");
+            return;
+        }
+        const prompt = prompts.feature1(query, data);
+        const result = await queryDeepSeekV3(prompt);
+        return (result);
 
     } catch (error) {
         console.error("Error processing file:", error);
     }
 }
-
-// Function to send data to DeepSeek API
-async function sendToDeepSeek(query, data) {
-    if (!data || data.length === 0) {
-        console.warn("No data extracted from file.");
-        return;
-    }
-    const prompt1 = prompts.feature1(query, data);
-    const result1 = await queryDeepSeekV3(prompt1)
-    const prompt2 = prompts.feature2(query, result1)
-    const result2 = await queryDeepSeekV3(prompt2);
-    return ("");
-}
-
-parseFileAndSendToDeepSeek("test/files/pdf/complex_sample.pdf", "");
 
 module.exports = {parseFileAndSendToDeepSeek};
