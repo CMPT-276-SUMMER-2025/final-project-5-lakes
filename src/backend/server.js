@@ -66,13 +66,13 @@ app.post('/edit-confirm', async (req, res) => {
 
     try {
         console.log(data.analysis);
-        // const summary = await getSummary(JSON.stringify(data.analysis));
+        const summary = await getSummary(JSON.stringify(data.analysis));
         // const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.analysis));
         // console.log(summary);
         // console.log(graphRecommendation);
         res.json({ 
             chartsConfig: data.chartConfig,
-            // summary: JSON.parse(summary),
+            summary: JSON.parse(summary),
             // graphRecommendation: JSON.parse(graphRecommendation),
             analysis: data.analysis
         });

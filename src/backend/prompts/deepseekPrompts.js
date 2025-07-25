@@ -85,14 +85,13 @@ const summaryQuery = "Give me only summaries of trend or key insights in bullet 
 const summaryPrompt = 
         `
         You are given an array of datasets extracted from a file. 
-        The file may contain multiple unrelated topics or datasets (e.g., one about student commute times, another about fruit prices).
         Your task is to:
         For each of the datasets, give me a summary of the data in bullet point form as an array of strings.
         return it in the following JSON format in the same order as the datasets:
 
         [
-                "Summary of dataset 1",
-                "Summary of dataset 2",
+                "Summary 1",
+                "Summary 2",
                 ...
         ]
          Important rules:
@@ -100,7 +99,6 @@ const summaryPrompt =
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
         - Choose a suitable chart type for each dataset and include it as the "type" field.
-        
         `
 
 const prompts = {
