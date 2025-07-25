@@ -14,7 +14,7 @@ describe('parseFileAndSendToDeepSeek', () => {
     // Example test mock file
     const mockFile = {
       mimetype: 'text/csv',
-      path: 'sample.csv'
+      path: '__tests__/files/csv/simple_sample.csv'
     };
 
     //example query to pass the function
@@ -34,7 +34,7 @@ describe('parseFileAndSendToDeepSeek', () => {
   test('parses XLSX and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      path: 'sample.xlsx'
+      path: '__tests__/files/csv/simple_sample.xlsx'
     };    
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
@@ -45,7 +45,7 @@ describe('parseFileAndSendToDeepSeek', () => {
   test('parses PDF and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'application/pdf',
-      path: 'sample.pdf'
+      path: '__tests__/files/csv/simple_sample.pdf'
     };    
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
@@ -56,7 +56,7 @@ describe('parseFileAndSendToDeepSeek', () => {
   test('parses DOCX and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      path: 'sample.docx'
+      path: '__tests__/files/csv/simple_sample.docx'
     };    
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
@@ -67,7 +67,7 @@ describe('parseFileAndSendToDeepSeek', () => {
   test('parses TXT and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'text/plain',
-      path: 'sample.txt'
+      path: '__tests__/files/csv/simple_sample.txt'
     };    
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
