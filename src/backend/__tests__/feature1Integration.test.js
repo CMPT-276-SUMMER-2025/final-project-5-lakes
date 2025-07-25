@@ -13,7 +13,7 @@ jest.mock('../feature1.js', () => ({
 
 describe('Integration test of file upload flow', () => {
     test('uploads file and hits backend endpoint', async () => {
-        const filePath = path.resolve('src/backend/__tests__/files/csv/simple_sample.csv');
+        const filePath = path.resolve(__dirname, 'files/csv/simple_sample.csv');
 
         console.log('File exists:', fs.existsSync(filePath), 'Path:', filePath);
 
