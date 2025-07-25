@@ -7,7 +7,8 @@ const deepseek = require('../deepseek.js');
 
 // Mock DeepSeek call function so the test doesn't actually call.
 jest.mock('../deepseek.js', () => ({
-  queryDeepSeekV3: jest.fn(() => Promise.resolve('mocked deepseek response'))
+  queryDeepSeekV3: jest.fn(() => Promise.resolve('[\n{\n"type": "bar",\n"data": {\n"labels": ["A", "B", "C"],\n"datasets": [\n{\n"label": "Value",\n"data": [10, 20, 30]\n}\n]\n}\n}\n]'))
+  
 }));
 
 describe('parseFileAndSendToDeepSeek', () => {
