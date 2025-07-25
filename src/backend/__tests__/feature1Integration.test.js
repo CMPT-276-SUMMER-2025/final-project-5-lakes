@@ -14,6 +14,8 @@ describe('Integration test of file upload flow', () => {
     test('uploads file and hits backend endpoint', async () => {
         const filePath = path.resolve(__dirname, 'files/csv/simple_sample.csv');
 
+        console.log('File exists:', fs.existsSync(filePath), 'Path:', filePath);
+
         const res = await request(app)
             .post('/file-submit')
             .attach('files', filePath);
