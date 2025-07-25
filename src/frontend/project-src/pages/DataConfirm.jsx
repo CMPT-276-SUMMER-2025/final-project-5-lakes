@@ -24,18 +24,21 @@ function DataConfirm() {
 
   const navigate = useNavigate();
 
-  const parsedData = location.state;
-
   const chartConfig = convertTableRowsToQuickChartConfig(confirmedData, chartLabel, chartType);
 
-  fetch("/api/chart", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(chartConfig),
-  });
+  // fetch("/api/chart", { // change later
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify(chartConfig),
+  // });
 
   useEffect(() => {
-    const { tableRows, chartLabel, chartType } = parseQuickChartToTableRows(parsedData);
+    if (!analysis || !analysis[0]) {
+      navigate("/"); // Redirect if nothing to show
+      return;
+    }
+
+    const { tableRows, chartLabel, chartType } = parseQuickChartToTableRows(analysis[0]);
 
     if (tableRows.length === 0) {
       navigate("/");
@@ -45,7 +48,7 @@ function DataConfirm() {
       setChartLabel(chartLabel);
       setChartType(chartType);
     }
-  }, [parsedData, navigate]);
+  }, [analysis, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
