@@ -10,25 +10,32 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API }}
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-    # Install and build frontend
-    - name: Install frontend dependencies
-      working-directory: ./src/frontend
-      run: npm install
+      # Install and build frontend
+      - name: Install frontend dependencies
+        working-directory: ./src/frontend
+        run: npm install
 
-    - name: Build frontend
-      working-directory: ./src/frontend
-      run: npm run build
+      - name: Build frontend
+        working-directory: ./src/frontend
+        run: npm run build
 
-    # Install and test backend
-    - name: Install backend dependencies
-      working-directory: ./src/backend
-      run: npm install
+      # Install and test backend
+      - name: Install backend dependencies
+        working-directory: ./src/backend
+        run: npm install
+
+      # Run backend tests
+      - name: Run backend tests
+        working-directory: ./src/backend
+        run: npm test

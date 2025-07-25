@@ -12,6 +12,10 @@ import parseQuickChartToTableRows from "../utils/QuickToTable";
 import convertTableRowsToQuickChartConfig from "../utils/TableToQuick";
 
 function DataConfirm() {
+  const location = useLocation();
+  console.log(location);
+  const { analysis, summary } = location.state || {}; // get passed data
+
   const [isLoading, setIsLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState([]);
   const [chartType, setChartType] = useState("bar");

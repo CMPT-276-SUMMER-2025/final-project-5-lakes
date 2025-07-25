@@ -1,5 +1,4 @@
-require('dotenv').config({ path: "../../.env" });
-const fetch = require("node-fetch");
+require('dotenv').config({ path: "../../.env"});
 
 //API key linking to the DeekSeek Model
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
@@ -28,7 +27,7 @@ async function queryDeepSeekV3(prompt) {
     const data = await response.json();
     if(data.choices && data.choices[0]){
       console.log("Raw API response data: ", data.choices[0].message.content);
-      console.log(JSON.parse(data.choices[0].message.content));
+      // console.log(JSON.parse(data.choices[0].message.content));
     }
     else{
       console.error("Unexpected/empty response: ", data);
