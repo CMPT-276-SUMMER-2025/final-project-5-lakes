@@ -5,6 +5,8 @@ const cors = require('cors');
 
 const app = express();
 
+const upload = multer({ dest: 'uploads/' });
+
 app.use(cors({
     origin: 'http://localhost:5173',
 }));
