@@ -4,6 +4,7 @@ const { parseFileAndSendToDeepSeek } = require('./feature1.js');
 const cors = require('cors');
 
 const app = express();
+const upload = multer({dest: 'uploads/'});
 
 const upload = multer({ dest: 'uploads/' });
 
