@@ -14,7 +14,7 @@ import convertTableRowsToQuickChartConfig from "../utils/TableToQuick";
 function DataConfirm() {
   const location = useLocation();
   console.log(location);
-  const { analysis, summary } = location.state || {}; // get passed data
+  const { analysis, summary } = location.state || {}; 
 
   const [isLoading, setIsLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState([]);
@@ -28,11 +28,11 @@ function DataConfirm() {
 
   const chartConfig = convertTableRowsToQuickChartConfig(confirmedData, chartLabel, chartType);
 
-  // fetch("/api/chart", {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify(chartConfig),
-  // });
+  fetch("/api/chart", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(chartConfig),
+  });
 
   useEffect(() => {
     const { tableRows, chartLabel, chartType } = parseQuickChartToTableRows(parsedData);
