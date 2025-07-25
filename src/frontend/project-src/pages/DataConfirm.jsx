@@ -22,7 +22,6 @@ function DataConfirm() {
   const [chartLabel, setChartLabel] = useState("Value");
   const [originalData, setOriginalData] = useState([]);
 
-  const location = useLocation();
   const navigate = useNavigate();
 
   const parsedData = location.state;
