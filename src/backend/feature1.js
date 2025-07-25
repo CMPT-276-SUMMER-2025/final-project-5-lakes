@@ -12,7 +12,7 @@ async function parseFileAndSendToDeepSeek(file, query){
         let data = [];
         filePath = file.path;
 
-        switch (file.minetype) {
+        switch (file.mimetype) {
             //parse csv
             case 'text/csv': {
                 const csvContent = fs.readFileSync(filePath, 'utf8');
