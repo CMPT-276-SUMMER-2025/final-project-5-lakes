@@ -2,10 +2,9 @@ const request = require('supertest');
 const app = require('../server.js');
 const path = require('path');
 
-
 // INTEGRATION TEST 
 // Mock feature 1
-jest.mock('..feature1.js', () => ({
+jest.mock('../feature1.js', () => ({
     parseFileAndSendToDeepSeek: jest.fn((req,res) => {
         return res.status(200).json({ message: 'Mocked feature 1 called'});
     })
