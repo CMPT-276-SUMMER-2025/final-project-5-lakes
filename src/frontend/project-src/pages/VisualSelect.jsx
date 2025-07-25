@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ChartSelectionCard from '../components/visualselect/ChartSelectionCard';
 import { ChevronLeft } from 'lucide-react';
 import VisualSelectStepper from '../components/visualselect/VisualSelectStepper';
@@ -11,7 +11,9 @@ import VisualSelectStepper from '../components/visualselect/VisualSelectStepper'
 function VisualSelect() {
   const [chartOptions, setChartOptions] = useState([]);
   const navigate = useNavigate();
-  const { chartsConfig } = location.state || {}; 
+  const location = useLocation();
+  console.log(location.state);
+  const { chartsConfig, summary, graphRecommendation } = location.state || {}; 
 
   useEffect(() => {
     fetch('/api/visualization-options')
@@ -26,6 +28,9 @@ function VisualSelect() {
         ]);
       });
   }, []);
+
+  console.log(summary);
+  console.log(graphRecommendation);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start p-6 sm:p-10 font-inter">
@@ -50,15 +55,18 @@ function VisualSelect() {
           ))}
         </div>
 
-
-
-      <div className="w-full max-w-6xl mt-6 mb-6 text-left">
-        <button onClick={() => navigate("/data-confirm")}
-          className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
-          <ChevronLeft size={18} className="mr-1" />
-          Back
-        </button>
-      </div>
+        <div className="w-full max-w-6xl mt-6 mb-6 text-left">
+          <p className="text-gray-600 text-lg line-clamp-3">
+            {graphRecommendation[0] || 'No recommendation available'}
+          </p>
+        </div>
+        <div className="w-full max-w-6xl mt-6 mb-6 text-left">
+          <button onClick={() => navigate("/data-confirm")}
+            className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
+            <ChevronLeft size={18} className="mr-1" />
+            Back
+          </button>
+        </div>
 
       </div>
     </div>

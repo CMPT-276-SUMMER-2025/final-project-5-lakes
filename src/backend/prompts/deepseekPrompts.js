@@ -78,14 +78,35 @@ const graphRecommendationLogic =
         - Do NOT include any explanations or formatting.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON like the following:
-
-        [
-                ["Vertical Bar", "Horizontal Bar"],
-                ["Line", "Point", "Exponential Smoothing"]
-        ]
         `;
 
 const summaryQuery = "Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):";
+
+
+const summaryPrompt = 
+        `
+        You are given an array of datasets extracted from a file. 
+        The file may contain multiple unrelated topics or datasets (e.g., one about student commute times, another about fruit prices).
+        Your task is to:
+        For each of the datasets, give me a summary of the data in bullet point form as an array of strings.
+        return it in the following JSON format in the same order as the datasets:
+
+        [
+                ["Summary of dataset 1",
+                "Summary of dataset 2",
+                ...],
+                ["Summary of dataset 1",
+                "Summary of dataset 2",
+                ...],
+                ...
+        ]
+         Important rules:
+        - Do NOT include any explanations, descriptions, or natural language text.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+        - Choose a suitable chart type for each dataset and include it as the "type" field.
+        
+        `
 
 const prompts = {
         feature1: (query, data) => 
@@ -100,7 +121,7 @@ const prompts = {
 
         feature3: (query, data) =>
         `
-        ${promptPrefix}${summaryQuery}${query}\n\nHere is the data:\n${data}
+        ${promptPrefix}${summaryPrompt}${query}\n\nHere is the data:\n${data}
         `
 };
 

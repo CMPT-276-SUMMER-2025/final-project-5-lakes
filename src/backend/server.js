@@ -1,7 +1,9 @@
 const express = require('express');
 const multer = require('multer');
-const { parseFileAndSendToDeepSeek } = require('./feature1.js');
 const cors = require('cors');
+const { parseFileAndSendToDeepSeek } = require('./feature1.js');
+const { getGraphRecommendation } = require('./feature2.js');
+const { getSummary } = require('./feature3.js');
 
 const app = express();
 
@@ -63,8 +65,16 @@ app.post('/edit-confirm', async (req, res) => {
     }
 
     try {
-        
-        res.json({ chartsConfig: data.chartConfig });
+        console.log(data.analysis);
+        const summary = await getSummary(JSON.stringify(data.analysis));
+        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.analysis));
+        console.log(summary);
+        console.log(graphRecommendation);
+        res.json({ 
+            chartsConfig: data.chartConfig,
+            summary: JSON.parse(summary),
+            graphRecommendation: JSON.parse(graphRecommendation) 
+        });
     } catch (error) {
         res.status(500).send('Failed to process data.');
     }

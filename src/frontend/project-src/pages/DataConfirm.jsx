@@ -31,7 +31,7 @@ function DataConfirm() {
 
   const handleNext = async (event) => {
     event.preventDefault(); // Prevent form submission from reloading the page
-    // setIsLoading(true);
+    setIsLoading(true);
 
     try {
       const chartConfig = convertTableRowsToQuickChartConfig(
@@ -45,16 +45,16 @@ function DataConfirm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({chartConfig: chartConfig, file: file}),
+        body: JSON.stringify({chartConfig: chartConfig, file: file, analysis: analysis}),
       });
       if (!res.ok) throw new Error("Chart generation failed");
-      const { chartsConfig } = await res.json();
-      navigate("/visual-select", { state: { chartsConfig, analysis } });
+      const data = await res.json();
+      navigate("/visual-select", { state: data });
     } catch (err) {
       console.error("Chart generation error:", err);
       alert("Failed to generate chart. Please try again.");
     } finally {
-      // setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
