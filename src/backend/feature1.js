@@ -1,65 +1,73 @@
 const { queryDeepSeekV3 } = require('./deepseek.js');
 const fs = require('fs');
-const path = require('path');
 const pdfParse = require('pdf-parse'); // For PDF parsing
 const XLSX = require('xlsx'); // For Excel parsing
 const Papa = require('papaparse'); // For CSV parsing
 const mammoth = require('mammoth'); // For Docx parsing
 const prompts = require('./prompts/deepseekPrompts');
 
-//Feature 1
 async function parseFileAndSendToDeepSeek(file, query){
-    //Set the file to read/test
-    const ext = path.extname(file).toLowerCase();
-
-    let data = [];
-
-    // Parse based on file type
+    let filePath = null;
     try{
-        if (ext === '.csv') {
-            // Parse CSV
-            const csvContent = fs.readFileSync(file, 'utf8');
-            const parsedCsv = Papa.parse(csvContent, { header: true });
-            data = parsedCsv.data;
+        let data = [];
+        filePath = file.path;
 
-        } else if (ext === '.xlsx') {
-            // Parse Excel
-            const workbook = XLSX.readFile(file);
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            data = XLSX.utils.sheet_to_json(sheet);
+        switch (file.minetype) {
+            //parse csv
+            case 'text/csv': {
+                const csvContent = fs.readFileSync(filePath, 'utf8');
+                const parsedCsv = Papa.parse(csvContent, { header: true });
+                data = parsedCsv.data;
+                break;
+            }
+            
+            //parse excel
+            case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
+                const workbook = XLSX.readFile(file.path);
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                data = XLSX.utils.sheet_to_json(sheet);
+                break;
+            }
 
-        } else if (ext === '.pdf') {
-            // Parse PDF
-            const pdfContent = fs.readFileSync(file);
-            const pdfText = await pdfParse(pdfContent);
-            data = pdfText.text.split('\n');
+            //parse pdf
+            case 'application/pdf': {
+                const pdfContent = fs.readFileSync(file.path);
+                const pdfText = await pdfParse(pdfContent);
+                data = pdfText.text.split('\n');
+                break;
+            }
 
-        } else if (ext == '.docx') {
-            //parse DOCX
-            const docxBuffer = fs.readFileSync(file);
-            const result = await mammoth.extractRawText({ buffer: docxBuffer });
-            data = result.value.split('\n');
+            //parse docx
+            case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
+                const docxBuffer = fs.readFileSync(file.path);
+                const docxText = await mammoth.extractRawText({ buffer: docxBuffer });
+                data = docxText.value.split('\n');
+                break;
+            }
 
-        } else if (ext === '.txt') {
-            // Parse plain text
-            const txtContent = fs.readFileSync(file, 'utf8');
-            data = txtContent.split('\n');
+            //parse plain text
+            case 'text/plain': {
+                const txtContent = fs.readFileSync(file.path, 'utf8');
+                data = txtContent.split('\n');
+                break;
+            }
 
-        } else {
-            throw new Error(`Unsupported file type: ${ext}`);
-            process.exit(1);
+            //if non-matched
+            default:
+                throw new Error('Unsupported file type.');
         }
 
-        if (!data || data.length === 0) {
-            console.warn("No data extracted from file.");
-            return;
-        }
+        //send to deepseek api
         const prompt = prompts.feature1(query, data);
         const result = await queryDeepSeekV3(prompt);
-        return (result);
-
+        return {analysis: JSON.parse(result)};
     } catch (error) {
-        console.error("Error processing file:", error);
+        console.error('Error processing file:', error);
+        throw error;
+    } finally {
+        if (filePath && fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
     }
 }
 

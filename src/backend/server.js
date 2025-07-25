@@ -1,13 +1,6 @@
 const express = require('express');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
-const Papa = require('papaparse'); // For CSV parsing
-const XLSX = require('xlsx'); // For Excel parsing
-const pdfParse = require('pdf-parse'); // For PDF parsing
-const mammoth = require('mammoth'); // For DOCX parsing
-const { queryDeepSeekV3 } = require('./deepseek');
-const { prompts, summaryQuery } = require('./prompts/deepseekPrompts');
+const { parseFileAndSendToDeepSeek } = require('./feature1.js');
 const cors = require('cors');
 
 
@@ -18,6 +11,7 @@ app.use(cors({
     origin: 'http://localhost:5173',
 }));
 
+/*
 // Function to send data to DeepSeek API
 async function sendToDeepSeek(query, data) {
     if (!data || data.length === 0) {
@@ -29,7 +23,7 @@ async function sendToDeepSeek(query, data) {
     console.log("Raw API response data:", result);
     return result; // ← This was missing!
 }
-
+*/
 
 // File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
@@ -57,6 +51,15 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         }
     }
 
+    try {
+        const file = files[0]; // Process first file
+        const result = await parseFileAndSendToDeepSeek (file, '');
+        res.json(result);
+    } catch (error) {
+        res.status(500).send('Failed to process file.');
+    }
+});
+    /*
     let filePath = null;
     try {
         let data = [];
@@ -106,7 +109,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         }
     }
 });
-
+*/
 
 // Start the server
 app.listen(3000, () => {
