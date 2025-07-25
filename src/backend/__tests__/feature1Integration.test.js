@@ -1,6 +1,5 @@
 const request = require('supertest');
 const app = require('../app.js');
-const path = require('path');
 const fs = require('fs');
 
 // INTEGRATION TEST 
@@ -13,8 +12,7 @@ jest.mock('../feature1.js', () => ({
 
 describe('Integration test of file upload flow', () => {
     test('uploads file and hits backend endpoint', async () => {
-        const filePath = path.resolve(__dirname, 'files/csv/simple_sample.csv');
-
+        const filePath = '/home/runner/work/final-project-5-lakes/src/backend/__tests__/files/csv/simple_sample.csv';
         console.log('File exists:', fs.existsSync(filePath), 'Path:', filePath);
 
         const res = await request(app)
