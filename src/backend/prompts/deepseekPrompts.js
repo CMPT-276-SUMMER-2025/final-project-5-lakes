@@ -70,10 +70,9 @@ const graphRecommendationLogic =
         - "Labelled Pie"
 
         Instructions:
-        1. Analyze each dataset and choose the most appropriate chart types (up to 4) from the list.
-        2. Output your recommendations as an array of arrays — each inner array contains chart type strings for one dataset.
-        3. Match array order to the input dataset order (e.g., first array for dataset 1, second array for dataset 2).
+        1. Analyze each dataset and choose the most appropriate chart types from the list given the charts types in the dataset.
 
+        Give it to me in the following format: {recommendation: "*Chart* Chart type is the reccomended chart that suits your needs for your data visualization"}
         Important rules:
         - Do NOT include any explanations or formatting.
         - Do NOT wrap the output in triple backticks (\`\`\`).
@@ -92,12 +91,8 @@ const summaryPrompt =
         return it in the following JSON format in the same order as the datasets:
 
         [
-                ["Summary of dataset 1",
+                "Summary of dataset 1",
                 "Summary of dataset 2",
-                ...],
-                ["Summary of dataset 1",
-                "Summary of dataset 2",
-                ...],
                 ...
         ]
          Important rules:
