@@ -16,7 +16,8 @@ function DataConfirm() {
   console.log(location);
 
   const { analysis, file } = location.state || {}; // get passed data
-
+  const fileName = file.originalname;
+  const fileSize = file.size;
 
   const [isLoading, setIsLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState([]);
@@ -26,13 +27,35 @@ function DataConfirm() {
 
   const navigate = useNavigate();
 
-  const chartConfig = convertTableRowsToQuickChartConfig(confirmedData, chartLabel, chartType);
+  // const chartConfig = convertTableRowsToQuickChartConfig(confirmedData, chartLabel, chartType);
 
-  // fetch("/api/chart", { // change later
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify(chartConfig),
-  // });
+  const handleNext = async () => {
+    setIsLoading(true);
+
+    try {
+      const chartConfig = convertTableRowsToQuickChartConfig(
+        confirmedData,
+        chartLabel,
+        chartType
+      );
+      console.log('Chart config:', chartConfig);
+      const res = await fetch("http://localhost:3000/edit-confirm", {
+        method: "POST",
+        body: JSON.stringify({chartConfig: chartConfig, file: file}),
+      });
+      console.log('Response:', res);
+      if (!res.ok) throw new Error("Chart generation failed");
+      console.log('hello');
+      const { chartsConfig } = await res.json();
+      console.log('Charts config:', chartsConfig);
+      navigate("/visual-select", { state: { chartsConfig } });
+    } catch (err) {
+      console.error("Chart generation error:", err);
+      alert("Failed to generate chart. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!analysis || !analysis[0]) {
@@ -57,50 +80,52 @@ function DataConfirm() {
       <LoadingPopUp show={isLoading} />
 
       <DataConfirmStepper />
-
-      <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
-        <div className="flex flex-col md:flex-row gap-8 w-full">
-          {/* Left - Data Table */}
-          <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
-            <div>
-              <h2 className="font-semibold text-center">Edit Data</h2>
-              <p className="text-md text-gray-600 text-center mb-10">
-                Review and edit your uploaded data below. You can modify any field as needed.
-              </p>
-
-              {confirmedData.length > 0 && (
-                <EditableTanStackTable
-                  data={confirmedData}
-                  onDataChange={setConfirmedData}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Right - Main Content */}
-          <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
-            <div className="flex flex-col gap-8">
-              <div className="space-y-6">
-                <h2 className="text-lg font-semibold text-center">Review Your Upload</h2>
+      <form onSubmit={handleNext}>
+        <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
+          <div className="flex flex-col md:flex-row gap-8 w-full">
+            {/* Left - Data Table */}
+            <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
+              <div>
+                <h2 className="font-semibold text-center">Edit Data</h2>
                 <p className="text-md text-gray-600 text-center mb-10">
-                  Review your uploaded files and make any necessary adjustments before proceeding to the next step.
+                  Review and edit your uploaded data below. You can modify any field as needed.
                 </p>
-                <ViewUpload fileName={file.originalname} fileSize={file.size} />
-                <AdditionalInfo />
+
+                {confirmedData.length > 0 && (
+                  <EditableTanStackTable
+                    data={confirmedData}
+                    onDataChange={setConfirmedData}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Right - Main Content */}
+            <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
+              <div className="flex flex-col gap-8">
+                <div className="space-y-6">
+                  <h2 className="text-lg font-semibold text-center">Review Your Upload</h2>
+                  <p className="text-md text-gray-600 text-center mb-10">
+                    Review your uploaded files and make any necessary adjustments before proceeding to the next step.
+                  </p>
+                  <ViewUpload fileName={fileName} fileSize={fileSize} />
+                  <AdditionalInfo />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <DataConfirmButtons
-        setIsLoading={setIsLoading}
-        confirmedData={confirmedData}
-        setConfirmedData={setConfirmedData}
-        originalData={originalData}
-        chartType={chartType}
-        chartLabel={chartLabel}
-      />
+        <DataConfirmButtons
+          setIsLoading={setIsLoading}
+          confirmedData={confirmedData}
+          setConfirmedData={setConfirmedData}
+          originalData={originalData}
+          chartType={chartType}
+          chartLabel={chartLabel}
+        />       
+      </form>
+
     </div>
   );
 }

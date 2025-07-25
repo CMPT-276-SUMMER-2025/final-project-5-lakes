@@ -80,23 +80,23 @@ function HomePage() {
      </header>
 
 
-    <form
-        onSubmit={handleSubmit}
-        encType="multipart/form-data"
-        className="w-full max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-12"
-      >
-        <FileUploadArea files={files} setFiles={setFiles} />
-        <TextInputArea text={text} setText={setText} />
-        
-        <div className="col-span-full flex justify-center mt-4">
-          <button
-            type="submit"
-            className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-          >
-            Go to the next step
-            <ChevronRight size={25} className="ml-2" />
-          </button>
-        </div>
+      <form
+          onSubmit={handleSubmit}
+          encType="multipart/form-data"
+          className="w-full max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-12"
+        >
+          <FileUploadArea files={files} setFiles={setFiles} />
+          <TextInputArea text={text} setText={setText} />
+          
+          <div className="col-span-full flex justify-center mt-4">
+            <button
+              type="submit"
+              className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            >
+              Go to the next step
+              <ChevronRight size={25} className="ml-2" />
+            </button>
+          </div>
       </form>
 
    </div>

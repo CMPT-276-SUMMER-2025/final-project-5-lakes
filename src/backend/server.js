@@ -4,7 +4,10 @@ const { parseFileAndSendToDeepSeek } = require('./feature1.js');
 const cors = require('cors');
 
 const app = express();
-const upload = multer({dest: 'uploads/'});
+
+// Add JSON middleware to parse request bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -45,6 +48,22 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     } catch (error) {
         res.status(500).send('Failed to process file.');
     }
+});
+
+app.post('/edit-confirm', async (req, res) => {
+    const data = req.body;
+    console.log('Received data:', data);
+    
+    // Validate that data exists and has chartConfig property
+    if (!data) {
+        return res.status(400).json({ error: 'No data provided in request body' });
+    }
+    
+    if (!data.chartConfig) {
+        return res.status(400).json({ error: 'chartConfig property is missing from request data' });
+    }
+    
+    res.json({ chartsConfig: data.chartConfig });
 });
 
 // Start the server

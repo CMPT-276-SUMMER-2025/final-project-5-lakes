@@ -1,5 +1,5 @@
 // src/components/dataconfirm/EditableTable.jsx
-import { useState } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import { DataGrid } from "react-data-grid";
 import "react-data-grid/lib/styles.css"; 
 
