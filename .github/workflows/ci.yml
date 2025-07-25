@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
