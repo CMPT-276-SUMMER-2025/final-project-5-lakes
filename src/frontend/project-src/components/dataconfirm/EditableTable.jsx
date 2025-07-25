@@ -9,7 +9,7 @@ const columns = [
   { key: "orders", name: "Orders", editable: true },
   { key: "spending", name: "Spending", editable: true },
   { key: "satisfaction", name: "Satisfaction", editable: true },
-  { key: "id", name: "ID", editable: true }, 
+  { key: "id", name: "ID", editable: false, hidden: true },
 ];
 
 const defaultRows = [
