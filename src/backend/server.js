@@ -1,39 +1,13 @@
 const express = require('express');
 const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
-const Papa = require('papaparse'); // For CSV parsing
-const XLSX = require('xlsx'); // For Excel parsing
-const pdfParse = require('pdf-parse'); // For PDF parsing
-const mammoth = require('mammoth'); // For DOCX parsing
-const { queryDeepSeekV3 } = require('./deepseek');
-const { prompts, summaryQuery } = require('./prompts/deepseekPrompts');
+const { parseFileAndSendToDeepSeek } = require('./feature1.js');
 const cors = require('cors');
-
 
 const app = express();
 
 app.use(cors({
     origin: 'http://localhost:5173',
 }));
-
-// Function to send data to DeepSeek API
-async function sendToDeepSeek(query, data) {
-    if (!data || data.length === 0) {
-        console.warn("No data extracted from file.");
-        return null;
-    }
-    const prompt = prompts.feature1(query, data);
-    const result = await queryDeepSeekV3(prompt);
-    console.log("Raw API response data:", result);
-    return result; // ← This was missing!
-}
-
-// Utility function to convert bytes to MB
-function bytesToMB(bytes) {
-    return (bytes / (1024 * 1024)).toFixed(2);
-}
-
 // File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
     const files = req.files;
@@ -60,57 +34,14 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         }
     }
 
-    let filePath = null;
     try {
-        let data = [];
-        const file = files[0]; // Process first file for 
-        filePath = file.path; // Store for cleanup
-        // Parse based on file type
-        if (file.mimetype === 'text/csv') {
-            // Parse CSV
-            const csvContent = fs.readFileSync(filePath, 'utf8');
-            const parsedCsv = Papa.parse(csvContent, { header: true });
-            data = parsedCsv.data;
-        } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-            // Parse Excel
-            const workbook = XLSX.readFile(filePath);
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            data = XLSX.utils.sheet_to_json(sheet);
-        } else if (file.mimetype === 'application/pdf') {
-            // Parse PDF
-            const pdfContent = fs.readFileSync(filePath);
-            const pdfText = await pdfParse(pdfContent);
-            data = pdfText.text.split('\n');
-        } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-            // Parse DOCX
-            const docxBuffer = fs.readFileSync(filePath);
-            const docxText = await mammoth.extractRawText({ buffer: docxBuffer });
-            data = docxText.value.split('\n');
-        } else if (file.mimetype === 'text/plain') {
-            // Parse plain text
-            const txtContent = fs.readFileSync(filePath, 'utf8');
-            data = txtContent.split('\n');
-        } else {
-            return res.status(400).send('Unsupported file type.');
-        }
-
-        // Send parsed data to DeepSeek API for further analysis
-        const analysisResponse = await sendToDeepSeek(prompts.feature1("", data), data);
-        res.json({
-            analysis: JSON.parse(analysisResponse),
-            file: file,
-        });  // Send back processed data or insights
+        const file = files[0]; // Process first file
+        const result = await parseFileAndSendToDeepSeek (file, '');
+        res.json(result);
     } catch (error) {
-        console.error('Error processing file:', error); //Log for backend view
-        res.status(500).send('Error processing the file.');
-    } finally {
-        // Clean up uploaded file
-        if (filePath && fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-        }
+        res.status(500).send('Failed to process file.');
     }
 });
-
 
 // Start the server
 app.listen(3000, () => {
