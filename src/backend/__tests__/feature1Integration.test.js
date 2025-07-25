@@ -41,6 +41,7 @@ describe('Integration test of file upload flow', () => {
 });
 
 afterAll(() => {
+    const uploadDir = path.join(__dirname, '../uploads')
     fs.readdir(uploadDir, (err, files) => {
         if (err) return;
         for (const file of files) {
