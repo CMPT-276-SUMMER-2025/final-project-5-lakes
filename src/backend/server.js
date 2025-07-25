@@ -20,10 +20,16 @@ app.use(cors({
 
 // Function to send data to DeepSeek API
 async function sendToDeepSeek(query, data) {
-    const prompt = `${query}\n\nHere is the data:\n${JSON.stringify(data, null, 2)}`;
+    if (!data || data.length === 0) {
+        console.warn("No data extracted from file.");
+        return null;
+    }
+    const prompt = prompts.feature1(query, data);
     const result = await queryDeepSeekV3(prompt);
-    return result;
+    console.log("Raw API response data:", result);
+    return result; // ← This was missing!
 }
+
 
 // File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
@@ -39,12 +45,11 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         try {
             // Process text input
             const textData = text.split('\n').filter(line => line.trim() !== '');
-            const analysisResponse = await sendToDeepSeek(prompts.feature1("Analyze and structure this text data", textData));
+            const analysisResponse = await sendToDeepSeek(prompts.feature1("", textData), textData);
             // const summaryInsights = await sendToDeepSeek("Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):" + JSON.stringify(textData));
             
             return res.json({
                 analysis: JSON.parse(analysisResponse),
-                summary: JSON.parse(summaryInsights),
             });
         } catch (error) {
             console.error('Error processing text:', error);
@@ -89,7 +94,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         }
 
         // Send parsed data to DeepSeek API for further analysis
-        const analysisResponse = await sendToDeepSeek(prompts.extractStructuredData, data);
+        const analysisResponse = await sendToDeepSeek(prompts.feature1("", data), data);
         res.json({
             analysis: JSON.parse(analysisResponse),
         });  // Send back processed data or insights
@@ -104,16 +109,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     }
 });
 
-// Function to send data to DeepSeek API
-async function sendToDeepSeek(query, data) {
-    if (!data || data.length === 0) {
-        console.warn("No data extracted from file.");
-        return;
-    }
-    const prompt = prompts.feature1(query, data);
-    const result = await queryDeepSeekV3(prompt);
-    console.log(result);
-}
 
 // Start the server
 app.listen(3000, () => {
