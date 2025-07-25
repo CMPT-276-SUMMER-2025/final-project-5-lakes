@@ -96,6 +96,11 @@ const prompts = {
         feature2: (query, data) =>
         `
         ${promptPrefix}${graphRecommendationLogic}${query}\n\nHere is the data:\n${data}
+        `,
+
+        feature3: (query, data) =>
+        `
+        ${promptPrefix}${summaryQuery}${query}\n\nHere is the data:\n${data}
         `
 };
 

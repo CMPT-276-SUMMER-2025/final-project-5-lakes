@@ -52,8 +52,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 
 app.post('/edit-confirm', async (req, res) => {
     const data = req.body;
-    console.log('Received data:', data);
-    
+    // console.log('Received data:', data);
     // Validate that data exists and has chartConfig property
     if (!data) {
         return res.status(400).json({ error: 'No data provided in request body' });
@@ -62,8 +61,13 @@ app.post('/edit-confirm', async (req, res) => {
     if (!data.chartConfig) {
         return res.status(400).json({ error: 'chartConfig property is missing from request data' });
     }
-    
-    res.json({ chartsConfig: data.chartConfig });
+
+    try {
+        
+        res.json({ chartsConfig: data.chartConfig });
+    } catch (error) {
+        res.status(500).send('Failed to process data.');
+    }
 });
 
 // Start the server

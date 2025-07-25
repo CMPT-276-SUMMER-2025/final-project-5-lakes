@@ -11,6 +11,7 @@ import VisualSelectStepper from '../components/visualselect/VisualSelectStepper'
 function VisualSelect() {
   const [chartOptions, setChartOptions] = useState([]);
   const navigate = useNavigate();
+  const { chartsConfig } = location.state || {}; 
 
   useEffect(() => {
     fetch('/api/visualization-options')

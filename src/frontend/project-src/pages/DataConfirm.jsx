@@ -16,8 +16,8 @@ function DataConfirm() {
   console.log(location);
 
   const { analysis, file } = location.state || {}; // get passed data
-  const fileName = file.originalname;
-  const fileSize = file.size;
+  const fileName = file?.originalname || 'Unknown file';
+  const fileSize = file?.size || 0;
 
   const [isLoading, setIsLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState([]);
@@ -29,8 +29,9 @@ function DataConfirm() {
 
   // const chartConfig = convertTableRowsToQuickChartConfig(confirmedData, chartLabel, chartType);
 
-  const handleNext = async () => {
-    setIsLoading(true);
+  const handleNext = async (event) => {
+    event.preventDefault(); // Prevent form submission from reloading the page
+    // setIsLoading(true);
 
     try {
       const chartConfig = convertTableRowsToQuickChartConfig(
@@ -41,24 +42,28 @@ function DataConfirm() {
       console.log('Chart config:', chartConfig);
       const res = await fetch("http://localhost:3000/edit-confirm", {
         method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({chartConfig: chartConfig, file: file}),
       });
-      console.log('Response:', res);
       if (!res.ok) throw new Error("Chart generation failed");
-      console.log('hello');
       const { chartsConfig } = await res.json();
-      console.log('Charts config:', chartsConfig);
-      navigate("/visual-select", { state: { chartsConfig } });
+      navigate("/visual-select", { state: { chartsConfig, analysis } });
     } catch (err) {
       console.error("Chart generation error:", err);
       alert("Failed to generate chart. Please try again.");
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!analysis || !analysis[0]) {
+    // Check if we have the required data
+    if (!analysis || !analysis[0] || !file) {
+      console.log('Missing required data - redirecting to home');
+      console.log('Analysis:', analysis);
+      console.log('File:', file);
       navigate("/"); // Redirect if nothing to show
       return;
     }
@@ -73,7 +78,7 @@ function DataConfirm() {
       setChartLabel(chartLabel);
       setChartType(chartType);
     }
-  }, [analysis, navigate]);
+  }, [analysis, file, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
