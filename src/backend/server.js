@@ -61,9 +61,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     try {
         let data = [];
         const file = files[0]; // Process first file for 
-        console.log("This is the file: ", file);
         filePath = file.path; // Store for cleanup
-        console.log("This is the file path: ", filePath);
         // Parse based on file type
         if (file.mimetype === 'text/csv') {
             // Parse CSV
