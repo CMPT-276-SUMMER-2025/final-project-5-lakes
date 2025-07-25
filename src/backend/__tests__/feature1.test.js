@@ -30,8 +30,23 @@ describe('parseFileAndSendToDeepSeek', () => {
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
 
     // Check that the function returned the mocked response value
-    expect(result).toBe('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
-  });
+    expect(result).toEqual({
+      analysis: [
+        {
+          type: 'bar',
+          data: {
+            labels: ['A'],
+            datasets: [
+              {
+                label: 'Value',
+                data: [10],
+              },
+            ],
+          },
+        },
+      ],
+    });
+  });  
 
   test('parses XLSX and sends to DeepSeek', async () => {
     const mockFile = {
@@ -41,7 +56,22 @@ describe('parseFileAndSendToDeepSeek', () => {
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toBe('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
+    expect(result).toEqual({
+      analysis: [
+        {
+          type: 'bar',
+          data: {
+            labels: ['A'],
+            datasets: [
+              {
+                label: 'Value',
+                data: [10],
+              },
+            ],
+          },
+        },
+      ],
+    });
   });
 
   test('parses PDF and sends to DeepSeek', async () => {
@@ -52,7 +82,22 @@ describe('parseFileAndSendToDeepSeek', () => {
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toBe('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
+    expect(result).toEqual({
+      analysis: [
+        {
+          type: 'bar',
+          data: {
+            labels: ['A'],
+            datasets: [
+              {
+                label: 'Value',
+                data: [10],
+              },
+            ],
+          },
+        },
+      ],
+    });
   });
 
   test('parses DOCX and sends to DeepSeek', async () => {
@@ -63,7 +108,22 @@ describe('parseFileAndSendToDeepSeek', () => {
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toBe('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
+    expect(result).toEqual({
+      analysis: [
+        {
+          type: 'bar',
+          data: {
+            labels: ['A'],
+            datasets: [
+              {
+                label: 'Value',
+                data: [10],
+              },
+            ],
+          },
+        },
+      ],
+    });
   });
 
   test('parses TXT and sends to DeepSeek', async () => {
@@ -74,6 +134,21 @@ describe('parseFileAndSendToDeepSeek', () => {
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toBe('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
+    expect(result).toEqual({
+      analysis: [
+        {
+          type: 'bar',
+          data: {
+            labels: ['A'],
+            datasets: [
+              {
+                label: 'Value',
+                data: [10],
+              },
+            ],
+          },
+        },
+      ],
+    });
   });
 });
