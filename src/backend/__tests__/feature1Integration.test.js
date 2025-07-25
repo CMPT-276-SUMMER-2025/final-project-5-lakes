@@ -17,7 +17,7 @@ afterAll(() => {
         fs.unlinkSync(tempCsvPath);
     }
     if (fs.existsSync(tempDir)) {
-        fs.unlinkSync(tempDir);
+        fs.rmdirSync(tempDir, { recursive: true });
     }
 });
 
