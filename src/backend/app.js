@@ -47,7 +47,8 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     // Handel file
     try {
         const file = files[0]; // Process first file uploaded
-        const result = await parseFileAndSendToDeepSeek (file, '');
+        let result = await parseFileAndSendToDeepSeek (file, '');
+        result.file = file;
         return res.json(result);
     } catch (error) {
         return res.status(500).send('Failed to process file.');
