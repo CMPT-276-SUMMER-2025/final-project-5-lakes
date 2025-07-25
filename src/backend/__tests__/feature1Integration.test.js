@@ -1,10 +1,7 @@
 const request = require('supertest');
 const app = require('../server.js');
-const fs = require('fs');
 const path = require('path');
 
-// Import 
-const feature1 = require('../feature1.js') 
 
 // INTEGRATION TEST 
 // Mock feature 1

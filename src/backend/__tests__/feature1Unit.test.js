@@ -1,4 +1,3 @@
-require('dotenv').config();
 const path = require('path');
 
 //import the two functions for unit testing
