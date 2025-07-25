@@ -1,14 +1,15 @@
-require('dotenv').config();
 const path = require('path');
 
 //import the two functions for unit testing
 const { parseFileAndSendToDeepSeek } = require('../feature1.js');
 const deepseek = require('../deepseek.js');
 
+// UNIT TEST
 // Mock DeepSeek call function so the test doesn't actually call.
 jest.mock('../deepseek.js', () => ({
-  queryDeepSeekV3: jest.fn(() => Promise.resolve('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]'))
-  
+  queryDeepSeekV3: jest.fn(() => {
+    return Promise.resolve('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
+  })
 }));
 
 describe('parseFileAndSendToDeepSeek', () => {
@@ -39,12 +40,12 @@ describe('parseFileAndSendToDeepSeek', () => {
             datasets: [
               {
                 label: 'Value',
-                data: [10],
-              },
-            ],
-          },
-        },
-      ],
+                data: [10]
+              }
+            ]
+          }
+        }
+      ]
     });
   });  
 
@@ -65,12 +66,12 @@ describe('parseFileAndSendToDeepSeek', () => {
             datasets: [
               {
                 label: 'Value',
-                data: [10],
-              },
-            ],
-          },
-        },
-      ],
+                data: [10]
+              }
+            ]
+          }
+        }
+      ]
     });
   });
 
@@ -91,12 +92,12 @@ describe('parseFileAndSendToDeepSeek', () => {
             datasets: [
               {
                 label: 'Value',
-                data: [10],
-              },
-            ],
-          },
-        },
-      ],
+                data: [10]
+              }
+            ]
+          }
+        }
+      ]
     });
   });
 
@@ -117,12 +118,12 @@ describe('parseFileAndSendToDeepSeek', () => {
             datasets: [
               {
                 label: 'Value',
-                data: [10],
-              },
-            ],
-          },
-        },
-      ],
+                data: [10]
+              }
+            ]
+          }
+        }
+      ]
     });
   });
 
@@ -143,12 +144,12 @@ describe('parseFileAndSendToDeepSeek', () => {
             datasets: [
               {
                 label: 'Value',
-                data: [10],
-              },
-            ],
-          },
-        },
-      ],
+                data: [10]
+              }
+            ]
+          }
+        }
+      ]
     });
   });
 });
