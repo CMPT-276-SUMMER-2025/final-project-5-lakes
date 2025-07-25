@@ -3,6 +3,10 @@ const multer = require('multer');
 const { parseFileAndSendToDeepSeek } = require('./feature1.js');
 const cors = require('cors');
 
+const { queryDeepSeekV3 } = require('./deepseek.js');
+const prompts = require('./prompts/deepseekPrompts');
+
+
 const app = express();
 const upload = multer({dest: 'uploads/'});
 
@@ -24,11 +28,10 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         try {
             // Process text input
             const textData = text.split('\n').filter(line => line.trim() !== '');
-            const analysisResponse = await sendToDeepSeek(prompts.feature1("", textData), textData);
-            // const summaryInsights = await sendToDeepSeek("Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):" + JSON.stringify(textData));
+            const result = await queryDeepSeekV3(prompts.feature1("", textData));
             
             return res.json({
-                analysis: JSON.parse(analysisResponse),
+                analysis: JSON.parse(result),
             });
         } catch (error) {
             console.error('Error processing text:', error);
@@ -36,8 +39,9 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         }
     }
 
+    // Handel file
     try {
-        const file = files[0]; // Process first file
+        const file = files[0]; // Process first file uploaded
         const result = await parseFileAndSendToDeepSeek (file, '');
         res.json(result);
     } catch (error) {
