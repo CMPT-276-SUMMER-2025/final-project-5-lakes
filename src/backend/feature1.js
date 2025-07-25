@@ -60,7 +60,7 @@ async function parseFileAndSendToDeepSeek(file, query){
         //send to deepseek api
         const prompt = prompts.feature1(query, data);
         const result = await queryDeepSeekV3(prompt);
-        return {analysis: JSON.parse(result)};
+        return {analysis: JSON.parse(result), file: file};
     } catch (error) {
         console.error('Error processing file:', error);
         throw error;
