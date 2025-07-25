@@ -7,7 +7,7 @@ const deepseek = require('../deepseek.js');
 
 // Mock DeepSeek call function so the test doesn't actually call.
 jest.mock('../deepseek.js', () => ({
-  queryDeepSeekV3: jest.fn(() => Promise.resolve('[\n{\n"type": "bar",\n"data": {\n"labels": ["A", "B", "C"],\n"datasets": [\n{\n"label": "Value",\n"data": [10, 20, 30]\n}\n]\n}\n}\n]'))
+  queryDeepSeekV3: jest.fn(() => Promise.resolve('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]'))
   
 }));
 
@@ -30,7 +30,7 @@ describe('parseFileAndSendToDeepSeek', () => {
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
 
     // Check that the function returned the mocked response value
-    expect(result).toBe('mocked deepseek response');
+    expect(result).toBe('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
   });
 
   test('parses XLSX and sends to DeepSeek', async () => {
@@ -41,7 +41,7 @@ describe('parseFileAndSendToDeepSeek', () => {
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toBe('mocked deepseek response');
+    expect(result).toBe('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
   });
 
   test('parses PDF and sends to DeepSeek', async () => {
@@ -52,7 +52,7 @@ describe('parseFileAndSendToDeepSeek', () => {
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toBe('mocked deepseek response');
+    expect(result).toBe('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
   });
 
   test('parses DOCX and sends to DeepSeek', async () => {
@@ -63,7 +63,7 @@ describe('parseFileAndSendToDeepSeek', () => {
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toBe('mocked deepseek response');
+    expect(result).toBe('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
   });
 
   test('parses TXT and sends to DeepSeek', async () => {
@@ -74,6 +74,6 @@ describe('parseFileAndSendToDeepSeek', () => {
     const query = 'test query';
     const result = await parseFileAndSendToDeepSeek(mockFile, query);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toBe('mocked deepseek response');
+    expect(result).toBe('[\n{\n"type": "bar",\n"data": {\n"labels": ["A"],\n"datasets": [\n{\n"label": "Value",\n"data": [10]\n}\n]\n}\n}\n]');
   });
 });
