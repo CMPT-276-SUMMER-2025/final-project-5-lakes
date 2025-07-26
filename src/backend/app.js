@@ -1,9 +1,10 @@
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
-const { parseFileAndSendToDeepSeek } = require('./feature1.js');
+const { convertToChartConfig } = require('./feature1.js');
 const { getGraphRecommendation } = require('./feature2.js');
 const { getSummary } = require('./feature3.js');
+const { parseFile } = require('./file-parser.js');
 
 const { queryDeepSeekV3 } = require('./deepseek.js');
 const prompts = require('./prompts/deepseekPrompts.js');
@@ -53,7 +54,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     // Handel file
     try {
         const file = files[0]; // Process first file uploaded
-        let result = await parseFileAndSendToDeepSeek (file, '');
+        let result = await parseFile(file);
         result.file = file;
         return res.json(result);
     } catch (error) {
@@ -64,7 +65,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 // Information edit confirm
 app.post('/edit-confirm', async (req, res) => {
     const data = req.body;
-    // console.log('Received data:', data);
+    console.log('Received data:', JSON.stringify(data.chartConfig));
     // Validate that data exists and has chartConfig property
     if (!data) {
         return res.status(400).json({ error: 'No data provided in request body' });
@@ -73,7 +74,6 @@ app.post('/edit-confirm', async (req, res) => {
     if (!data.chartConfig) {
         return res.status(400).json({ error: 'chartConfig property is missing from request data' });
     }
-
     try {
         console.log(data.analysis);
         const summary = await getSummary(JSON.stringify(data.analysis));
