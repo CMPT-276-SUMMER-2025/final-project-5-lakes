@@ -52,9 +52,8 @@ const promptExtractStructuredData =
         `;
 
 const graphRecommendationLogic = 
-        `
-        The user has extracted structured data into QuickChart format. 
-        Your task is to recommend up to 4 suitable chart types for each dataset, based only on the given chart types below:
+        `The user has extracted structured data into QuickChart format. 
+        Your task is to recommend the most suitable chart type for the first dataset only, based on the given chart types below:
 
         Available Chart Types:
         - "Vertical Bar"
@@ -70,14 +69,15 @@ const graphRecommendationLogic =
         - "Labelled Pie"
 
         Instructions:
-        1. Analyze each dataset and choose the most appropriate chart types from the list given the charts types in the dataset.
+        1. Analyze the first dataset only
+        2. Choose the single most appropriate chart type from the list above
+        3. Return exactly this format: {"recommendation": "[ChartType] Chart type is the recommended chart that suits your needs for your data visualization"}
 
-        Give it to me in the following format: {recommendation: "*Chart* Chart type is the reccomended chart that suits your needs for your data visualization"}
-        Important rules:
-        - Do NOT include any explanations or formatting.
-        - Do NOT wrap the output in triple backticks (\`\`\`).
-        - Only return clean, valid JSON like the following:
-        `;
+        CRITICAL RULES:
+        - Return ONLY the JSON object, nothing else
+        - Do NOT wrap in code blocks or backticks
+        - Do NOT include any explanations
+        - Start response directly with { and end with }`;
 
 const summaryQuery = "Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):";
 

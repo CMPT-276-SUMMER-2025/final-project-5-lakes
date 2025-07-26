@@ -71,13 +71,12 @@ app.post('/edit-confirm', async (req, res) => {
     try {
         console.log(data.analysis);
         const summary = await getSummary(JSON.stringify(data.analysis));
-        // const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.analysis));
-        // console.log(summary);
-        // console.log(graphRecommendation);
+        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.analysis));
+
         res.json({ 
             chartsConfig: data.chartConfig,
             summary: JSON.parse(summary),
-            // graphRecommendation: JSON.parse(graphRecommendation),
+            graphRecommendation: JSON.parse(graphRecommendation),
             analysis: data.analysis
         });
     } catch (error) {
