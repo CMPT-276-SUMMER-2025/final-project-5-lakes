@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/file-submit`;
 
 function HomePage() {
   const [text, setText] = useState('');
@@ -37,9 +38,10 @@ function HomePage() {
 
     // replace with real backend
     /***************************/
-    fetch('http://localhost:3000/file-submit', {
+    fetch(apiUrl, {
       method: 'POST',
       body: formData,
+      credentials: 'include'
     })
 
     // to got to the next page if successful

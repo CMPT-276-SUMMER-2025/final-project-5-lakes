@@ -22,7 +22,7 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   : ['http://localhost:5173'];     
 
 app.use(cors({
-    origin: 'https://easychart-omega.vercel.app',
+    origin: allowedOrigins,
     credentials: true
 }));
 
