@@ -22,12 +22,13 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   : ['http://localhost:5173'];     
 
 app.use(cors({
-    origin: 'https://easychart-omega.vercel.app',
+    origin: allowedOrigins,
     credentials: true
 }));
 
 // File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
+    console.log('Incoming /file-submit request from:', req.headers.origin);
     const files = req.files;
     const text = req.body.text;
 
