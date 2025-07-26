@@ -50,9 +50,29 @@
     border: none;  
 }
 
+.format-button {
+  padding: 0.5rem 1rem;
+  border-radius: 10px; 
+  font-weight: 500;
+  color: white;
+  background-color: #3b82f6;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100px;
+}
 
+.format-button:hover {
+  background-color: #2563eb;
+}
 
+.format-button.selected {
+  background-color: #22c55e;
+}
 
+.format-button.selected:hover {
+  background-color: #16a34a;
+}
 
 
 
