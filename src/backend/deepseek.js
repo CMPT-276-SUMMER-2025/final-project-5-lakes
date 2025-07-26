@@ -3,6 +3,10 @@ require('dotenv').config();
 //API key linking to the DeekSeek Model
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
+if (!OPENROUTER_API_KEY) {
+  throw new Error("Missing OpenRouter API key in environment variables.");
+}
+
 async function queryDeepSeekV3(prompt) {
   try{
     //get response from OpenRouter, after reponse run API key
