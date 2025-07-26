@@ -27,7 +27,7 @@ app.use(cors({
 }));
 
 // File upload endpoint
-app.post('file-submit', upload.array('files'), async (req, res) => {
+app.post('/file-submit', upload.array('files'), async (req, res) => {
     const files = req.files;
     const text = req.body.text;
 
@@ -61,7 +61,7 @@ app.post('file-submit', upload.array('files'), async (req, res) => {
 });
 
 // Information edit confirm
-app.post('edit-confirm', async (req, res) => {
+app.post('/edit-confirm', async (req, res) => {
     const data = req.body;
     // console.log('Received data:', data);
     // Validate that data exists and has chartConfig property
