@@ -17,7 +17,7 @@ async function parseFile(file){
             case 'text/csv': {
                 const csvContent = fs.readFileSync(filePath, 'utf8');
                 const parsedCsv = Papa.parse(csvContent, { header: true });
-                data = parsedCsv.data;
+                data = JSON.stringify(parsedCsv.data);
                 break;
             }
             
@@ -26,6 +26,7 @@ async function parseFile(file){
                 const workbook = XLSX.readFile(file.path);
                 const sheet = workbook.Sheets[workbook.SheetNames[0]];
                 data = XLSX.utils.sheet_to_json(sheet);
+                data = JSON.stringify(data);
                 break;
             }
 

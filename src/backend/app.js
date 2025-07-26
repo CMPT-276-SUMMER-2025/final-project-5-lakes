@@ -54,7 +54,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     // Handle file
     try {
         const file = files[0]; // Process first file uploaded
-        let result = { parsedData: await parseFile(file), file: file };
+        let result = { parsedData: JSON.parse(await parseFile(file)), file: file };
         console.log(result.parsedData);
         return res.json(result);
     } catch (error) {

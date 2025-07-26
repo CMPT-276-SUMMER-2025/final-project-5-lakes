@@ -101,19 +101,21 @@ const summaryPrompt =
 const parsedDataFormat = 
         `
         You are given a parsed file (csv, excel, txt or pdf). Given the file, extract all the relevant data needed to
-        create a chart format it as parsed csv file. If the given file is already in csv format, return the same file.
+        create a chart and format it as parsed csv file.
         
         Example format:
         [
                 {
                         "Label 1": "Value 1",
                         "Label 2": "Value 2",
-                        "Label 3": "Value 3"
+                        "Label 3": "Value 3",
+                        ...
                 },
                 {
                         "Label 1": "Value 1",
                         "Label 2": "Value 2",
-                        "Label 3": "Value 3"
+                        "Label 3": "Value 3",
+                        ...
                 },
                 ...
         ]
