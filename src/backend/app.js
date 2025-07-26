@@ -18,6 +18,15 @@ app.use(express.urlencoded({ extended: true }));
 
 const upload = multer({dest: 'uploads/'});
 
+let sessionData = {
+    uploadedFile: null,
+    parsedData: null,
+    chartConfig: null,
+    summary: null,
+    graphRecommendation: null,
+    styleConfig: null,
+};
+
 const allowedOrigins = process.env.NODE_ENV === 'production'
   ? ['https://easychart-omega.vercel.app']
   : ['http://localhost:5173'];     
@@ -43,7 +52,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             // Process text input
             const textData = text.split('\n').filter(line => line.trim() !== '');
             const result = await queryDeepSeekV3(prompts.feature1("", textData));
-            
             return res.json(result);
         } catch (error) {
             console.error('Error processing text:', error);
@@ -56,6 +64,12 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         const file = files[0]; // Process first file uploaded
         let result = { parsedData: JSON.parse(await parseFile(file)), file: file };
         console.log(result.parsedData);
+        sessionData.uploadedFile = file;
+        sessionData.parsedData = result.parsedData;
+        sessionData.chartConfig = null;
+        sessionData.summary = null;
+        sessionData.graphRecommendation = null;
+        sessionData.styleConfig = null;
         return res.json(result);
     } catch (error) {
         return res.status(500).send('Failed to process file.');
@@ -76,7 +90,7 @@ app.post('/edit-confirm', async (req, res) => {
     }
     try {
         console.log(data.analysis);
-        const summary = await getSummary(JSON.stringify(data.analysis));
+        const summary = await getSummary(JSON.stringify(data.));
         const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.analysis));
 
         res.json({ 
@@ -88,6 +102,20 @@ app.post('/edit-confirm', async (req, res) => {
     } catch (error) {
         res.status(500).send('Failed to process data.');
     }
+});
+
+
+app.delete('/reset-session', async (req, res) => {
+    sessionData = {
+        uploadedFile: null,
+        parsedData: null,
+        chartConfig: null,
+        summary: null,
+        graphRecommendation: null,
+        styleConfig: null,
+    };
+    console.log('Session reset successfully');
+    res.status(200).send('Session reset successfully');
 });
 
 module.exports = app;
