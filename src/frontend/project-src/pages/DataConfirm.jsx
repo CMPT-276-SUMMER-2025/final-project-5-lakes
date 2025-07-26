@@ -11,6 +11,8 @@ import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
 import parseQuickChartToTableRows from "../utils/QuickToTable";
 import convertTableRowsToQuickChartConfig from "../utils/TableToQuick";
 
+const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-confirm`;
+
 function DataConfirm() {
   const location = useLocation();
   console.log(location);
@@ -40,12 +42,13 @@ function DataConfirm() {
         chartType
       );
       console.log('Chart config:', chartConfig);
-      const res = await fetch("http://localhost:3000/edit-confirm", {
+      const res = await fetch(apiUrl, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({chartConfig: chartConfig, file: file, analysis: analysis}),
+        credentials: 'include'
       });
       if (!res.ok) throw new Error("Chart generation failed");
       const data = await res.json();
