@@ -1,5 +1,10 @@
 {
+  "name": "easychartBackend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
+    "start": "node server.js",
     "test": "jest",
     "test:debug": "jest --detectOpenHandles -- forceExit",
     "lint": "eslint ."
