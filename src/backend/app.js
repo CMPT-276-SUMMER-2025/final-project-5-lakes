@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 const upload = multer({dest: 'uploads/'});
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://easychart-omega.vercel.app']
+  ? ['https://easychart.onrender.com']
   : ['http://localhost:5173'];     
 
 app.use(cors({
