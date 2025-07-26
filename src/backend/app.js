@@ -1,13 +1,20 @@
 const express = require('express');
 const multer = require('multer');
-const { parseFileAndSendToDeepSeek } = require('./feature1.js');
 const cors = require('cors');
+const { parseFileAndSendToDeepSeek } = require('./feature1.js');
+const { getGraphRecommendation } = require('./feature2.js');
+const { getSummary } = require('./feature3.js');
 
 const { queryDeepSeekV3 } = require('./deepseek.js');
 const prompts = require('./prompts/deepseekPrompts.js');
 
 
 const app = express();
+
+// Add JSON middleware to parse request bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const upload = multer({dest: 'uploads/'});
 
 app.use(cors({
@@ -40,10 +47,41 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     // Handel file
     try {
         const file = files[0]; // Process first file uploaded
-        const result = await parseFileAndSendToDeepSeek (file, '');
+        let result = await parseFileAndSendToDeepSeek (file, '');
+        result.file = file;
         return res.json(result);
     } catch (error) {
         return res.status(500).send('Failed to process file.');
+    }
+});
+
+// Information edit confirm
+app.post('/edit-confirm', async (req, res) => {
+    const data = req.body;
+    // console.log('Received data:', data);
+    // Validate that data exists and has chartConfig property
+    if (!data) {
+        return res.status(400).json({ error: 'No data provided in request body' });
+    }
+    
+    if (!data.chartConfig) {
+        return res.status(400).json({ error: 'chartConfig property is missing from request data' });
+    }
+
+    try {
+        console.log(data.analysis);
+        const summary = await getSummary(JSON.stringify(data.analysis));
+        // const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.analysis));
+        // console.log(summary);
+        // console.log(graphRecommendation);
+        res.json({ 
+            chartsConfig: data.chartConfig,
+            summary: JSON.parse(summary),
+            // graphRecommendation: JSON.parse(graphRecommendation),
+            analysis: data.analysis
+        });
+    } catch (error) {
+        res.status(500).send('Failed to process data.');
     }
 });
 

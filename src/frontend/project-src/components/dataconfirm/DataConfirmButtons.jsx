@@ -1,19 +1,40 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
-import { Link } from "react-router-dom";
+import convertTableRowsToQuickChartConfig from "../../utils/TableToQuick";
 
-function DataConfirmButtons({ setIsLoading }) {
+function DataConfirmButtons({
+  setIsLoading,
+  confirmedData,
+  setConfirmedData,
+  originalData,
+  chartType,
+  chartLabel,
+}) {
   const navigate = useNavigate();
 
-  const handleNext = async () => {
-    setIsLoading(true);
+    // const handleNext = async () => {
+    //   setIsLoading(true);
 
-    // Simulate chart generation delay or actual API logic
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    //   try {
+    //     const config = convertTableRowsToQuickChartConfig(
+    //       confirmedData,
+    //       chartLabel,
+    //       chartType
+    //     );
 
-    setIsLoading(false);
-    navigate("/visual-select");
-  };
+    //     const chartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(
+    //       JSON.stringify(config)
+    //     )}`;
+
+    //     // 👇 pretend this came from the backend
+    //     navigate("/visual-select", { state: { chartUrl } });
+    //   } catch (err) {
+    //     console.error("Error generating mock chart:", err);
+    //     alert("Something went wrong generating the chart.");
+    //   } finally {
+    //     setIsLoading(false);
+    //   }
+    // };
 
   return (
     <div className="flex justify-between mt-10 flex-wrap gap-4">
@@ -25,13 +46,18 @@ function DataConfirmButtons({ setIsLoading }) {
         Go to the last step
       </Link>
 
-      <button className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
+      <button
+        className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+        onClick={() => {
+          setConfirmedData(originalData);
+        }}
+      >
         <RotateCw size={20} className="mr-2" />
         Restore original data
       </button>
 
       <button
-        onClick={handleNext}
+        type="submit"
         className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
       >
         Go to the next step
