@@ -1,17 +1,19 @@
 import TextInputArea from '../components/homepage/TextInputArea';
 import FileUploadArea from '../components/homepage/FileUploadArea';
 import HomeStepper from '../components/homepage/HomeStepper';
-//import { Link } from 'react-router-dom';
-import { ChevronRight, CircleChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DefaultError from '../components/messages/DefaultError';
+import useDefaultError from '../hooks/DefaultErrorHook';
 
 
 function HomePage() {
   const [text, setText] = useState('');
   const [files, setFiles] = useState([]);
   const navigate = useNavigate();
+  const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
   useEffect(() => {
         console.log('[HomePage] Files state updated:', Array.from(files));
@@ -19,6 +21,16 @@ function HomePage() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    if ((!text || text.trim() === '') && (!files || files.length === 0)) {
+      showAlert(
+        'error',
+        'Missing Input',
+        'Please either upload a file or enter your text before proceeding.',
+        'Okay'
+      );
+      return;
+    }
 
     const formData = new FormData();
     formData.append('text', text);
@@ -68,6 +80,18 @@ function HomePage() {
    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter"
    onDragOver={handleGlobalDragOver} 
       onDrop={handleGlobalDrop}   >
+
+        {isAlertVisible && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <DefaultError
+              title={alertConfig.title}
+              message={alertConfig.message}
+              buttonText={alertConfig.buttonText}
+              onButtonClick={hideAlert}
+              isVisible={isAlertVisible}
+            />
+          </div>
+        )}
 
      <header className="text-center mb-10">
        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
