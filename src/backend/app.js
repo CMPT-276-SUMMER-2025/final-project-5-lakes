@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 const upload = multer({dest: 'uploads/'});
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://easychart.onrender.com']
+  ? ['https://easychart-omega.vercel.app']
   : ['http://localhost:5173'];     
 
 app.use(cors({
@@ -28,6 +28,7 @@ app.use(cors({
 
 // File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
+    console.log('Incoming /file-submit request from:', req.headers.origin);
     const files = req.files;
     const text = req.body.text;
 
