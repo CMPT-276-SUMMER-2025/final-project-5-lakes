@@ -1,4 +1,4 @@
-require('dotenv').config({ path: "../../.env"});
+require('dotenv').config();
 
 //API key linking to the DeekSeek Model
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;

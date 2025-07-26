@@ -1,17 +1,20 @@
 import TextInputArea from '../components/homepage/TextInputArea';
 import FileUploadArea from '../components/homepage/FileUploadArea';
 import HomeStepper from '../components/homepage/HomeStepper';
-//import { Link } from 'react-router-dom';
-import { ChevronRight, CircleChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import DefaultError from '../components/messages/DefaultError';
+import useDefaultError from '../hooks/DefaultErrorHook';
 
+const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/file-submit`;
 
 function HomePage() {
   const [text, setText] = useState('');
   const [files, setFiles] = useState([]);
   const navigate = useNavigate();
+  const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
   useEffect(() => {
         console.log('[HomePage] Files state updated:', Array.from(files));
@@ -19,6 +22,16 @@ function HomePage() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
+    if ((!text || text.trim() === '') && (!files || files.length === 0)) {
+      showAlert(
+        'error',
+        'Missing Input',
+        'Please either upload a file or enter your text before proceeding.',
+        'Okay'
+      );
+      return;
+    }
 
     const formData = new FormData();
     formData.append('text', text);
@@ -37,9 +50,10 @@ function HomePage() {
 
     // replace with real backend
     /***************************/
-    fetch('http://localhost:3000/file-submit', {
+    fetch(apiUrl, {
       method: 'POST',
       body: formData,
+      credentials: 'include'
     })
 
     // to got to the next page if successful
@@ -69,6 +83,18 @@ function HomePage() {
    onDragOver={handleGlobalDragOver} 
       onDrop={handleGlobalDrop}   >
 
+        {isAlertVisible && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <DefaultError
+              title={alertConfig.title}
+              message={alertConfig.message}
+              buttonText={alertConfig.buttonText}
+              onButtonClick={hideAlert}
+              isVisible={isAlertVisible}
+            />
+          </div>
+        )}
+
      <header className="text-center mb-10">
        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
          Welcome to <span className="text-blue-600">EasyChart!</span>
@@ -80,23 +106,23 @@ function HomePage() {
      </header>
 
 
-    <form
-        onSubmit={handleSubmit}
-        encType="multipart/form-data"
-        className="w-full max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-12"
-      >
-        <FileUploadArea files={files} setFiles={setFiles} />
-        <TextInputArea text={text} setText={setText} />
-        
-        <div className="col-span-full flex justify-center mt-4">
-          <button
-            type="submit"
-            className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-          >
-            Go to the next step
-            <ChevronRight size={25} className="ml-2" />
-          </button>
-        </div>
+      <form
+          onSubmit={handleSubmit}
+          encType="multipart/form-data"
+          className="w-full max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-12"
+        >
+          <FileUploadArea files={files} setFiles={setFiles} />
+          <TextInputArea text={text} setText={setText} />
+          
+          <div className="col-span-full flex justify-center mt-4">
+            <button
+              type="submit"
+              className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            >
+              Go to the next step
+              <ChevronRight size={25} className="ml-2" />
+            </button>
+          </div>
       </form>
 
    </div>

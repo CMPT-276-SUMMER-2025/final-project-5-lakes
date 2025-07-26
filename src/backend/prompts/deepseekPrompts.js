@@ -70,22 +70,36 @@ const graphRecommendationLogic =
         - "Labelled Pie"
 
         Instructions:
-        1. Analyze each dataset and choose the most appropriate chart types (up to 4) from the list.
-        2. Output your recommendations as an array of arrays — each inner array contains chart type strings for one dataset.
-        3. Match array order to the input dataset order (e.g., first array for dataset 1, second array for dataset 2).
+        1. Analyze each dataset and choose the most appropriate chart types from the list given the charts types in the dataset.
 
+        Give it to me in the following format: {recommendation: "*Chart* Chart type is the reccomended chart that suits your needs for your data visualization"}
         Important rules:
         - Do NOT include any explanations or formatting.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON like the following:
-
-        [
-                ["Vertical Bar", "Horizontal Bar"],
-                ["Line", "Point", "Exponential Smoothing"]
-        ]
         `;
 
 const summaryQuery = "Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):";
+
+
+const summaryPrompt = 
+        `
+        You are given an array of datasets extracted from a file. 
+        Your task is to:
+        For each of the datasets, give me a summary of the data in bullet point form as an array of strings.
+        return it in the following JSON format in the same order as the datasets:
+
+        [
+                "Summary 1",
+                "Summary 2",
+                ...
+        ]
+         Important rules:
+        - Do NOT include any explanations, descriptions, or natural language text.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+        - Choose a suitable chart type for each dataset and include it as the "type" field.
+        `
 
 const prompts = {
         feature1: (query, data) => 
@@ -96,6 +110,11 @@ const prompts = {
         feature2: (query, data) =>
         `
         ${promptPrefix}${graphRecommendationLogic}${query}\n\nHere is the data:\n${data}
+        `,
+
+        feature3: (query, data) =>
+        `
+        ${promptPrefix}${summaryPrompt}${query}\n\nHere is the data:\n${data}
         `
 };
 

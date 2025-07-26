@@ -1,6 +1,9 @@
 // src/components/visualselect/ChartSelectionCard.jsx
+import { useNavigate } from "react-router-dom";
+
 
 const ChartSelectionCard = ({ chartImageUrl, title, description, buttonText = "Select Option" }) => {
+  const navigate = useNavigate();
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden">
     
@@ -18,7 +21,7 @@ const ChartSelectionCard = ({ chartImageUrl, title, description, buttonText = "S
 
 
         <div className="mt-4 text-right">
-          <button className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
+          <button onClick={() => navigate("/edit-chart")} className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
             {buttonText}
           </button>
         </div>

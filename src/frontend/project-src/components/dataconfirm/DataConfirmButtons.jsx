@@ -12,35 +12,6 @@ function DataConfirmButtons({
 }) {
   const navigate = useNavigate();
 
-  const handleNext = async () => {
-    setIsLoading(true);
-
-    try {
-      const chartConfig = convertTableRowsToQuickChartConfig(
-        confirmedData,
-        chartLabel,
-        chartType
-      );
-
-      const res = await fetch("/api/chart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(chartConfig),
-      });
-
-      if (!res.ok) throw new Error("Chart generation failed");
-
-      const { chartUrl } = await res.json();
-
-      navigate("/visual-select", { state: { chartUrl } });
-    } catch (err) {
-      console.error("Chart generation error:", err);
-      alert("Failed to generate chart. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
     // const handleNext = async () => {
     //   setIsLoading(true);
 
@@ -86,7 +57,7 @@ function DataConfirmButtons({
       </button>
 
       <button
-        onClick={handleNext}
+        type="submit"
         className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
       >
         Go to the next step

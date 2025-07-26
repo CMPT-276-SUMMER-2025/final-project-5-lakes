@@ -49,6 +49,38 @@ function FileUploadArea({setFiles }) {
     onDrop: handleDrop,
   };
 
+  if (hasUploaded && !isDragOver) {
+    return (
+      <div
+        className="border-2 border-blue-500 bg-blue-50 flex flex-col items-center justify-center p-8 rounded-lg text-center transition-colors duration-200 ease-in-out"
+        {...dragHandlers}
+      >
+        <CheckCircle className="w-12 h-12 text-black mb-4" />
+        <p className="text-black text-lg font-semibold mb-4">
+          File uploaded successfully!
+        </p>
+
+        <input
+          type="file"
+          name="files"
+          multiple
+          style={{ display: 'none' }}
+          onChange={handleFileSelect}
+          id="hidden-file-input"
+        />
+
+        <label htmlFor="hidden-file-input" className="white-base-button">
+          Upload a different file
+        </label>
+
+        <p className="text-gray-600 text-lg mb-4 font-sans mb-2">
+          Or drag and drop a new one
+        </p>
+      </div>
+    );
+  }
+
+
   if (isDragOver) {
     return (
       <div
@@ -89,12 +121,7 @@ function FileUploadArea({setFiles }) {
        Accepted formats: PDF, DOC, XLS, CSV, JPEG, PNG
      </p>
 
-     {hasUploaded && (
-        <div className="flex items-center mt-4 text-green-600">
-          <CheckCircle className="w-5 h-5 mr-2" />
-          <span className="text-sm font-medium">File uploaded</span>
-        </div>
-      )}
+
      
    </div>
  );
