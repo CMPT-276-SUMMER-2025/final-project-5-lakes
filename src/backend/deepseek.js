@@ -24,9 +24,7 @@ async function queryDeepSeekV3(prompt) {
     });
 
     //get/check API returns
-    console.log("raw:", response);
     const data = await response.json();
-    console.log("after:", data);
     if(data.choices && data.choices[0]){
       console.log("Raw API response data: ", data.choices[0].message.content);
       // console.log(JSON.parse(data.choices[0].message.content));
