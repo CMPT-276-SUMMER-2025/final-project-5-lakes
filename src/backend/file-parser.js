@@ -3,6 +3,8 @@ const pdfParse = require('pdf-parse'); // For PDF parsing
 const XLSX = require('xlsx'); // For Excel parsing
 const Papa = require('papaparse'); // For CSV parsing
 const mammoth = require('mammoth'); // For Docx parsing
+const prompts = require('./prompts/deepseekPrompts');
+const { queryDeepSeekV3 } = require('./deepseek.js');
 
 async function parseFile(file){
     let filePath = null;
@@ -54,8 +56,9 @@ async function parseFile(file){
             default:
                 throw new Error('Unsupported file type.');
         }
-
-        return data;
+        const prompt = prompts.parsedDataFormat('', data);
+        const result = await queryDeepSeekV3(prompt);
+        return result;
     } catch (error) {
         console.error('Error processing file:', error);
         throw error;

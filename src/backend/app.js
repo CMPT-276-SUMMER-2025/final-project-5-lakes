@@ -51,11 +51,11 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         }
     }
 
-    // Handel file
+    // Handle file
     try {
         const file = files[0]; // Process first file uploaded
-        let result = await parseFile(file);
-        result.file = file;
+        let result = { parsedData: await parseFile(file), file: file };
+        console.log(result.parsedData);
         return res.json(result);
     } catch (error) {
         return res.status(500).send('Failed to process file.');

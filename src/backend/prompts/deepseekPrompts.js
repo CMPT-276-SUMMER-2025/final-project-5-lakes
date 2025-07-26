@@ -79,9 +79,6 @@ const graphRecommendationLogic =
         - Do NOT include any explanations
         - Start response directly with { and end with }`;
 
-const summaryQuery = "Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):";
-
-
 const summaryPrompt = 
         `
         You are given an array of datasets extracted from a file. 
@@ -101,6 +98,33 @@ const summaryPrompt =
         - Choose a suitable chart type for each dataset and include it as the "type" field.
         `
 
+const parsedDataFormat = 
+        `
+        You are given a parsed file (csv, excel, txt or pdf). Given the file, extract all the relevant data needed to
+        create a chart format it as parsed csv file. If the given file is already in csv format, return the same file.
+        
+        Example format:
+        [
+                {
+                        "Label 1": "Value 1",
+                        "Label 2": "Value 2",
+                        "Label 3": "Value 3"
+                },
+                {
+                        "Label 1": "Value 1",
+                        "Label 2": "Value 2",
+                        "Label 3": "Value 3"
+                },
+                ...
+        ]
+        
+        Important rules:
+        - Do NOT include any explanations, descriptions, or natural language text.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+        `
+
+
 const prompts = {
         feature1: (query, data) => 
         `
@@ -115,6 +139,11 @@ const prompts = {
         feature3: (query, data) =>
         `
         ${promptPrefix}${summaryPrompt}${query}\n\nHere is the data:\n${data}
+        `,
+
+        parsedDataFormat: (query, data) =>
+        `
+        ${promptPrefix}${parsedDataFormat}${query}\n\nHere is the data:\n${data}
         `
 };
 
