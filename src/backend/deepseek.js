@@ -3,10 +3,9 @@ require('dotenv').config();
 //API key linking to the DeekSeek Model
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-console.log(OPENROUTER_API_KEY);
-
 async function queryDeepSeekV3(prompt) {
   try{
+    console.log(OPENROUTER_API_KEY);
     //get response from OpenRouter, after reponse run API key
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
