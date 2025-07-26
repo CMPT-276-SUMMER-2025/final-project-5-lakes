@@ -17,8 +17,13 @@ app.use(express.urlencoded({ extended: true }));
 
 const upload = multer({dest: 'uploads/'});
 
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? ['https://easychart-omega.vercel.app']
+  : ['http://localhost:5173'];     
+
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://easychart-omega.vercel.app',
+    credentials: true
 }));
 
 // File upload endpoint
