@@ -5,7 +5,6 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 async function queryDeepSeekV3(prompt) {
   try{
-    console.log(OPENROUTER_API_KEY);
     //get response from OpenRouter, after reponse run API key
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -25,7 +24,9 @@ async function queryDeepSeekV3(prompt) {
     });
 
     //get/check API returns
+    console.log("raw:", response);
     const data = await response.json();
+    console.log("after:", data);
     if(data.choices && data.choices[0]){
       console.log("Raw API response data: ", data.choices[0].message.content);
       // console.log(JSON.parse(data.choices[0].message.content));
