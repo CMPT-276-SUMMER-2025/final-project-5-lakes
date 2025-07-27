@@ -1,30 +1,34 @@
-
-function parseQuickChartToTableRows(parsedData) {
-  if (
-    !parsedData ||
-    !parsedData.data ||
-    !parsedData.data.labels ||
-    !parsedData.data.datasets
-  ) {
-    return { tableRows: [], chartLabel: "Value", chartType: "bar" };
+function parseQuickChartToTableRows(parsedDataArray) {
+  if (!Array.isArray(parsedDataArray) || parsedDataArray.length === 0) {
+    return { tableRows: [], columns: [] };
   }
 
-  const labels = parsedData.data.labels;
-  const values = parsedData.data.datasets[0]?.data || [];
-  const datasetLabel = parsedData.data.datasets[0]?.label || "Value";
-  const type = parsedData.type || "bar";
+  const labelToRow = {};
+  const columnSet = new Set(["Label"]);
 
-  const tableRows = labels.map((label, i) => ({
-    id: i,
-    label,
-    value: values[i] ?? "",
+  parsedDataArray.forEach((chartObj) => {
+    const labels = chartObj.data?.labels || [];
+    const datasets = chartObj.data?.datasets || [];
+
+    labels.forEach((label, i) => {
+      if (!labelToRow[label]) labelToRow[label] = { Label: label };
+
+      datasets.forEach((dataset) => {
+        const key = dataset.label || `Series ${i + 1}`;
+        labelToRow[label][key] = dataset.data[i] ?? "";
+        columnSet.add(key);
+      });
+    });
+  });
+
+  const tableRows = Object.values(labelToRow);
+  const columns = Array.from(columnSet).map((key) => ({
+    key,
+    name: key,
+    editable: true,
   }));
 
-  return {
-    tableRows,
-    chartLabel: datasetLabel,
-    chartType: type,
-  };
+  return { tableRows, columns };
 }
 
 export default parseQuickChartToTableRows;

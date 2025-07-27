@@ -11,9 +11,9 @@ const EditableTanStackTable = ({ data }) => {
 
   const columnHelper = createColumnHelper();
 
-  const columns = Object.keys(data[0]).map((key) =>
+  const columns = Object.keys(data[0]).filter((key) => key !== "id").map((key) =>
     columnHelper.accessor(key, {
-      header: key.charAt(0).toUpperCase() + key.slice(1),
+      header: key,
       cell: (info) => (
         <input
           className="border p-1 w-full"
