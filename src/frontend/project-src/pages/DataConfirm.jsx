@@ -49,7 +49,11 @@ function DataConfirm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({chartConfig: chartConfig, file: file}),
+        body: JSON.stringify({
+          edittedData: {},
+          parsedData: parsedData,
+          file: file
+        }),
         credentials: 'include'
       });
       if (!res.ok) throw new Error("Chart generation failed");

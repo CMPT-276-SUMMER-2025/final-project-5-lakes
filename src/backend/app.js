@@ -79,25 +79,21 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 // Information edit confirm
 app.post('/edit-confirm', async (req, res) => {
     const data = req.body;
-    console.log('Received data:', JSON.stringify(data.chartConfig));
     // Validate that data exists and has chartConfig property
     if (!data) {
         return res.status(400).json({ error: 'No data provided in request body' });
     }
     
-    if (!data.chartConfig) {
-        return res.status(400).json({ error: 'chartConfig property is missing from request data' });
-    }
     try {
-        console.log(data.analysis);
-        const summary = await getSummary(JSON.stringify(data.));
-        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.analysis));
+        // const prompt = prompts.feature1("",JSON.stringify(data.edittedData));
+        const summary = await getSummary(JSON.stringify(data.parsedData));
+        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
+        // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
+
 
         res.json({ 
-            chartsConfig: data.chartConfig,
             summary: JSON.parse(summary),
             graphRecommendation: JSON.parse(graphRecommendation),
-            analysis: data.analysis
         });
     } catch (error) {
         res.status(500).send('Failed to process data.');

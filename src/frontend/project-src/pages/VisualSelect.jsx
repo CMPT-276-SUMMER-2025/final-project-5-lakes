@@ -29,6 +29,15 @@ function VisualSelect() {
       });
   }, []);
 
+  const goPreviousPage = async () => {
+    navigate("/data-confirm", { state: { 
+      summary: summary,
+      graphRecommendation: graphRecommendation,
+      parsedData: parsedData,
+      file: file
+    } });
+  }
+
   console.log(summary);
   console.log(graphRecommendation);
 
@@ -80,7 +89,7 @@ function VisualSelect() {
           </p>
         </div> */}
         <div className="w-full max-w-6xl mt-6 mb-6 text-left">
-          <button onClick={() => navigate("/data-confirm")}
+          <button onClick={goPreviousPage}
             className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
             <ChevronLeft size={18} className="mr-1" />
             Back

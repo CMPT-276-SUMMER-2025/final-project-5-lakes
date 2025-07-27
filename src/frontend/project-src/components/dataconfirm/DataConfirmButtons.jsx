@@ -18,7 +18,7 @@ function DataConfirmButtons({
     setIsLoading(true);
 
     try {
-      const res = await fetch(apiUrl, {
+      await fetch(apiUrl, {
         method: "DELETE",
         headers: {
           'Content-Type': 'application/json',
