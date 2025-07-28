@@ -25,11 +25,9 @@ afterAll(() => {
 
 // INTEGRATION TEST 
 // Mock feature 1
-jest.mock('../feature1.js', () => ({
+jest.mock('../file-parser.js', () => ({
     parseFile: jest.fn(() => {
-        return Promise.resolve({
-            parsedData: []
-        });
+        return Promise.resolve("");
     })
 }));
 
