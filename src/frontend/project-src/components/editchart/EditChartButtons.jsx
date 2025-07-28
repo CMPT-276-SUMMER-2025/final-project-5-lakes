@@ -1,7 +1,28 @@
 import { ChevronLeft, CirclePlus } from 'lucide-react';
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { goBackHomepage } from "../dataconfirm/DataConfirmButtons";
+
+
+const goBackHomepage = async () => {  // this is a function to go back to the homepage
+    // setIsLoading(true);
+    try {
+      await fetch(apiUrl, {
+        method: "DELETE",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: "{}",
+        credentials: 'include'
+      });
+      // 👇 pretend this came from the backend
+      navigate("/");
+    } catch (err) {
+      console.error("Error generating mock chart:", err);
+      alert("Something went wrong generating the chart.");
+    } finally {
+      // setIsLoading(false);
+    }
+};
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-selected`;
 
