@@ -15,7 +15,7 @@ function DataConfirmButtons({
   const navigate = useNavigate();
 
   const goBackHomepage = async () => {
-    setIsLoading(true);
+    // setIsLoading(true);
 
     try {
       await fetch(apiUrl, {
@@ -32,7 +32,7 @@ function DataConfirmButtons({
       console.error("Error generating mock chart:", err);
       alert("Something went wrong generating the chart.");
     } finally {
-      setIsLoading(false);
+      // setIsLoading(false);
     }
   };
 

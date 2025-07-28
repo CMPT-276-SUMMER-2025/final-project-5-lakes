@@ -38,6 +38,11 @@ app.use(cors({
     credentials: true
 }));
 
+
+app.get('/get-session-data', async (req, res) => {
+    res.json(sessionData);
+});
+
 // File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
     console.log('Incoming /file-submit request from:', req.headers.origin);
@@ -110,6 +115,13 @@ app.post('/visual-selected', async (req, res) => {
     sessionData.visualSelected = data.id;
     sessionData.selectedOption = sessionData.chartConfig[data.id];
     res.json({ chartConfig: sessionData.selectedOption });
+});
+
+app.post('/edit-selected', async (req, res) => {
+    const data = req.body;
+    console.log(data);
+    sessionData.chartConfig = data.chartConfig;
+    res.json({ chartConfig: sessionData.chartConfig });
 });
 
 
