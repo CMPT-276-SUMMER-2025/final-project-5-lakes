@@ -25,6 +25,8 @@ let sessionData = {
     summary: null,
     graphRecommendation: null,
     styleConfig: null,
+    visualSelected: null,
+    selectedOption: null,
 };
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
@@ -89,15 +91,25 @@ app.post('/edit-confirm', async (req, res) => {
         const summary = await getSummary(JSON.stringify(data.parsedData));
         const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
         // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
-
+        sessionData.summary = JSON.parse(summary);
+        sessionData.graphRecommendation = JSON.parse(graphRecommendation);
 
         res.json({ 
             summary: JSON.parse(summary),
             graphRecommendation: JSON.parse(graphRecommendation),
+            // chartConfig: chartConfig,
         });
     } catch (error) {
         res.status(500).send('Failed to process data.');
     }
+});
+
+app.post('/visual-selected', async (req, res) => {
+    const data = req.body;
+    console.log(data);
+    sessionData.visualSelected = data.id;
+    sessionData.selectedOption = sessionData.chartConfig[data.id];
+    res.json({ chartConfig: sessionData.selectedOption });
 });
 
 

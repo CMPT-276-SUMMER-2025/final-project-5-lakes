@@ -54,9 +54,10 @@ function VisualSelect() {
         
         
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {chartOptions.map((chart) => (
+          {chartOptions.map((chart, index) => (
             <ChartSelectionCard
-              key={chart.id}
+              key={index}
+              id={index}
               title={chart.title}
               description={chart.description}
               chartImageUrl={chart.imageUrl}

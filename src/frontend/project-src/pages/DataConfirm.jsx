@@ -16,6 +16,7 @@ const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-confirm`;
 function DataConfirm() {
   const location = useLocation();
   console.log(location);
+  
 
   const { parsedData, file } = location.state || {}; // get passed data
   const fileName = file?.originalname || 'Unknown file';

@@ -1,9 +1,32 @@
 // src/components/visualselect/ChartSelectionCard.jsx
 import { useNavigate } from "react-router-dom";
 
+const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/visual-selected`;
 
-const ChartSelectionCard = ({ chartImageUrl, title, description, buttonText = "Select Option" }) => {
+const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText = "Select Option" }) => {
   const navigate = useNavigate();
+
+  const handleSelectOption = () => {
+    fetch(apiUrl, {
+      method: "POST",
+      body: JSON.stringify({
+        id: id
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      navigate("/edit-chart", { state: data });
+    })
+    .catch(error => {
+      console.error("Error selecting option:", error);
+    });
+  }
+
+
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden">
     
@@ -21,7 +44,7 @@ const ChartSelectionCard = ({ chartImageUrl, title, description, buttonText = "S
 
 
         <div className="mt-4 text-right">
-          <button onClick={() => navigate("/edit-chart")} className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
+          <button onClick={handleSelectOption} className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
             {buttonText}
           </button>
         </div>
