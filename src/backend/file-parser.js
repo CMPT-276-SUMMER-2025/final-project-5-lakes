@@ -3,8 +3,9 @@ const pdfParse = require('pdf-parse'); // For PDF parsing
 const XLSX = require('xlsx'); // For Excel parsing
 const Papa = require('papaparse'); // For CSV parsing
 const mammoth = require('mammoth'); // For Docx parsing
-const prompts = require('./prompts/deepseekPrompts');
+const prompts = require('./prompts/deepseekPrompts.js');
 const { queryDeepSeekV3 } = require('./deepSeek/APIdeepseek.js');
+
 
 async function parseFile(file){
     let filePath = null;
