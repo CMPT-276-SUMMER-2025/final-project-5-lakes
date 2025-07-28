@@ -4,7 +4,7 @@ const XLSX = require('xlsx'); // For Excel parsing
 const Papa = require('papaparse'); // For CSV parsing
 const mammoth = require('mammoth'); // For Docx parsing
 const prompts = require('./prompts/deepseekPrompts');
-const { queryDeepSeekV3 } = require('./deepseek.js');
+const { queryDeepSeekV3 } = require('./deepSeek/APIdeepseek.js');
 
 async function parseFile(file){
     let filePath = null;
