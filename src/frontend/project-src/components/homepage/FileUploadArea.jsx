@@ -52,11 +52,11 @@ function FileUploadArea({setFiles }) {
   if (hasUploaded && !isDragOver) {
     return (
       <div
-        className="border-2 border-blue-500 bg-blue-50 flex flex-col items-center justify-center p-8 rounded-lg text-center transition-colors duration-200 ease-in-out"
+        className="border-2 border-green-500 bg-green-50 flex flex-col items-center justify-center p-8 rounded-lg text-center transition-colors duration-200 ease-in-out"
         {...dragHandlers}
       >
-        <CheckCircle className="w-12 h-12 text-black mb-4" />
-        <p className="text-black text-lg font-semibold mb-4">
+        <CheckCircle className="w-12 h-12 text-green-500 mb-4" />
+        <p className="text-green-500 text-lg font-semibold mb-4">
           File uploaded successfully!
         </p>
 
