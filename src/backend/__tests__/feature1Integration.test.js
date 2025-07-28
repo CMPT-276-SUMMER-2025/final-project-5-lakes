@@ -25,12 +25,8 @@ afterAll(() => {
 
 // INTEGRATION TEST 
 // Mock feature 1
-jest.mock('../feature1.js', () => ({
-    parseFile: jest.fn(() => {
-        return Promise.resolve({
-            parsedData: []
-        });
-    })
+jest.mock('../file-parser.js', () => ({
+    parseFile: jest.fn(() => Promise.resolve('["123"]'))
 }));
 
 describe('Integration test of file upload flow', () => {
@@ -41,8 +37,6 @@ describe('Integration test of file upload flow', () => {
             .post('/file-submit')
             .attach('files', tempCsvPath);
         
-        expect(res.body).toMatchObject({ 
-            parsedData: []
-        });
+        expect(res.body.parsedData).toEqual(["123"]);
     });
 });
