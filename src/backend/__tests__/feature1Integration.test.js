@@ -27,7 +27,7 @@ afterAll(() => {
 // Mock feature 1
 jest.mock('../file-parser.js', () => ({
     parseFile: jest.fn(() => {
-        return Promise.resolve("");
+        return Promise.resolve([]);
     })
 }));
 
