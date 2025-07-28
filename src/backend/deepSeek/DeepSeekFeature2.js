@@ -1,4 +1,4 @@
-const { queryDeepSeekV3 } = require('./deepseek.js');
+const { queryDeepSeekV3 } = require('./APIdeepseek.js');
 const prompts = require('./prompts/deepseekPrompts.js');
 
 
