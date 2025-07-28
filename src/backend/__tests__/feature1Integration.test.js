@@ -26,8 +26,10 @@ afterAll(() => {
 // INTEGRATION TEST 
 // Mock feature 1
 jest.mock('../feature1.js', () => ({
-    parseFileAndSendToDeepSeek: jest.fn(() => {
-        return Promise.resolve({analysis: [{type: 'bar', data: {labels: ['A'], datasets: [{label: 'Value', data: [10]}] } }] });
+    parseFile: jest.fn(() => {
+        return Promise.resolve({
+            parsedData: []
+        });
     })
 }));
 
@@ -40,20 +42,7 @@ describe('Integration test of file upload flow', () => {
             .attach('files', tempCsvPath);
         
         expect(res.body).toMatchObject({ 
-            analysis: [
-                {
-                    type: 'bar',
-                    data: {
-                        labels: ['A'],
-                        datasets: [
-                            { 
-                                label: 'Value', 
-                                data: [10] 
-                            }
-                        ]
-                    }
-                }
-            ]
+            parsedData: []
         });
     });
 });
