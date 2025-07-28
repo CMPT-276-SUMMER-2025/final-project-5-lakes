@@ -1,4 +1,4 @@
-require('dotenv').config({ path: "../../.env"});
+require('dotenv').config();
 
 //API key linking to the DeekSeek Model
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
@@ -18,8 +18,8 @@ async function queryDeepSeekV3(prompt) {
         messages: [{ role: "user", content: prompt }],
         // limits how long the response can be (WE CAN CHANGE THIS)
         max_tokens: 1000,
-        // controls randomness (WE CAN CHANGE THIS)
-        temperature: 0.7,
+        // controls randomness (NO RANDOMNESS SO RESPONSES ARE STRAIGHT FORWARD)
+        temperature: 0.0,
       }),
     });
 
