@@ -1,10 +1,5 @@
-const { queryDeepSeekV3 } = require('./deepseek.js');
-const fs = require('fs');
-const pdfParse = require('pdf-parse'); // For PDF parsing
-const XLSX = require('xlsx'); // For Excel parsing
-const Papa = require('papaparse'); // For CSV parsing
-const mammoth = require('mammoth'); // For Docx parsing
-const prompts = require('./prompts/deepseekPrompts');
+const { queryDeepSeekV3 } = require('./APIdeepseek.js');
+const prompts = require('../prompts/deepseekPrompts.js');
 
 async function convertToChartConfig(query, data) {
     const prompt = prompts.feature1(query, data);

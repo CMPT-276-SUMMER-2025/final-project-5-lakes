@@ -1,13 +1,10 @@
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
-const { convertToChartConfig } = require('./feature1.js');
-const { getGraphRecommendation } = require('./feature2.js');
-const { getSummary } = require('./feature3.js');
+const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1.js');
+const { getGraphRecommendation } = require('./DeepSeekFeature2.js');
+const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
-
-const prompts = require('./prompts/deepseekPrompts.js');
-
 
 const app = express();
 
