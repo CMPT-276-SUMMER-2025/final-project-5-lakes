@@ -16,10 +16,13 @@ const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-confirm`;
 function DataConfirm() {
   const location = useLocation();
   console.log(location);
+  
 
-  const { analysis, file } = location.state || {}; // get passed data
+  const { parsedData, file } = location.state || {}; // get passed data
   const fileName = file?.originalname || 'Unknown file';
   const fileSize = file?.size || 0;
+
+  console.log(parsedData);
 
   const [isLoading, setIsLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState([]);
@@ -47,7 +50,11 @@ function DataConfirm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({chartConfig: chartConfig, file: file, analysis: analysis}),
+        body: JSON.stringify({
+          edittedData: {},
+          parsedData: parsedData,
+          file: file
+        }),
         credentials: 'include'
       });
       if (!res.ok) throw new Error("Chart generation failed");
@@ -63,25 +70,25 @@ function DataConfirm() {
 
   useEffect(() => {
     // Check if we have the required data
-    if (!analysis || !analysis[0] || !file) {
+    if (!parsedData || !file) {
       console.log('Missing required data - redirecting to home');
-      console.log('Analysis:', analysis);
+      console.log('ParsedData:', parsedData);
       console.log('File:', file);
       navigate("/"); // Redirect if nothing to show
       return;
     }
 
-    const { tableRows, chartLabel, chartType } = parseQuickChartToTableRows(analysis[0]);
+    const { tableRows, chartLabel, chartType } = parseQuickChartToTableRows(parsedData);
 
-    if (tableRows.length === 0) {
-      navigate("/");
-    } else {
-      setConfirmedData(tableRows);
-      setOriginalData(tableRows); 
-      setChartLabel(chartLabel);
-      setChartType(chartType);
-    }
-  }, [analysis, file, navigate]);
+    // if (tableRows.length === 0) {
+    //   navigate("/");
+    // } else {
+    //   setConfirmedData(tableRows);
+    //   setOriginalData(tableRows); 
+    //   setChartLabel(chartLabel);
+    //   setChartType(chartType);
+    // }
+  }, [parsedData, file, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
