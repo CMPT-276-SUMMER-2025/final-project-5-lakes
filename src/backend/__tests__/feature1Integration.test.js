@@ -39,8 +39,6 @@ describe('Integration test of file upload flow', () => {
             .post('/file-submit')
             .attach('files', tempCsvPath);
         
-        expect(res.body).toMatchObject({ 
-            parsedData: []
-        });
+        expect(res.body.parsedData).toEqual([]);
     });
 });
