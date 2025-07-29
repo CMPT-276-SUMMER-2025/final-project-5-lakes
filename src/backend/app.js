@@ -82,7 +82,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 });
 
 // Information edit confirm
-app.post('/edit-confirm', async (req, res) => {
+app.post('/data-confirm', async (req, res) => {
     const data = req.body;
     // Validate that data exists and has chartConfig property
     // console.log(data);
@@ -95,17 +95,17 @@ app.post('/edit-confirm', async (req, res) => {
         const summary = await getSummary(JSON.stringify(data.parsedData));
         const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
 
-        const labels = await separateLabels(JSON.stringify(data.parsedData));
+        /*const labels = await separateLabels(JSON.stringify(data.parsedData));
         console.log(labels);
         // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
         sessionData.summary = JSON.parse(summary);
-        sessionData.graphRecommendation = JSON.parse(graphRecommendation);
+        sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
 
         res.json({ 
             summary: JSON.parse(summary),
             graphRecommendation: JSON.parse(graphRecommendation),
             // chartConfig: chartConfig,
-            labels: labels,
+            //labels: labels,
 
 
         });

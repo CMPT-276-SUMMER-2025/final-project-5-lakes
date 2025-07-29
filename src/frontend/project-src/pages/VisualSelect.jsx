@@ -20,7 +20,7 @@ function VisualSelect() {
   useEffect(() => {
     fetch('/visual-select')
       .then(response => response.json())
-      .then(data => setChartOptions(data))
+      .then(data => setChartOptions(data.imageURL))
       .catch(error => {
         console.error('could not get chart options', error);
         setChartOptions([

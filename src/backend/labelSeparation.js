@@ -7,4 +7,4 @@ async function separateLabels(data) {
     return JSON.parse(response);
 }
 
-module.exports = { separateLabels };
+//module.exports = { separateLabels };

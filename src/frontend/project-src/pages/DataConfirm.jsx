@@ -11,7 +11,7 @@ import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
 import parseQuickChartToTableRows from "../utils/QuickToTable";
 import convertTableRowsToQuickChartConfig from "../utils/TableToQuick";
 
-const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-confirm`;
+const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/data-confirm`;
 
 function DataConfirm() {
   const location = useLocation();
@@ -51,7 +51,7 @@ function DataConfirm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          edittedData: {},
+          edittedData: confirmedData,
           parsedData: parsedData,
           file: file
         }),
@@ -80,14 +80,14 @@ function DataConfirm() {
 
     const { tableRows, chartLabel, chartType } = parseQuickChartToTableRows(parsedData);
 
-    // if (tableRows.length === 0) {
-    //   navigate("/");
-    // } else {
-    //   setConfirmedData(tableRows);
-    //   setOriginalData(tableRows); 
-    //   setChartLabel(chartLabel);
-    //   setChartType(chartType);
-    // }
+    if (tableRows.length === 0) {
+      navigate("/");
+    } else {
+      setConfirmedData(tableRows);
+      setOriginalData(tableRows); 
+      setChartLabel(chartLabel);
+      setChartType(chartType);
+    }
   }, [parsedData, file, navigate]);
 
   return (
