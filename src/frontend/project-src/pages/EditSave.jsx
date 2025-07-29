@@ -1,11 +1,10 @@
-import EditChartStepper from "../components/editchart/EditChartStepper";
-import EditChartButtons from "../components/editchart/EditChartButtons";
+import EditSaveStepper from "../components/editchart/EditSaveStepper";
+import EditSaveButtons from "../components/editchart/EditSaveButtons";
 import DownloadButtons from "../components/editchart/DownloadButtons";
 import { Download } from 'lucide-react';
 import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
 
-function EditChart() {
+function EditSave() {
     const location = useLocation();
     const { chartConfig } = location.state || {};
     console.log(chartConfig);
@@ -42,9 +41,9 @@ function EditChart() {
                     </div>
                 </div>
             </div>
-            <EditChartButtons />
+            <EditSaveButtons />
         </div>
     );
 }
 
-export default EditChart;
+export default EditSave;
