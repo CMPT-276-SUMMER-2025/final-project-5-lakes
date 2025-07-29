@@ -5,6 +5,9 @@ const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1.js');
 const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
 const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
+const { separateLabels } = require('./labelSeparation.js');
+const { generateDummyChartURL } = require('./quickChart/QCFeature1.js');
+const { generateChart } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -17,12 +20,15 @@ const upload = multer({dest: 'uploads/'});
 let sessionData = {
     uploadedFile: null,
     parsedData: null,
+    edittedData: null,
     chartConfig: null,
     summary: null,
     graphRecommendation: null,
     styleConfig: null,
+    chartOptions: null,
     visualSelected: null,
     selectedOption: null,
+    labels: null,
 };
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
@@ -66,7 +72,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     try {
         const file = files[0]; // Process first file uploaded
         let result = { parsedData: JSON.parse(await parseFile(file)), file: file };
-        console.log(result.parsedData);
         sessionData.uploadedFile = file;
         sessionData.parsedData = result.parsedData;
         sessionData.chartConfig = null;
@@ -80,37 +85,82 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 });
 
 // Information edit confirm
-app.post('/edit-confirm', async (req, res) => {
+app.post('/data-confirm', async (req, res) => {
     const data = req.body;
+    console.log(`DATA FROM DATACONFIRM ${JSON.stringify(data.edittedData)}`);
     // Validate that data exists and has chartConfig property
+    // console.log(data);
     if (!data) {
         return res.status(400).json({ error: 'No data provided in request body' });
     }
     
     try {
+        sessionData.edittedData = JSON.stringify(data.edittedData);
+
         // const prompt = prompts.feature1("",JSON.stringify(data.edittedData));
-        const summary = await getSummary(JSON.stringify(data.parsedData));
-        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
+        const summary = await getSummary(JSON.stringify(data.edittedData));
+        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
+
+        const chartsWithURLs = [
+            { id: 1, type: "bar", title: "Bar Chart", description: "Bars of values", imageUrl: generateDummyChartURL(1) },
+            { id: 2, type: "line", title: "Line Chart", description: "Trends over time", imageUrl: generateDummyChartURL(2) },
+            { id: 3, type: "pie", title: "Pie Chart", description: "Proportional breakdown", imageUrl: generateDummyChartURL(3) }
+        ];
+
+        sessionData.chartOptions = chartsWithURLs.map(chart => chart.type);
+
+        /*const labels = await separateLabels(JSON.stringify(data.parsedData));
+        console.log(labels);
         // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
         sessionData.summary = JSON.parse(summary);
-        sessionData.graphRecommendation = JSON.parse(graphRecommendation);
+        sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
 
         res.json({ 
             summary: JSON.parse(summary),
             graphRecommendation: JSON.parse(graphRecommendation),
+            chartsWithURLs: chartsWithURLs,
             // chartConfig: chartConfig,
+            // labels: labels,
         });
     } catch (error) {
+        console.log(error);
         res.status(500).send('Failed to process data.');
     }
 });
 
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
-    console.log(data);
     sessionData.visualSelected = data.id;
-    sessionData.selectedOption = sessionData.chartConfig[data.id];
-    res.json({ chartConfig: sessionData.selectedOption });
+    //sessionData.selectedOption = sessionData.chartConfig[data.id];
+
+    try{
+        // Check if theres data
+        if (!sessionData.parsedData){
+            return res.status(400).json({ error: 'No parsed data avaiable.' });
+        }
+
+        const labels = await separateLabels(JSON.stringify(sessionData.parsedData));
+        console.log(labels);
+
+        // Attach chartImageURL using QuickChart
+        /*const chartsWithURLs = chartConfigs.map(chart => ({
+            //id: chart.id,
+            //title: chart.title,
+            //description: chart.description,
+            id: 1,
+            title: "Bar Chart",
+            description: "Displays values as bars.",
+            imageURL: generateDummyChartURL()
+        }));*/
+
+        const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
+        console.log(chartConfig);
+
+        res.json({chartConfig: chartConfig});
+    } catch (error) {
+        console.error('Error generating chart URLs:', error);
+        res.status(500).json({ error: 'Failed to generate visualization options' });
+    }
 });
 
 app.post('/edit-selected', async (req, res) => {

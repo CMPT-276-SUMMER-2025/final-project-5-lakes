@@ -8,7 +8,6 @@ import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash } from "lucide-react";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/data-confirm`;
 
-
 function DataConfirm() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,13 +38,14 @@ function DataConfirm() {
     try {
       const formattedData = convertTableToDeepSeekFormat(confirmedData);
 
+      // Take in data from backend
       const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           edittedData: formattedData,
-          parsedData,
-          file,
+          parsedData: parsedData,
+          file: file
         }),
         credentials: "include",
       });
