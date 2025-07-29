@@ -1,5 +1,5 @@
 // src/components/dataconfirm/EditableTable.jsx
-import { useState } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import { DataGrid } from "react-data-grid";
 import "react-data-grid/lib/styles.css"; 
 
@@ -9,7 +9,7 @@ const columns = [
   { key: "orders", name: "Orders", editable: true },
   { key: "spending", name: "Spending", editable: true },
   { key: "satisfaction", name: "Satisfaction", editable: true },
-  { key: "id", name: "ID", editable: true }, 
+  { key: "id", name: "ID", editable: false, hidden: true },
 ];
 
 const defaultRows = [

@@ -1,12 +1,13 @@
-const { queryDeepSeekV3 } = require('./deepseek.js');
 const fs = require('fs');
 const pdfParse = require('pdf-parse'); // For PDF parsing
 const XLSX = require('xlsx'); // For Excel parsing
 const Papa = require('papaparse'); // For CSV parsing
 const mammoth = require('mammoth'); // For Docx parsing
-const prompts = require('./prompts/deepseekPrompts');
+const prompts = require('./prompts/deepseekPrompts.js');
+const { queryDeepSeekV3 } = require('./deepSeek/APIdeepseek.js');
 
-async function parseFileAndSendToDeepSeek(file, query){
+
+async function parseFile(file){
     let filePath = null;
     try{
         let data = [];
@@ -17,7 +18,7 @@ async function parseFileAndSendToDeepSeek(file, query){
             case 'text/csv': {
                 const csvContent = fs.readFileSync(filePath, 'utf8');
                 const parsedCsv = Papa.parse(csvContent, { header: true });
-                data = parsedCsv.data;
+                data = JSON.stringify(parsedCsv.data);
                 break;
             }
             
@@ -26,6 +27,7 @@ async function parseFileAndSendToDeepSeek(file, query){
                 const workbook = XLSX.readFile(file.path);
                 const sheet = workbook.Sheets[workbook.SheetNames[0]];
                 data = XLSX.utils.sheet_to_json(sheet);
+                data = JSON.stringify(data);
                 break;
             }
 
@@ -56,11 +58,9 @@ async function parseFileAndSendToDeepSeek(file, query){
             default:
                 throw new Error('Unsupported file type.');
         }
-
-        //send to deepseek api
-        const prompt = prompts.feature1(query, data);
+        const prompt = prompts.parsedDataFormat('', data);
         const result = await queryDeepSeekV3(prompt);
-        return {analysis: JSON.parse(result)};
+        return result;
     } catch (error) {
         console.error('Error processing file:', error);
         throw error;
@@ -71,4 +71,4 @@ async function parseFileAndSendToDeepSeek(file, query){
     }
 }
 
-module.exports = {parseFileAndSendToDeepSeek};
+module.exports = {parseFile};

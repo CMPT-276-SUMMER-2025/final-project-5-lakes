@@ -25,10 +25,8 @@ afterAll(() => {
 
 // INTEGRATION TEST 
 // Mock feature 1
-jest.mock('../feature1.js', () => ({
-    parseFileAndSendToDeepSeek: jest.fn(() => {
-        return Promise.resolve({analysis: [{type: 'bar', data: {labels: ['A'], datasets: [{label: 'Value', data: [10]}] } }] });
-    })
+jest.mock('../file-parser.js', () => ({
+    parseFile: jest.fn(() => Promise.resolve('["123"]'))
 }));
 
 describe('Integration test of file upload flow', () => {
@@ -39,21 +37,6 @@ describe('Integration test of file upload flow', () => {
             .post('/file-submit')
             .attach('files', tempCsvPath);
         
-        expect(res.body).toEqual({ 
-            analysis: [
-                {
-                    type: 'bar',
-                    data: {
-                        labels: ['A'],
-                        datasets: [
-                            { 
-                                label: 'Value', 
-                                data: [10] 
-                            }
-                        ]
-                    }
-                }
-            ]
-        });
+        expect(res.body.parsedData).toEqual(["123"]);
     });
 });

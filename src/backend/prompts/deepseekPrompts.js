@@ -52,9 +52,8 @@ const promptExtractStructuredData =
         `;
 
 const graphRecommendationLogic = 
-        `
-        The user has extracted structured data into QuickChart format. 
-        Your task is to recommend up to 4 suitable chart types for each dataset, based only on the given chart types below:
+        `The user has extracted structured data into QuickChart format. 
+        Your task is to recommend the most suitable chart type for the first dataset only, based on the given chart types below:
 
         Available Chart Types:
         - "Vertical Bar"
@@ -70,22 +69,62 @@ const graphRecommendationLogic =
         - "Labelled Pie"
 
         Instructions:
-        1. Analyze each dataset and choose the most appropriate chart types (up to 4) from the list.
-        2. Output your recommendations as an array of arrays — each inner array contains chart type strings for one dataset.
-        3. Match array order to the input dataset order (e.g., first array for dataset 1, second array for dataset 2).
+        1. Analyze the first dataset only
+        2. Choose the single most appropriate chart type from the list above
+        3. Return exactly this format: {"recommendation": "[ChartType] Chart type is the recommended chart that suits your needs for your data visualization"}
 
-        Important rules:
-        - Do NOT include any explanations or formatting.
-        - Do NOT wrap the output in triple backticks (\`\`\`).
-        - Only return clean, valid JSON like the following:
+        CRITICAL RULES:
+        - Return ONLY the JSON object, nothing else
+        - Do NOT wrap in code blocks or backticks
+        - Do NOT include any explanations
+        - Start response directly with { and end with }`;
+
+const summaryPrompt = 
+        `
+        You are given an array of datasets extracted from a file. 
+        Your task is to:
+        For each of the datasets, give me a summary of the data in bullet point form as an array of strings.
+        return it in the following JSON format in the same order as the datasets:
 
         [
-                ["Vertical Bar", "Horizontal Bar"],
-                ["Line", "Point", "Exponential Smoothing"]
+                "Summary 1",
+                "Summary 2",
+                ...
         ]
-        `;
+         Important rules:
+        - Do NOT include any explanations, descriptions, or natural language text.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+        `
 
-const summaryQuery = "Give me only summaries of trend or key insights in bullet point form as an array of strings of this data (dont give me anything else at all remove the ``` json ... ``` from your response):";
+const parsedDataFormat = 
+        `
+        You are given a parsed file (csv, excel, txt or pdf). Given the file, extract all the relevant data needed to
+        create a chart and format it as parsed csv file.
+        
+        Example format:
+        [
+                {
+                        "Label 1": "Value 1",
+                        "Label 2": "Value 2",
+                        "Label 3": "Value 3",
+                        ...
+                },
+                {
+                        "Label 1": "Value 1",
+                        "Label 2": "Value 2",
+                        "Label 3": "Value 3",
+                        ...
+                },
+                ...
+        ]
+        
+        Important rules:
+        - Do NOT include any explanations, descriptions, or natural language text.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+        `
+
 
 const prompts = {
         feature1: (query, data) => 
@@ -96,6 +135,16 @@ const prompts = {
         feature2: (query, data) =>
         `
         ${promptPrefix}${graphRecommendationLogic}${query}\n\nHere is the data:\n${data}
+        `,
+
+        feature3: (query, data) =>
+        `
+        ${promptPrefix}${summaryPrompt}${query}\n\nHere is the data:\n${data}
+        `,
+
+        parsedDataFormat: (query, data) =>
+        `
+        ${promptPrefix}${parsedDataFormat}${query}\n\nHere is the data:\n${data}
         `
 };
 

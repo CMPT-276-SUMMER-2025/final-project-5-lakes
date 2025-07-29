@@ -1,3 +1,5 @@
+// Source code: https://uiverse.io/Nawsome/curly-goose-54
+
 import "../../styles/PageLoader.css";
 
 function PageLoader() {
@@ -26,3 +28,4 @@ function PageLoader() {
 }
 
 export default PageLoader;
+
