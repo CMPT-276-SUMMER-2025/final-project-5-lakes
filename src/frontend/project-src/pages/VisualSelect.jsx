@@ -8,6 +8,8 @@ import VisualSelectStepper from '../components/visualselect/VisualSelectStepper'
 // may need to change the inputs
 // currently accepts an: ID, the title, the description, and the image URL
 
+const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/visual-select`;
+
 function VisualSelect() {
   const [chartOptions, setChartOptions] = useState([]);
   const navigate = useNavigate();
@@ -16,7 +18,7 @@ function VisualSelect() {
   const { chartsConfig, summary, graphRecommendation, analysis } = location.state || {}; 
 
   useEffect(() => {
-    fetch('/api/visualization-options')
+    fetch('/visual-select')
       .then(response => response.json())
       .then(data => setChartOptions(data))
       .catch(error => {

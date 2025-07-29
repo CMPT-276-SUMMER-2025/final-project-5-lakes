@@ -56,7 +56,7 @@ function HomePage() {
       credentials: 'include'
     })
 
-    // to got to the next page if successful
+    // to go to the next page if successful
      .then((response) => {
       if (!response.ok) {
         throw new Error('error sending info');

@@ -6,6 +6,7 @@ const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
 const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
 const { separateLabels } = require('./labelSeparation.js');
+const { generateDummyChart } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -114,12 +115,32 @@ app.post('/edit-confirm', async (req, res) => {
     }
 });
 
+//ASSUMING EVERYTHING BEFORE WORKS (READ THIS)
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
     console.log(data);
     sessionData.visualSelected = data.id;
     sessionData.selectedOption = sessionData.chartConfig[data.id];
     res.json({ chartConfig: sessionData.selectedOption });
+
+    try{
+        // Check if theres data
+        if (!sessionData.parsedData){
+            return res.status(400).json({ error: 'No parsed data avaiable.' });
+        }
+
+        // Attach chartImageURL using QuickChart
+        const chartsWithURLs = chartConfigs.map(chart => ({
+            id: chart.id,
+            title: chart.title,
+            description: chart.description,
+            imageURL: generateDummyChart()
+        }));
+        res.json(chartsWithURLS);
+    } catch (error) {
+        console.error('Error generating chart URLs:', error);
+        res.status(500).json({ error: 'Failed to generate visualization options' });
+    }
 });
 
 app.post('/edit-selected', async (req, res) => {
