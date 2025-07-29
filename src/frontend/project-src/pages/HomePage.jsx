@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
+import LoadingPopUp from '../components/homepage/LoadingPopUp';
+// import { set } from '../../../backend/app';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/file-submit`;
 
@@ -15,6 +17,8 @@ function HomePage() {
   const [files, setFiles] = useState([]);
   const navigate = useNavigate();
   const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
         console.log('[HomePage] Files state updated:', Array.from(files));
@@ -42,6 +46,8 @@ function HomePage() {
       }
     }
 
+    setIsLoading(true);
+
     console.log('testing inputs:');
     console.log('Text input:', text);
     console.log("Files:", Array.from(files));
@@ -64,6 +70,7 @@ function HomePage() {
       return response.json();
     })
     .then((data) => {
+      setIsLoading(false);
       navigate('/data-confirm', { state: data });
     })
   };
@@ -82,18 +89,19 @@ function HomePage() {
    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter"
    onDragOver={handleGlobalDragOver} 
       onDrop={handleGlobalDrop}   >
+      <LoadingPopUp show={isLoading} />
 
-        {isAlertVisible && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <DefaultError
-              title={alertConfig.title}
-              message={alertConfig.message}
-              buttonText={alertConfig.buttonText}
-              onButtonClick={hideAlert}
-              isVisible={isAlertVisible}
-            />
-          </div>
-        )}
+      {isAlertVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <DefaultError
+            title={alertConfig.title}
+            message={alertConfig.message}
+            buttonText={alertConfig.buttonText}
+            onButtonClick={hideAlert}
+            isVisible={isAlertVisible}
+          />
+        </div>
+      )}
 
      <header className="text-center mb-10">
        <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
