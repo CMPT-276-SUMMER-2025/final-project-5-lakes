@@ -5,6 +5,7 @@ const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1.js');
 const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
 const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
+const { separateLabels } = require('./labelSeparation.js');
 
 const app = express();
 
@@ -83,27 +84,30 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 app.post('/edit-confirm', async (req, res) => {
     const data = req.body;
     // Validate that data exists and has chartConfig property
+    // console.log(data);
     if (!data) {
         return res.status(400).json({ error: 'No data provided in request body' });
     }
     
     try {
         // const prompt = prompts.feature1("",JSON.stringify(data.edittedData));
-        // const summary = await getSummary(JSON.stringify(data.parsedData));
-        // const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
+        const summary = await getSummary(JSON.stringify(data.parsedData));
+        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
         const labels = await separateLabels(JSON.stringify(data.parsedData));
         console.log(labels);
         // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
-        // sessionData.summary = JSON.parse(summary);
-        // sessionData.graphRecommendation = JSON.parse(graphRecommendation);
+        sessionData.summary = JSON.parse(summary);
+        sessionData.graphRecommendation = JSON.parse(graphRecommendation);
 
         res.json({ 
-            // summary: JSON.parse(summary),
-            // graphRecommendation: JSON.parse(graphRecommendation),
+            summary: JSON.parse(summary),
+            graphRecommendation: JSON.parse(graphRecommendation),
             // chartConfig: chartConfig,
-            
+            labels: labels,
+
         });
     } catch (error) {
+        console.log(error);
         res.status(500).send('Failed to process data.');
     }
 });

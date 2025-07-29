@@ -1,5 +1,5 @@
 const prompts = require('./prompts/deepseekPrompts');
-const { queryDeepSeekV3 } = require('./deepseek');
+const { queryDeepSeekV3 } = require('./deepSeek/APIdeepseek.js');
 
 async function separateLabels(data) {
     const query = prompts.labelsSeparatorPrompt(data);
