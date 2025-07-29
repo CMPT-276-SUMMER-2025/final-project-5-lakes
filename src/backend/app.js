@@ -6,7 +6,7 @@ const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
 const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
 const { separateLabels } = require('./labelSeparation.js');
-const { generateDummyChart } = require('./quickChart/QCFeature1.js');
+const { generateDummyChartURL } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -19,6 +19,7 @@ const upload = multer({dest: 'uploads/'});
 let sessionData = {
     uploadedFile: null,
     parsedData: null,
+    edittedData: null,
     chartConfig: null,
     summary: null,
     graphRecommendation: null,
@@ -68,7 +69,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     try {
         const file = files[0]; // Process first file uploaded
         let result = { parsedData: JSON.parse(await parseFile(file)), file: file };
-        console.log(result.parsedData);
         sessionData.uploadedFile = file;
         sessionData.parsedData = result.parsedData;
         sessionData.chartConfig = null;
@@ -84,6 +84,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 // Information edit confirm
 app.post('/data-confirm', async (req, res) => {
     const data = req.body;
+    console.log(`DATA FROM DATACONFIRM ${data.edittedData}`);
     // Validate that data exists and has chartConfig property
     // console.log(data);
     if (!data) {
@@ -91,9 +92,11 @@ app.post('/data-confirm', async (req, res) => {
     }
     
     try {
+        sessionData.edittedData = JSON.stringify(data.edittedData);
+
         // const prompt = prompts.feature1("",JSON.stringify(data.edittedData));
-        const summary = await getSummary(JSON.stringify(data.parsedData));
-        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
+        const summary = await getSummary(JSON.stringify(data.edittedData));
+        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
 
         /*const labels = await separateLabels(JSON.stringify(data.parsedData));
         console.log(labels);
@@ -106,8 +109,6 @@ app.post('/data-confirm', async (req, res) => {
             graphRecommendation: JSON.parse(graphRecommendation),
             // chartConfig: chartConfig,
             //labels: labels,
-
-
         });
     } catch (error) {
         console.log(error);
@@ -115,13 +116,10 @@ app.post('/data-confirm', async (req, res) => {
     }
 });
 
-//ASSUMING EVERYTHING BEFORE WORKS (READ THIS)
-app.post('/visual-selected', async (req, res) => {
+app.post('/visual-select', async (req, res) => {
     const data = req.body;
-    console.log(data);
     sessionData.visualSelected = data.id;
-    sessionData.selectedOption = sessionData.chartConfig[data.id];
-    res.json({ chartConfig: sessionData.selectedOption });
+    //sessionData.selectedOption = sessionData.chartConfig[data.id];
 
     try{
         // Check if theres data
@@ -130,13 +128,23 @@ app.post('/visual-selected', async (req, res) => {
         }
 
         // Attach chartImageURL using QuickChart
-        const chartsWithURLs = chartConfigs.map(chart => ({
-            id: chart.id,
-            title: chart.title,
-            description: chart.description,
-            imageURL: generateDummyChart()
-        }));
-        res.json(chartsWithURLS);
+        /*const chartsWithURLs = chartConfigs.map(chart => ({
+            //id: chart.id,
+            //title: chart.title,
+            //description: chart.description,
+            id: 1,
+            title: "Bar Chart",
+            description: "Displays values as bars.",
+            imageURL: generateDummyChartURL()
+        }));*/
+
+        const chartsWithURLs = [
+            { id: 1, title: "Bar Chart", description: "Bars of values", imageUrl: generateDummyChartURL(1) },
+            { id: 2, title: "Line Chart", description: "Trends over time", imageUrl: generateDummyChartURL(2) },
+            { id: 3, title: "Pie Chart", description: "Proportional breakdown", imageUrl: generateDummyChartURL(3) }
+        ];
+        
+        res.json(chartsWithURLs);
     } catch (error) {
         console.error('Error generating chart URLs:', error);
         res.status(500).json({ error: 'Failed to generate visualization options' });

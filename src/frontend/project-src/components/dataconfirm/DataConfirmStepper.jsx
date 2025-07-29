@@ -24,10 +24,6 @@ function DataConfirmStepper() {
                 Edit & Save
                 <ChevronRight size={25} className="ml-2" />
             </button>
-            <button className="secondary-button mb-4 mr-5">
-                <ArrowRightFromLine size={20} className="mr-2" />
-                Export Chart
-            </button>
         </div>
     );
 }

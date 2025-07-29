@@ -1,6 +1,6 @@
 import { ChevronLeft, CirclePlus } from 'lucide-react';
 import { useLocation } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom"; not currently used
 
 
 const goBackHomepage = async () => {  // this is a function to go back to the homepage

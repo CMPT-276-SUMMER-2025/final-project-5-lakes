@@ -18,9 +18,18 @@ function VisualSelect() {
   const { chartsConfig, summary, graphRecommendation, analysis } = location.state || {}; 
 
   useEffect(() => {
-    fetch('/visual-select')
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: 1 })
+      })
       .then(response => response.json())
-      .then(data => setChartOptions(data.imageURL))
+      .then(data => {
+        console.log('chartOptions from API:', data);
+        setChartOptions(data);
+      })
       .catch(error => {
         console.error('could not get chart options', error);
         setChartOptions([
@@ -58,8 +67,8 @@ function VisualSelect() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {chartOptions.map((chart, index) => (
             <ChartSelectionCard
-              key={index}
-              id={index}
+              key={chart.id}
+              id={chart.id}
               title={chart.title}
               description={chart.description}
               chartImageUrl={chart.imageUrl}

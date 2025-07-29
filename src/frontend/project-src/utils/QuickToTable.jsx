@@ -1,29 +1,12 @@
-
-function parseQuickChartToTableRows(parsedData) {
-  if (
-    !parsedData ||
-    !parsedData.data ||
-    !parsedData.data.labels ||
-    !parsedData.data.datasets
-  ) {
+function parseQuickChartToTableRows(parsedDataArray) {
+  if (!Array.isArray(parsedDataArray) || parsedDataArray.length === 0) {
     return { tableRows: [], chartLabel: "Value", chartType: "bar" };
   }
 
-  const labels = parsedData.data.labels;
-  const values = parsedData.data.datasets[0]?.data || [];
-  const datasetLabel = parsedData.data.datasets[0]?.label || "Value";
-  const type = parsedData.type || "bar";
-
-  const tableRows = labels.map((label, i) => ({
-    id: i,
-    label,
-    value: values[i] ?? "",
-  }));
-
   return {
-    tableRows,
-    chartLabel: datasetLabel,
-    chartType: type,
+    tableRows: parsedDataArray,
+    chartLabel: Object.keys(parsedDataArray[0])[1] || "Value", // guess 2nd key as data label
+    chartType: "bar"
   };
 }
 
