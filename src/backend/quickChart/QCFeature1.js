@@ -16,7 +16,7 @@ function getYValues(label, dataset) {
     return dataset.map(item => item[label]);
 }
     
-function generateChart(chartConfig) {
+function generateChart(dataset, labels, type) {
     /*let chartConfig = {
         type: type,
         data: {
@@ -30,13 +30,18 @@ function generateChart(chartConfig) {
     };*/
 
     
-    const encodedConfig = encodeURIComponent(JSON.stringify(chartConfig));
-    return quickChartURL + encodedConfig;
+    // const encodedConfig = encodeURIComponent(JSON.stringify(chartConfig));
+    // return quickChartURL + encodedConfig;
+    return {};
 }
 
 function multipleDatasetsChartGenerator(type, xlabels, datasets) {
     
 }
 
-module.exports = {generateChart};
-module.exports = {generateDummyChartURL};
+module.exports = {
+    generateChart,
+    generateDummyChartURL,
+    getYValues,
+    multipleDatasetsChartGenerator
+};

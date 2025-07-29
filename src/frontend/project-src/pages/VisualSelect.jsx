@@ -15,29 +15,31 @@ function VisualSelect() {
   const navigate = useNavigate();
   const location = useLocation();
   console.log(location.state);
-  const { chartsConfig, summary, graphRecommendation, analysis } = location.state || {}; 
+  const { summary, graphRecommendation, chartsWithURLs } = location.state || {}; 
 
   useEffect(() => {
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id: 1 })
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('chartOptions from API:', data);
-        setChartOptions(data);
-      })
-      .catch(error => {
-        console.error('could not get chart options', error);
-        setChartOptions([
-          { id: 1, title: "Sample Bar Chart", description: "Will add the AI summary description here." },
-          { id: 2, title: "Sample Line Chart", description: "Will add the AI summary description here." },
-          { id: 3, title: "Sample Pie Chart", description: "Will add the AI summary description here." }
-        ]);
-      });
+    // fetch(apiUrl, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ id: 1 })
+    //   })
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     console.log('chartOptions from API:', data);
+    //     setChartOptions(data);
+    //   })
+    //   .catch(error => {
+    //     console.error('could not get chart options', error);
+    //     setChartOptions([
+    //       { id: 1, title: "Sample Bar Chart", description: "Will add the AI summary description here." },
+    //       { id: 2, title: "Sample Line Chart", description: "Will add the AI summary description here." },
+    //       { id: 3, title: "Sample Pie Chart", description: "Will add the AI summary description here." }
+    //     ]);
+    //   });
+      setChartOptions(chartsWithURLs);
+      console.log(chartOptions);
   }, []);
 
   const goPreviousPage = async () => {

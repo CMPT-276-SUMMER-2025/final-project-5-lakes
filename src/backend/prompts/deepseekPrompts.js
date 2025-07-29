@@ -83,7 +83,8 @@ const summaryPrompt =
         `
         You are given an array of datasets extracted from a file. 
         Your task is to:
-        For each of the datasets, give me a summary of the data in bullet point form as an array of strings.
+        For each of the datasets, give me a summary or key insights of the data in bullet point form
+        of maximum 4 bullet points as an array of strings.
         return it in the following JSON format in the same order as the datasets:
 
         [

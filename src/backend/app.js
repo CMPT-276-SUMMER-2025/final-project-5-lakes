@@ -7,6 +7,7 @@ const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
 const { separateLabels } = require('./labelSeparation.js');
 const { generateDummyChartURL } = require('./quickChart/QCFeature1.js');
+const { generateChart } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -98,6 +99,12 @@ app.post('/data-confirm', async (req, res) => {
         const summary = await getSummary(JSON.stringify(data.edittedData));
         const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
 
+        const chartsWithURLs = [
+            { id: 1, title: "Bar Chart", description: "Bars of values", imageUrl: generateDummyChartURL(1) },
+            { id: 2, title: "Line Chart", description: "Trends over time", imageUrl: generateDummyChartURL(2) },
+            { id: 3, title: "Pie Chart", description: "Proportional breakdown", imageUrl: generateDummyChartURL(3) }
+        ];
+
         /*const labels = await separateLabels(JSON.stringify(data.parsedData));
         console.log(labels);
         // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
@@ -107,6 +114,7 @@ app.post('/data-confirm', async (req, res) => {
         res.json({ 
             summary: JSON.parse(summary),
             graphRecommendation: JSON.parse(graphRecommendation),
+            chartsWithURLs: chartsWithURLs,
             // chartConfig: chartConfig,
             //labels: labels,
         });
@@ -116,7 +124,7 @@ app.post('/data-confirm', async (req, res) => {
     }
 });
 
-app.post('/visual-select', async (req, res) => {
+app.post('/visual-selected', async (req, res) => {
     const data = req.body;
     sessionData.visualSelected = data.id;
     //sessionData.selectedOption = sessionData.chartConfig[data.id];
@@ -138,13 +146,17 @@ app.post('/visual-select', async (req, res) => {
             imageURL: generateDummyChartURL()
         }));*/
 
-        const chartsWithURLs = [
-            { id: 1, title: "Bar Chart", description: "Bars of values", imageUrl: generateDummyChartURL(1) },
-            { id: 2, title: "Line Chart", description: "Trends over time", imageUrl: generateDummyChartURL(2) },
-            { id: 3, title: "Pie Chart", description: "Proportional breakdown", imageUrl: generateDummyChartURL(3) }
-        ];
+        const chartConfig = generateChart(sessionData.parsedData, sessionData.labels, sessionData.visualSelected);
+
+        // const chartsWithURLs = [
+        //     { id: 1, title: "Bar Chart", description: "Bars of values", imageUrl: generateDummyChartURL(1) },
+        //     { id: 2, title: "Line Chart", description: "Trends over time", imageUrl: generateDummyChartURL(2) },
+        //     { id: 3, title: "Pie Chart", description: "Proportional breakdown", imageUrl: generateDummyChartURL(3) }
+        // ];
         
-        res.json(chartsWithURLs);
+        // res.json(chartsWithURLs);
+
+        res.json(chartConfig);
     } catch (error) {
         console.error('Error generating chart URLs:', error);
         res.status(500).json({ error: 'Failed to generate visualization options' });
