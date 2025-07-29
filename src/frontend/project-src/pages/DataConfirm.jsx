@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import DataConfirmStepper from "../components/dataconfirm/DataConfirmStepper";
-import EditableTanStackTable from "../components/dataconfirm/EditableTanStackTable";
+// import EditableTanStackTable from "../components/dataconfirm/EditableTanStackTable";
+import EditableSpreadsheet from "../components/dataconfirm/EditableSpreadsheet";
 import ViewUpload from "../components/dataconfirm/ViewUpload";
 import AdditionalInfo from "../components/dataconfirm/AdditionalInfo";
 import DataConfirmButtons from "../components/dataconfirm/DataConfirmButtons";
@@ -64,7 +65,6 @@ function DataConfirm() {
   };
 
   useEffect(() => {
-    // Check if we have the required data
     if (!parsedData || !file) {
       console.log('Missing required data - redirecting to home');
       console.log('ParsedData:', parsedData);
@@ -118,7 +118,11 @@ function DataConfirm() {
                   <p className="text-md text-gray-600 text-center mb-10">
                     Review your uploaded files and make any necessary adjustments before proceeding to the next step.
                   </p>
-                  <ViewUpload fileName={fileName} fileSize={fileSize} />
+                  <ViewUpload
+                    fileName={file.originalname}
+                    fileSize={file.size}
+                    fileContent={parsedData?.base64 || file?.url || "about:blank"}
+                  />
                   <AdditionalInfo />
                 </div>
               </div>

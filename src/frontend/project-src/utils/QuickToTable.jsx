@@ -1,34 +1,13 @@
 function parseQuickChartToTableRows(parsedDataArray) {
   if (!Array.isArray(parsedDataArray) || parsedDataArray.length === 0) {
-    return { tableRows: [], columns: [] };
+    return { tableRows: [], chartLabel: "Value", chartType: "bar" };
   }
 
-  const labelToRow = {};
-  const columnSet = new Set(["Label"]);
-
-  parsedDataArray.forEach((chartObj) => {
-    const labels = chartObj.data?.labels || [];
-    const datasets = chartObj.data?.datasets || [];
-
-    labels.forEach((label, i) => {
-      if (!labelToRow[label]) labelToRow[label] = { Label: label };
-
-      datasets.forEach((dataset) => {
-        const key = dataset.label || `Series ${i + 1}`;
-        labelToRow[label][key] = dataset.data[i] ?? "";
-        columnSet.add(key);
-      });
-    });
-  });
-
-  const tableRows = Object.values(labelToRow);
-  const columns = Array.from(columnSet).map((key) => ({
-    key,
-    name: key,
-    editable: true,
-  }));
-
-  return { tableRows, columns };
+  return {
+    tableRows: parsedDataArray,
+    chartLabel: Object.keys(parsedDataArray[0])[1] || "Value", // guess 2nd key as data label
+    chartType: "bar"
+  };
 }
 
 export default parseQuickChartToTableRows;
