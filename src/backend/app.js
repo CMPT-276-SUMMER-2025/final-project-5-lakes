@@ -93,16 +93,19 @@ app.post('/edit-confirm', async (req, res) => {
     
     try {
         // const prompt = prompts.feature1("",JSON.stringify(data.edittedData));
-        const summary = await getSummary(JSON.stringify(data.parsedData));
-        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
+        // const summary = await getSummary(JSON.stringify(data.parsedData));
+        // const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
+        const labels = await separateLabels(JSON.stringify(data.parsedData));
+        console.log(labels);
         // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
-        sessionData.summary = JSON.parse(summary);
-        sessionData.graphRecommendation = JSON.parse(graphRecommendation);
+        // sessionData.summary = JSON.parse(summary);
+        // sessionData.graphRecommendation = JSON.parse(graphRecommendation);
 
         res.json({ 
-            summary: JSON.parse(summary),
-            graphRecommendation: JSON.parse(graphRecommendation),
+            // summary: JSON.parse(summary),
+            // graphRecommendation: JSON.parse(graphRecommendation),
             // chartConfig: chartConfig,
+            
         });
     } catch (error) {
         res.status(500).send('Failed to process data.');
