@@ -38,3 +38,5 @@ function ViewUpload({ fileName, fileSize, fileContent }) {
     </div>
   );
 }
+
+export default ViewUpload;
