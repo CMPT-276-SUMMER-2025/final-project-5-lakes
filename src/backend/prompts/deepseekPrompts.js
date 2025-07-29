@@ -129,7 +129,7 @@ const parsedDataFormat =
 const labelsSeparatorPrompt = `
         Based on the given dataset, could you separate the x and y axis in this format
         {
-        X: […], Y: […]
+        x: […], y: […]
         }
         Where the values inside the arrays are the column labels not the values
 
