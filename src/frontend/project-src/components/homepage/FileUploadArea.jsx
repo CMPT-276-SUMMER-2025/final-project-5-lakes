@@ -1,15 +1,46 @@
 import { CloudUpload, Paperclip, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 
-function FileUploadArea({setFiles }) {
-
+function FileUploadArea({setFiles, files, showAlert}) {
   const [isDragOver, setIsDragOver] = useState(false);
-
   const [hasUploaded, setHasUploaded] = useState(false);
+
+  const ACCEPTED_FILE_TYPES = [
+    'application/pdf',
+    'application/vnd.ms-excel', 
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+    'text/csv',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+    'text/plain', 
+  ];
+
+  const handleValidateFiles = (newFiles) => {
+    const validFiles = [];
+    const invalidFileNames = [];
+
+    newFiles.forEach((file) => {
+      if (ACCEPTED_FILE_TYPES.includes(file.type)) {
+        validFiles.push(file);
+      } else {
+        invalidFileNames.push(file.name);
+      }
+    });
+
+    if (invalidFileNames.length > 0) {
+      showAlert(
+        'error',
+        'Unsupported File Type',
+        `Your file could not be uploaded because its file type is not supported. Please upload PDF, XLS, XLSX, DOCX, CSV, or TXT files.`,
+        'Okay'
+      );
+    }
+
+    return validFiles;
+  };
+
 
   const handleDragEnter = (event) => {
     event.preventDefault();
-    console.log('[FileUploadArea] Drag enter correct');
     setIsDragOver(true);
   };
 
@@ -28,18 +59,27 @@ function FileUploadArea({setFiles }) {
 
     
     const droppedFiles = Array.from(event.dataTransfer.files);
-    console.log('[FileUploadArea] dropped files:', droppedFiles);
-    setFiles(droppedFiles);
+    const validatedFiles = handleValidateFiles(droppedFiles);
 
-    setHasUploaded(true);
+    if (validatedFiles.length > 0) {
+      setFiles(validatedFiles);
+      setHasUploaded(true);
+    } else {
+      setHasUploaded(false);
+    }
   };
 
   const handleFileSelect = (event) => {
   const selectedFiles = Array.from(event.target.files); 
-  console.log("Selected files:", selectedFiles);
-  setFiles(selectedFiles);
+  const validatedFiles = handleValidateFiles(selectedFiles);
 
-  setHasUploaded(true);
+    if (validatedFiles.length > 0) {
+      setFiles(validatedFiles);
+      setHasUploaded(true);
+    } else {
+      event.target.value = null;
+      setHasUploaded(false);
+    }
 };
 
   const dragHandlers = {
@@ -67,6 +107,7 @@ function FileUploadArea({setFiles }) {
           style={{ display: 'none' }}
           onChange={handleFileSelect}
           id="hidden-file-input"
+          accept="*/*"
         />
 
         <label htmlFor="hidden-file-input" className="white-base-button">
@@ -107,6 +148,7 @@ function FileUploadArea({setFiles }) {
         style={{ display: 'none' }}
         onChange={handleFileSelect}
         id="hidden-file-input"
+        accept="*/*"
       />
 
      <label htmlFor="hidden-file-input" className="white-base-button">
@@ -118,7 +160,7 @@ function FileUploadArea({setFiles }) {
     </p>
 
      <p className="text-sm text-gray-400">
-       Accepted formats: PDF, DOC, XLS, CSV, JPEG, PNG
+       Accepted formats: PDF, XLS, XLSX, DOCX, CSV, TXT
      </p>
 
 
