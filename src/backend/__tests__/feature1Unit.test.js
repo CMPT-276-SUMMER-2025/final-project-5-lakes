@@ -6,7 +6,7 @@ const deepseek = require('../deepSeek/APIdeepseek.js');
 
 // UNIT TEST
 // Mock DeepSeek call function so the test doesn't actually call.
-jest.mock('../deepseek.js', () => ({
+jest.mock('../deepseek/APIdeepseek.js', () => ({
   queryDeepSeekV3: jest.fn(() => {
     return Promise.resolve(JSON.stringify([
       { "Name": "Alice", "Score": "85" },
