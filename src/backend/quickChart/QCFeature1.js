@@ -17,21 +17,23 @@ function getYValues(label, dataset) {
 }
     
 function generateChart(dataset, labels, type) {
-    const yValues = getYValues(dataset, labels.y[0]);
+    const yValues = getYValues(labels.y[0], dataset);
+    const xLabels = labels.x;
+    const datasetTitle = "Dataset";
     let chartConfig = {
         type: type,
         data: {
-            labels: xlabels,
+            labels: xLabels,
             datasets: [
                 {
-                    data: yValues
+                    data: yValues,
+                    label: datasetTitle
                 }
             ]
         }
     };
-    
-    const encoded = encodeURIComponent(JSON.stringify(chartConfig));
-    return `https://quickchart.io/chart?c=${encoded}`;;
+    // const encoded = encodeURIComponent(JSON.stringify(chartConfig));
+    return chartConfig;
     
 }
 

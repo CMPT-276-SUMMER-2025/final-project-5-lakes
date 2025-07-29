@@ -139,7 +139,7 @@ app.post('/visual-selected', async (req, res) => {
             return res.status(400).json({ error: 'No parsed data avaiable.' });
         }
 
-        const labels = await separateLabels(JSON.stringify(data.parsedData));
+        const labels = await separateLabels(JSON.stringify(sessionData.parsedData));
         console.log(labels);
 
         // Attach chartImageURL using QuickChart
@@ -156,7 +156,7 @@ app.post('/visual-selected', async (req, res) => {
         const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
         console.log(chartConfig);
 
-        res.json(chartConfig);
+        res.json({chartConfig: chartConfig});
     } catch (error) {
         console.error('Error generating chart URLs:', error);
         res.status(500).json({ error: 'Failed to generate visualization options' });

@@ -127,17 +127,39 @@ const parsedDataFormat =
         `
 
 const labelsSeparatorPrompt = `
-        Based on the given dataset, could you separate the x and y axis in this format
+        Analyze the provided dataset and return ONLY a JSON object with x and y axis labels following these strict rules:
+        
+        1. x: Array of all column labels that are:
+           - Time-based (dates, timestamps)
+           - Categorical (strings, fixed options)
+           - Ordinal (ranked categories)
+           - IDs or grouping variables
+        
+        2. y: Array of all column labels that are:
+           - Numerical (integers, floats)
+           - Quantitative metrics
+           - Calculated values
+        
+        3. Required output format (ONLY this structure):
         {
-        x: […], y: […]
+          "x": [],
+          "y": []
         }
-        Where the values inside the arrays are the column labels not the values
-
-        Important rules:
-        - Do NOT include any explanations, descriptions, or natural language text.
-        - Do NOT wrap the output in triple backticks (\`\`\`).
-        - Only return clean, valid JSON.
-`
+        
+        4. Strict requirements:
+           - Return ONLY valid JSON with no wrapping text
+           - Never include actual data values
+           - Never include explanations
+           - If unsure whether a column is x or y, prefer x
+           - Maintain original column name casing
+           - Include ALL columns exactly once
+        
+        5. Example output for reference:
+        {
+          "x": ["Date", "Category", "Region"],
+          "y": ["Sales", "Profit"]
+        }
+        `;
 
 const multipleDataSetsPrompt = `
         Given a parsed file (Excel/CSV/JSON) containing multiple unrelated datasets mixed together, 

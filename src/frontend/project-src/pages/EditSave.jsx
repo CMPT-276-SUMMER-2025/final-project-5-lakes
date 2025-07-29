@@ -4,6 +4,8 @@ import DownloadButtons from "../components/editchart/DownloadButtons";
 import { Download } from 'lucide-react';
 import { useLocation } from "react-router-dom";
 
+const quickChartURL = "https://quickchart.io/chart?c=";
+
 function EditSave() {
     const location = useLocation();
     const { chartConfig } = location.state || {};
@@ -20,6 +22,7 @@ function EditSave() {
                             <p className="text-md text-gray-600 text-center mb-10">
                                 Review and edit your generated chart below.
                             </p>
+                            <img src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`} alt="Chart" />
                         </div>
                     </div>
 
