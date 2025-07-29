@@ -19,7 +19,7 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
     .then(response => response.json())
     .then(data => {
       console.log(data);
-      navigate("/edit-chart", { state: data });
+      navigate("/edit-save", { state: data });
     })
     .catch(error => {
       console.error("Error selecting option:", error);

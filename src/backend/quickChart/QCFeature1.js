@@ -17,7 +17,8 @@ function getYValues(label, dataset) {
 }
     
 function generateChart(dataset, labels, type) {
-    /*let chartConfig = {
+    const yValues = getYValues(dataset, labels.y[0]);
+    let chartConfig = {
         type: type,
         data: {
             labels: xlabels,
@@ -27,12 +28,11 @@ function generateChart(dataset, labels, type) {
                 }
             ]
         }
-    };*/
-
+    };
     
-    // const encodedConfig = encodeURIComponent(JSON.stringify(chartConfig));
-    // return quickChartURL + encodedConfig;
-    return {};
+    const encoded = encodeURIComponent(JSON.stringify(chartConfig));
+    return `https://quickchart.io/chart?c=${encoded}`;;
+    
 }
 
 function multipleDatasetsChartGenerator(type, xlabels, datasets) {

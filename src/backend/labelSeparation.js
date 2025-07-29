@@ -8,5 +8,5 @@ async function separateLabels(data) {
 }
 
 
-//module.exports = { separateLabels };
+module.exports = { separateLabels };
 

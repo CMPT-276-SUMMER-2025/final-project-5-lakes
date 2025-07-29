@@ -25,8 +25,10 @@ let sessionData = {
     summary: null,
     graphRecommendation: null,
     styleConfig: null,
+    chartOptions: null,
     visualSelected: null,
     selectedOption: null,
+    labels: null,
 };
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
@@ -100,10 +102,12 @@ app.post('/data-confirm', async (req, res) => {
         const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
 
         const chartsWithURLs = [
-            { id: 1, title: "Bar Chart", description: "Bars of values", imageUrl: generateDummyChartURL(1) },
-            { id: 2, title: "Line Chart", description: "Trends over time", imageUrl: generateDummyChartURL(2) },
-            { id: 3, title: "Pie Chart", description: "Proportional breakdown", imageUrl: generateDummyChartURL(3) }
+            { id: 1, type: "bar", title: "Bar Chart", description: "Bars of values", imageUrl: generateDummyChartURL(1) },
+            { id: 2, type: "line", title: "Line Chart", description: "Trends over time", imageUrl: generateDummyChartURL(2) },
+            { id: 3, type: "pie", title: "Pie Chart", description: "Proportional breakdown", imageUrl: generateDummyChartURL(3) }
         ];
+
+        sessionData.chartOptions = chartsWithURLs.map(chart => chart.type);
 
         /*const labels = await separateLabels(JSON.stringify(data.parsedData));
         console.log(labels);
@@ -116,7 +120,7 @@ app.post('/data-confirm', async (req, res) => {
             graphRecommendation: JSON.parse(graphRecommendation),
             chartsWithURLs: chartsWithURLs,
             // chartConfig: chartConfig,
-            //labels: labels,
+            // labels: labels,
         });
     } catch (error) {
         console.log(error);
@@ -135,6 +139,9 @@ app.post('/visual-selected', async (req, res) => {
             return res.status(400).json({ error: 'No parsed data avaiable.' });
         }
 
+        const labels = await separateLabels(JSON.stringify(data.parsedData));
+        console.log(labels);
+
         // Attach chartImageURL using QuickChart
         /*const chartsWithURLs = chartConfigs.map(chart => ({
             //id: chart.id,
@@ -146,15 +153,8 @@ app.post('/visual-selected', async (req, res) => {
             imageURL: generateDummyChartURL()
         }));*/
 
-        const chartConfig = generateChart(sessionData.parsedData, sessionData.labels, sessionData.visualSelected);
-
-        // const chartsWithURLs = [
-        //     { id: 1, title: "Bar Chart", description: "Bars of values", imageUrl: generateDummyChartURL(1) },
-        //     { id: 2, title: "Line Chart", description: "Trends over time", imageUrl: generateDummyChartURL(2) },
-        //     { id: 3, title: "Pie Chart", description: "Proportional breakdown", imageUrl: generateDummyChartURL(3) }
-        // ];
-        
-        // res.json(chartsWithURLs);
+        const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
+        console.log(chartConfig);
 
         res.json(chartConfig);
     } catch (error) {
