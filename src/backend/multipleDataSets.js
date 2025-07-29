@@ -1,5 +1,5 @@
 const prompts = require('./prompts/deepseekPrompts');
-const { queryDeepSeekV3 } = require('./deepseek');
+const { queryDeepSeekV3 } = require('./deepSeek/APIdeepseek.js');
 
 
 async function separateMultipleDataSets(data) {
@@ -8,4 +8,4 @@ async function separateMultipleDataSets(data) {
     return JSON.parse(response);
 }
 
-module.exports = { separateMultipleDataSets };
+// module.exports = { separateMultipleDataSets };
