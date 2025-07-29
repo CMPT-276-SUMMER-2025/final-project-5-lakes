@@ -2,7 +2,7 @@ const path = require('path');
 
 //import the parseFile function for unit testing
 const { parseFile } = require('../file-parser.js');
-const deepseek = require('../deepseek.js');
+const deepseek = require('../deepSeek/APIdeepseek.js');
 
 // UNIT TEST
 // Mock DeepSeek call function so the test doesn't actually call.

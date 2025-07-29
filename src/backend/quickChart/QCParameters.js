@@ -1,0 +1,1 @@
+// Set of fixed default parameters for each chart (OBJECT)

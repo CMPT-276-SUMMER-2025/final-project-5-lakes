@@ -1,14 +1,10 @@
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
-const { convertToChartConfig } = require('./feature1.js');
-const { getGraphRecommendation } = require('./feature2.js');
-const { getSummary } = require('./feature3.js');
+const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1.js');
+const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
+const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
-
-const { queryDeepSeekV3 } = require('./deepseek.js');
-const prompts = require('./prompts/deepseekPrompts.js');
-
 
 const app = express();
 
@@ -58,7 +54,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         try {
             // Process text input
             const textData = text.split('\n').filter(line => line.trim() !== '');
-            const result = await queryDeepSeekV3(prompts.feature1("", textData));
+            const result = await convertToChartConfig("", textData);
             return res.json(result);
         } catch (error) {
             console.error('Error processing text:', error);
