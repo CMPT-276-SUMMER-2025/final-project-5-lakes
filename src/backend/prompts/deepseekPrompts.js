@@ -95,7 +95,6 @@ const summaryPrompt =
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
-        - Choose a suitable chart type for each dataset and include it as the "type" field.
         `
 
 const parsedDataFormat = 

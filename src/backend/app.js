@@ -1,14 +1,10 @@
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
-const { convertToChartConfig } = require('./feature1.js');
-const { getGraphRecommendation } = require('./feature2.js');
-const { getSummary } = require('./feature3.js');
+const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1.js');
+const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
+const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
-
-const { queryDeepSeekV3 } = require('./deepseek.js');
-const prompts = require('./prompts/deepseekPrompts.js');
-
 
 const app = express();
 
@@ -25,6 +21,8 @@ let sessionData = {
     summary: null,
     graphRecommendation: null,
     styleConfig: null,
+    visualSelected: null,
+    selectedOption: null,
 };
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
@@ -35,6 +33,11 @@ app.use(cors({
     origin: allowedOrigins,
     credentials: true
 }));
+
+
+app.get('/get-session-data', async (req, res) => {
+    res.json(sessionData);
+});
 
 // File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
@@ -51,7 +54,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         try {
             // Process text input
             const textData = text.split('\n').filter(line => line.trim() !== '');
-            const result = await queryDeepSeekV3(prompts.feature1("", textData));
+            const result = await convertToChartConfig("", textData);
             return res.json(result);
         } catch (error) {
             console.error('Error processing text:', error);
@@ -79,29 +82,42 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 // Information edit confirm
 app.post('/edit-confirm', async (req, res) => {
     const data = req.body;
-    console.log('Received data:', JSON.stringify(data.chartConfig));
     // Validate that data exists and has chartConfig property
     if (!data) {
         return res.status(400).json({ error: 'No data provided in request body' });
     }
     
-    if (!data.chartConfig) {
-        return res.status(400).json({ error: 'chartConfig property is missing from request data' });
-    }
     try {
-        console.log(data.analysis);
-        const summary = await getSummary(JSON.stringify(data.));
-        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.analysis));
+        // const prompt = prompts.feature1("",JSON.stringify(data.edittedData));
+        const summary = await getSummary(JSON.stringify(data.parsedData));
+        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
+        // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
+        sessionData.summary = JSON.parse(summary);
+        sessionData.graphRecommendation = JSON.parse(graphRecommendation);
 
         res.json({ 
-            chartsConfig: data.chartConfig,
             summary: JSON.parse(summary),
             graphRecommendation: JSON.parse(graphRecommendation),
-            analysis: data.analysis
+            // chartConfig: chartConfig,
         });
     } catch (error) {
         res.status(500).send('Failed to process data.');
     }
+});
+
+app.post('/visual-selected', async (req, res) => {
+    const data = req.body;
+    console.log(data);
+    sessionData.visualSelected = data.id;
+    sessionData.selectedOption = sessionData.chartConfig[data.id];
+    res.json({ chartConfig: sessionData.selectedOption });
+});
+
+app.post('/edit-selected', async (req, res) => {
+    const data = req.body;
+    console.log(data);
+    sessionData.chartConfig = data.chartConfig;
+    res.json({ chartConfig: sessionData.chartConfig });
 });
 
 

@@ -17,6 +17,7 @@ const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-confirm`;
 function DataConfirm() {
   const location = useLocation();
   console.log(location);
+  
 
   const { parsedData, file } = location.state || {}; // get passed data
   const fileName = file?.originalname || 'Unknown file';
@@ -50,7 +51,11 @@ function DataConfirm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({chartConfig: chartConfig, file: file}),
+        body: JSON.stringify({
+          edittedData: {},
+          parsedData: parsedData,
+          file: file
+        }),
         credentials: 'include'
       });
       if (!res.ok) throw new Error("Chart generation failed");
