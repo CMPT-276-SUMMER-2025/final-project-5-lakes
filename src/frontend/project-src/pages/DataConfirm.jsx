@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DataConfirmStepper from "../components/dataconfirm/DataConfirmStepper";
 import ViewUpload from "../components/dataconfirm/ViewUpload";
-import AdditionalInfo from "../components/dataconfirm/AdditionalInfo";
 import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
 import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash } from "lucide-react";
 
@@ -10,12 +9,16 @@ const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/data-confirm`;
 
 
 function DataConfirm() {
+
   const location = useLocation();
   const navigate = useNavigate();
   const { parsedData, file } = location.state || {};
 
   const fileName = file?.originalname || "Unknown file";
   const fileSize = file?.size || 0;
+
+  console.log("file:", file);
+  console.log("parsedData:", parsedData);
 
   const [isLoading, setIsLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState(null);
@@ -98,28 +101,34 @@ function DataConfirm() {
       <DataConfirmStepper />
       <form onSubmit={handleNext}>
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
-          <div className="flex flex-col md:flex-row gap-8 w-full">
-            {/* Left - Table */}
+          <div className="flex flex-col md:flex-row items-center gap-1 w-full max-w-7xl mx-auto">
             <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
-              <h2 className="font-semibold text-center">Edit Data</h2>
+              <h2 className="font-semibold text-center">Confirm Data</h2>
               <p className="text-md text-gray-600 text-center mb-4">
                 Modify values, add/remove rows or columns as needed.
               </p>
 
               {confirmedData && (
                 <>
-                  <div className="flex flex-wrap gap-2 justify-center mb-4">
+                  <div className="flex flex-wrap justify-between gap-y-4 w-full max-w-xl mx-auto mb-4">
                     <button type="button" onClick={addRow} className="btn-icon">
-                      <Plus size={16} /> Add Row
+                      <Plus />
+                      <span>Add Row</span>
                     </button>
-                    <button type="button" onClick={removeRow} className="btn-icon">
-                      <Trash size={16} /> Remove Row
-                    </button>
+
                     <button type="button" onClick={addColumn} className="btn-icon">
-                      <Plus size={16} /> Add Column
+                      <Plus />
+                      <span>Add Column</span>
                     </button>
+
+                    <button type="button" onClick={removeRow} className="btn-icon">
+                      <Trash />
+                      <span>Remove Row</span>
+                    </button>
+
                     <button type="button" onClick={removeColumn} className="btn-icon">
-                      <Trash size={16} /> Remove Column
+                      <Trash />
+                      <span>Remove Column</span>
                     </button>
                   </div>
 
@@ -177,22 +186,15 @@ function DataConfirm() {
                       </tbody>
                     </table>
                   </div>
+                  <div className="flex justify-center mt-4">
+                      <ViewUpload
+                        fileName={fileName}
+                        fileSize={fileSize}
+                        fileContent={parsedData?.base64 || file?.url || "about:blank"}
+                      />
+                  </div>
                 </>
               )}
-            </div>
-
-            {/* Right - Upload Preview */}
-            <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
-              <h2 className="text-lg font-semibold text-center">Review Your Upload</h2>
-              <p className="text-md text-gray-600 text-center mb-10">
-                Confirm your uploaded file and data before proceeding.
-              </p>
-              <ViewUpload
-                fileName={fileName}
-                fileSize={fileSize}
-                fileContent={parsedData?.base64 || file?.url || "about:blank"}
-              />
-              <AdditionalInfo />
             </div>
           </div>
         </div>

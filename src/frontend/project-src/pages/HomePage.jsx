@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
 import LoadingPopUp from '../components/homepage/LoadingPopUp';
-// import { set } from '../../../backend/app';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/file-submit`;
 
