@@ -119,7 +119,6 @@ app.post('/data-confirm', async (req, res) => {
             summary: JSON.parse(summary),
             graphRecommendation: JSON.parse(graphRecommendation),
             chartsWithURLs: chartsWithURLs,
-            // chartConfig: chartConfig,
             // labels: labels,
         });
     } catch (error) {
@@ -155,7 +154,7 @@ app.post('/visual-selected', async (req, res) => {
 
         const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
         console.log(chartConfig);
-
+        sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig});
     } catch (error) {
         console.error('Error generating chart URLs:', error);

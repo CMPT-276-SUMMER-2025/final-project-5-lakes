@@ -15,10 +15,14 @@ function generateDummyChartURL(int) {
 function getYValues(label, dataset) {
     return dataset.map(item => item[label]);
 }
+
+function getXLabels(label, dataset) {
+    return dataset.map(item => item[label]);
+}
     
 function generateChart(dataset, labels, type) {
     const yValues = getYValues(labels.y[0], dataset);
-    const xLabels = labels.x;
+    const xLabels = getXLabels(labels.x[0], dataset);
     const datasetTitle = "Dataset";
     let chartConfig = {
         type: type,
