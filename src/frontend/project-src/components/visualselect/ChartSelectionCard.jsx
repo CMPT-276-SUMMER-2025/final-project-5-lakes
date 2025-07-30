@@ -14,10 +14,10 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
   const handleSelectOption = () => {
 
 
-    if (chartConfig) {
-      navigate("/edit-save", { state: {chartConfig: chartConfig} });
-      return;
-    }
+    // if (chartConfig) {
+    //   navigate("/edit-save", { state: {chartConfig: chartConfig} });
+    //   return;
+    // }
 
     fetch(apiUrl, {
       method: "POST",
