@@ -9,7 +9,7 @@ import FontPicker from 'font-picker-react';
 import DownloadOptions from '../components/editchart/DownloadOptions';
 import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
-const quickChartURL = "https://quickchart.io/chart?c=";
+const quickChartURL = "https://quickchart.io/chart?v=4&c=";
 
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);

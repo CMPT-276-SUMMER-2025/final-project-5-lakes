@@ -3,11 +3,9 @@
 // Seperate the data by "type", "lable", "dataset", etc.
 // Run through if statements to the right type
 // import the fixed parameters and create graph with data
-// Return .JSON ready to generate image in the following: https://quickchart.io/chart?c=<encoded JSON config>
 const {quickChartURL} = require('./QCParameters.js');  
 const dummyChart = require('./dummyData/dummyChartConfig.js');
 
-//{ id: 1, type: "bar", title: "Bar Chart", description: "Bars of values", imageUrl: `https://quickchart.io/chart?c=${encoded}` }
 function generateDummyChart(type, description) {
     const chart = dummyChart.find(c => c.title === type);
 
