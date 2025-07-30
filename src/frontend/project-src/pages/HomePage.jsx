@@ -56,7 +56,7 @@ function HomePage() {
       credentials: 'include'
     })
      .then(async (response) => { //// to go to the next page if successful
-      const data = await response.json;
+      const data = await response.json();
       if (!response.ok) {
         throw new Error(data.error || 'error sending info');
       }
@@ -68,12 +68,17 @@ function HomePage() {
     .catch((error) => {
       if (error.message === 'No meaningful data could be extracted from the file.') {
         showAlert(
-          //im not sure if this is where u add what u need but probably somewhere here u work with (- nick)
-          //this one is for cannot extract data/empty file
+          'error',
+          'Extraction Failed',
+          'No meaningful data could be extracted from the file. Please try a different file or check the contents.',
+          'Okay'
         )
       } else {
         showAlert(
-          //this one is for any other errors
+          'error',
+          'Submission Error',
+          'An unexpected error occurred while submitting your information. Please try again later.',
+          'Okay'
         )
       }
     })
