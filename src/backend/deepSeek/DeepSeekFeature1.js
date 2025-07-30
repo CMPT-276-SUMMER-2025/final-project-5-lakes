@@ -7,7 +7,11 @@ async function convertToChartConfig(query, data) {
         const result = await queryDeepSeekV3(prompt);
 
         //throw a specific error for frontend to see if no data was found
+<<<<<<< Updated upstream
         if(result == 'Error: No data was extracted.'){
+=======
+        if(result === 'Error: No data was extracted.'){
+>>>>>>> Stashed changes
             const error = new Error('No data was extracted from the file.');
             error.code = 'NO_DATA_EXTRACTED';
             console.error(error.code);

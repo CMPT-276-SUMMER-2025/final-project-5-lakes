@@ -3,9 +3,13 @@ const pdfParse = require('pdf-parse'); // For PDF parsing
 const XLSX = require('xlsx'); // For Excel parsing
 const Papa = require('papaparse'); // For CSV parsing
 const mammoth = require('mammoth'); // For Docx parsing
+<<<<<<< Updated upstream
 const prompts = require('./prompts/deepseekPrompts.js');
 const { queryDeepSeekV3 } = require('./deepSeek/APIdeepseek.js');
 
+=======
+const {convertToChartConfig} = require('./deepSeek/DeepSeekFeature1');
+>>>>>>> Stashed changes
 
 async function parseFile(file){
     let filePath = null;
