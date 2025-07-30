@@ -6,9 +6,8 @@ async function convertToChartConfig(query, data) {
     try {
         const rawResult = await queryDeepSeekV3(prompt);
         
-        // Check if result exists and is not empty
-        if (!rawResult || rawResult.trim() === '') {
-            const error = new Error('Empty response from DeepSeek API');
+        if(rawResult === 'Error: No data was extracted.' || !rawResult || rawResult.trim() === ''){
+            const error = new Error('No data was extracted from the file.');
             error.code = 'NO_DATA_EXTRACTED';
             console.error(error.code);
             throw error;
@@ -27,14 +26,6 @@ async function convertToChartConfig(query, data) {
         }
 
         console.log(`CHECK: ${JSON.stringify(result)}`);
-
-        //throw a specific error for frontend to see if no data was found
-        if(result === 'Error: No data was extracted.'){
-            const error = new Error('No data was extracted from the file.');
-            error.code = 'NO_DATA_EXTRACTED';
-            console.error(error.code);
-            throw error;
-        }
 
         return result;
     } catch (error) {
