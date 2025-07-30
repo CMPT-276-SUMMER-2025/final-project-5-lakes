@@ -9,7 +9,7 @@ import FontPicker from 'font-picker-react';
 import DownloadOptions from '../components/editchart/DownloadOptions';
 import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
-const quickChartURL = "https://quickchart.io/chart?c=";
+const quickChartURL = "https://quickchart.io/chart?v=4&c=";
 
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -42,12 +42,17 @@ function EditSave() {
     const [historyIndex, setHistoryIndex] = useState(0);
 
     // Generate the initial chart image URL
-    useEffect(() => {
-        if (chartConfig) {
-        const newUrl = generateChartUrl(chartConfig);
-        setChartImageUrl(Url);
-        }
-    }, [chartConfig]);
+    // useEffect(() => {
+    //     if (chartConfig) {
+    //     const Url = `${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`;
+    //     setChartImageUrl(Url);
+    //     }
+    // }, [chartConfig]);
+
+    let styleConfig = {
+       backgroundColor: null,
+       
+    }
 
     
     // Handle color change from the color picker
