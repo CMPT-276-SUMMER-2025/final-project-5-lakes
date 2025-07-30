@@ -5,7 +5,7 @@ import websiteLogo from '../../assets/websitelogo.png';
 // our main header component that includes the website name and logo
 function Header() {
 return (
-  <header className="bg-white px-8 py-4 mt-auto">
+  <header className="bg-white px-8 py-2 mt-auto">
      {/* links the header to the home page */}
      <a href="/" className="flex items-center justify-start space-x-3">
        {/* displays the website logo on the top left of the header */}
