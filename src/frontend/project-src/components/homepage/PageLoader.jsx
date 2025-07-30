@@ -22,7 +22,7 @@ function PageLoader() {
           ))}
         </ul>
       </div>
-      <span className="text-center block mt-5 text-gray-500">Loading</span>
+      <span className="text-center block mt-5 text-gray-500">Please wait as DeepSeek is reading your data...</span>
     </div>
   );
 }
