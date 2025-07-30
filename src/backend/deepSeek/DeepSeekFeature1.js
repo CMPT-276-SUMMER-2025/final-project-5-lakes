@@ -15,7 +15,7 @@ async function convertToChartConfig(query, data) {
             throw error;
         }
 
-        return JSON.parse(result);
+        return result;
     } catch (error) {
         console.error('Error converting to chart config:', error);
         throw error;
