@@ -69,6 +69,15 @@ function getMultipleDataSets(labels, datasets) {
 function multipleDatasetsChartGenerator(type, labels, datasets) {
     // Use the first dataset to generate X labels (assuming all datasets share same X structure)
     const xLabels = getXValues(labels.x, datasets);
+
+    const colors = [
+        'rgb(54, 162, 235)',   // Blue
+        'rgb(255, 99, 132)',   // Red
+        'rgb(75, 192, 192)',   // Teal
+        'rgb(255, 205, 86)',   // Yellow
+        'rgb(153, 102, 255)',  // Purple
+        'rgb(255, 159, 64)'    // Orange
+    ];
     
     let chartConfig = {
         type: type,
@@ -76,7 +85,8 @@ function multipleDatasetsChartGenerator(type, labels, datasets) {
             labels: xLabels,
             datasets: labels.y.map((label, index) => ({
                 label: `Dataset ${index + 1}`,
-                data: getYValues(label, datasets)
+                data: getYValues(label, datasets),
+                backgroundColor: colors[index % colors.length],
             }))
         }
     };

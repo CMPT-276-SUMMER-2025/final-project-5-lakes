@@ -9,7 +9,7 @@ import FontPicker from 'font-picker-react';
 import DownloadOptions from '../components/editchart/DownloadOptions';
 import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
-const quickChartURL = "https://quickchart.io/chart?v=4&c=";
+const quickChartURL = "https://quickchart.io/chart?height=500&v=4&c=";
 
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -47,21 +47,48 @@ function EditSave() {
 
     let styleConfig = {
        backgroundColor: null,
-       
+       canvasBackgroundColor: null,
+       titleColor: null,
     }
+
+    useEffect(() => {
+        chartConfig.options = {
+            title: {
+                display: true,
+                text: "Chart Title"
+            },
+            elements: {},
+            legend: {
+                labels: { }
+            },
+            scales: {
+                yAxes: {
+                    ticks: {}
+                },
+                xAxes: {
+                    ticks: {}
+                }
+            }
+
+
+        }
+    }, [chartConfig]);
 
     
     // Handle color change from the color picker
     const handleColorChange = (color) => {
-    setSelectedColor(color.hex);
-    const updated = {
-        ...chartConfig,
-        chartStyle: {
-        ...chartConfig.chartStyle,
-        backgroundColor: color.hex
-        }
-    };
-    updateChartConfig(updated);
+        setSelectedColor(color.hex);
+        // const updated = {
+        //     ...chartConfig,
+        //     chartStyle: {
+        //     ...chartConfig.chartStyle,
+        //     backgroundColor: color.hex
+        //     }
+        // };
+        chartConfig.options.elements.backgroundColor = color.hex;
+        styleConfig.backgroundColor = color.hex;
+        // updateChartConfig(updated);
+        updateChartConfig(chartConfig);
     };
 
     // Handle text color change
@@ -143,11 +170,11 @@ function EditSave() {
 
     // helper function to update chart config and maintain history
     const updateChartConfig = (newConfig) => {
-    const updatedHistory = history.slice(0, historyIndex + 1);
-    updatedHistory.push(newConfig);
-    setHistory(updatedHistory);
-    setHistoryIndex(updatedHistory.length - 1);
-    setChartConfig(newConfig);
+        const updatedHistory = history.slice(0, historyIndex + 1);
+        updatedHistory.push(newConfig);
+        setHistory(updatedHistory);
+        setHistoryIndex(updatedHistory.length - 1);
+        setChartConfig(newConfig);
     };
 
     // Handle undo and redo actions
