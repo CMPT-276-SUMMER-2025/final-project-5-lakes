@@ -3,8 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import DataConfirmStepper from "../components/dataconfirm/DataConfirmStepper";
 import ViewUpload from "../components/dataconfirm/ViewUpload";
 import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
-import { convertDeepSeekToTable } from "../utils/DeepSeekToTable";
-import { convertTableToDeepSeekFormat } from "../utils/TableToDeepSeek";
+import convertDeepSeekToTable from "../utils/DeepSeekToTable";
+import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
 import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash } from "lucide-react";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/data-confirm`;

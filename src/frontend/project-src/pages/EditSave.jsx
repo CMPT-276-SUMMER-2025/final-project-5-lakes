@@ -11,6 +11,29 @@ import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&v=4&c=";
 
+// Utility function to convert hex to RGB
+const hexToRgb = (hex) => {
+    // Remove the hash if it exists
+    hex = hex.replace('#', '');
+    
+    // Parse the hex values
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    return `rgb(${r}, ${g}, ${b})`;
+};
+
+// Utility function to convert hex to RGBA with opacity
+const hexToRgba = (hex, alpha = 1) => {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
     const chartImageUrl = 'https://dummyimage.com/600x600'; 
@@ -56,41 +79,114 @@ function EditSave() {
     }
 
     useEffect(() => {
-        chartConfig.options = {
-            title: {
-                display: true,
-                text: "Chart Title"
-            },
-            elements: {},
-            legend: {
-                labels: { }
-            },
-            scales: {
-                yAxes: {
-                    ticks: {}
+        if (chartConfig && chartConfig.options) {
+            chartConfig.options = {
+                title: {
+                    display: true,
+                    text: "Chart Title"
                 },
-                xAxes: {
-                    ticks: {}
+                elements: {},
+                legend: {
+                    labels: { fontFamily: "Open Sans" }
+                },
+                scales: {
+                    yAxes: {
+                        ticks: {fontFamily: "Open Sans"}
+                    },
+                    xAxes: {
+                        ticks: {fontFamily: "Open Sans"}
+                    }
                 }
             }
-
-
         }
     }, [chartConfig]);
 
     
     // Handle color change from the color picker
     const handleColorChange = (color) => {
-        setSelectedColor(color.hex);         
+        setSelectedColor(color.hex);        
         console.log("Confirmed background hex:", color.hex);
-        return color.hex;
+        // chartConfig.options.elements.backgroundColor = color.hex;
+        // chartConfig.data.datasets[0].backgroundColor = color.hex;
+        // console.log(color.hex);
+        // updateChartConfig(chartConfig);
+        // Convert hex to RGB for QuickChart API
+        const rgbColor = hexToRgb(color.hex);
+        console.log("Converted to RGB:", rgbColor);
+        
+        // Create a copy of chartConfig with RGB colors
+        const updated = {
+            ...chartConfig,
+            chartStyle: {
+                ...chartConfig.chartStyle,
+                backgroundColor: color.hex // Keep hex for internal state
+            }
+        };
+        
+        // Apply RGB colors to chart configuration for API
+        if (updated.options) {
+            if (updated.options.elements) {
+                updated.options.elements.backgroundColor = rgbColor;
+            }
+        }
+        
+        if (updated.data && updated.data.datasets && updated.data.datasets[0]) {
+            updated.data.datasets[0].backgroundColor = rgbColor;
+        }
+        
+        console.log("Updated chart config:", updated);
+        updateChartConfig(updated);
     };
 
     // Handle text color change
     const handleTextColorChange = (color) => {
         setTextColor(color.hex);
         console.log("Confirmed text hex:", color.hex);
-        return color.hex;
+        
+        // Convert hex to RGB for QuickChart API
+        const rgbColor = hexToRgb(color.hex);
+        console.log("Text color converted to RGB:", rgbColor);
+        
+        // Create a copy of chartConfig with RGB text colors
+        const updated = {
+            ...chartConfig,
+            chartStyle: {
+                ...chartConfig.chartStyle,
+                textColor: color.hex // Keep hex for internal state
+            },
+            options: {
+                ...chartConfig.options,
+                plugins: {
+                    ...chartConfig.options?.plugins,
+                    legend: {
+                        ...chartConfig.options?.plugins?.legend,
+                        labels: {
+                            ...chartConfig.options?.plugins?.legend?.labels,
+                            color: rgbColor // Use RGB for API
+                        }
+                    }
+                },
+                scales: {
+                    ...chartConfig.options?.scales,
+                    x: {
+                        ...chartConfig.options?.scales?.x,
+                        ticks: { 
+                            ...chartConfig.options?.scales?.x?.ticks,
+                            color: rgbColor // Use RGB for API
+                        }
+                    },
+                    y: {
+                        ...chartConfig.options?.scales?.y,
+                        ticks: { 
+                            ...chartConfig.options?.scales?.y?.ticks,
+                            color: rgbColor // Use RGB for API
+                        }
+                    }
+                }
+            }
+        };
+        
+        updateChartConfig(updated);
     };
 
     const handleFontSizeChange = (e) => {
@@ -216,7 +312,9 @@ function EditSave() {
         }
         }
     };
-
+    updated.options.legend.labels.fontFamily = nextFont.family;
+    updated.options.scales.x.ticks.fontFamily = nextFont.family;
+    updated.options.scales.y.ticks.fontFamily = nextFont.family;
     updateChartConfig(updated);
     };
     
