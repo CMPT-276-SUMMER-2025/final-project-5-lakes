@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DataConfirmStepper from "../components/dataconfirm/DataConfirmStepper";
-import ViewUpload from "../components/dataconfirm/ViewUpload";
+// import ViewUpload from "../components/dataconfirm/ViewUpload";
 import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
@@ -15,8 +15,8 @@ function DataConfirm() {
   const navigate = useNavigate();
   const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
 
-  const fileName = file?.originalname || "Unknown file";
-  const fileSize = file?.size || 0;
+  // const fileName = file?.originalname || "Unknown file";
+  // const fileSize = file?.size || 0;
 
   console.log("file:", file);
   console.log("parsedData:", parsedData);
@@ -197,13 +197,13 @@ function DataConfirm() {
                       </tbody>
                     </table>
                   </div>
-                  <div className="flex justify-center mt-4">
+                  {/* <div className="flex justify-center mt-4">
                       <ViewUpload
                         fileName={fileName}
                         fileSize={fileSize}
                         fileContent={parsedData?.base64 || file?.url || "about:blank"}
                       />
-                  </div>
+                  </div> */}
                 </>
               )}
             </div>

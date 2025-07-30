@@ -506,8 +506,6 @@ function EditSave() {
 
                     <div className="space-y-6">
 
-
-
                         {/* Chart Title section */}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
                             <p className="text-lg font-semibold text-gray-800 mb-2">Chart Title</p>
