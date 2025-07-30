@@ -18,48 +18,15 @@ const promptPrefix =
 
 const promptExtractStructuredData =
         `
-<<<<<<< HEAD
-        You are given a dataset extracted from a file. 
-
-        The file may contain:
-        - Multiple unrelated topics or datasets (e.g., one about student commute times, another about fruit prices).
-        - No meaningful data at all.
-
-        Your task is to:
-        1. Identify meaningful variables (e.g. months, categories, values).
-        2. For each dataset, extract key variables such as labels and values. The "label" of "datasets" should describe what the "data" values represent.
-        3. Structure each dataset in the following JSON format compatible with the QuickChart API:
-=======
         IMPORTANT: You MUST respond with exactly ONE of the following:
->>>>>>> a0817cbc0c29f511c190c8cc2aa85f29401aa7b6
 
         - If meaningful data is found, output ONLY a JSON array of objects as described below.
         - If NO meaningful data is found, output EXACTLY this line:
         Error: No data was extracted.
 
-<<<<<<< HEAD
-        Output:
-        - Return all structured datasets as a JSON array of objects - each object is one group of data set:
-        [
-                { {"type": ..., "data": { ... }} },
-                { {"type": ..., "data": { ... }} }
-        ]
-
-        Important rules:
-        - Do NOT include any explanations, descriptions, or natural language text.
-        - Do NOT wrap the output in triple backticks (\`\`\`).
-        - Only return clean, valid JSON.
-        - Choose a suitable chart type for each dataset and include it as the "type" field.
-        - Only include required fields (type, labels, data, datasets).
-
-        If the file contains no meaningful data, return exactly:
-        Error: No data was extracted.
-        `;
-=======
         Do NOT include any other text, explanations, or formatting (no backticks, no quotes, no lists).
 
         ---
->>>>>>> a0817cbc0c29f511c190c8cc2aa85f29401aa7b6
 
         You are given a parsed file (csv, excel, txt or pdf). Given the file, extract all the relevant data needed to
         create a chart and format it as parsed csv file.
