@@ -9,6 +9,8 @@ import FontPicker from 'font-picker-react';
 import DownloadOptions from '../components/editchart/DownloadOptions';
 import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
+const quickChartURL = "https://quickchart.io/chart?c=";
+
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
     const chartImageUrl = 'https://dummyimage.com/600x600'; 
@@ -260,7 +262,7 @@ function EditSave() {
                             
                             {chartImageUrl ? (
                             <img
-                                src={chartImageUrl}
+                                src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
                                 alt="Live Chart Preview"
                                 className="w-full max-w-md mx-auto rounded-md shadow-md"
                             />
@@ -348,7 +350,6 @@ function EditSave() {
                             <SketchPicker color={textColor} onChangeComplete={handleTextColorChange} />
                         </div>
                         )}
-
 
 
 

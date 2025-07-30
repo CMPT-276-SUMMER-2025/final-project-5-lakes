@@ -17,22 +17,24 @@ function getYValues(label, dataset) {
 }
     
 function generateChart(dataset, labels, type) {
-    /*let chartConfig = {
+    const yValues = getYValues(labels.y[0], dataset);
+    const xLabels = labels.x;
+    const datasetTitle = "Dataset";
+    let chartConfig = {
         type: type,
         data: {
-            labels: xlabels,
+            labels: xLabels,
             datasets: [
                 {
-                    data: yValues
+                    data: yValues,
+                    label: datasetTitle
                 }
             ]
         }
-    };*/
-
+    };
+    // const encoded = encodeURIComponent(JSON.stringify(chartConfig));
+    return chartConfig;
     
-    // const encodedConfig = encodeURIComponent(JSON.stringify(chartConfig));
-    // return quickChartURL + encodedConfig;
-    return {};
 }
 
 function multipleDatasetsChartGenerator(type, xlabels, datasets) {
