@@ -1,7 +1,7 @@
 const path = require('path');
 
 //import the parseFile function for unit testing
-const { parseFile } = require('../file-parser.js');
+const { convertToChartConfig } = require('../deepSeek/DeepSeekFeature1.js');
 const deepseek = require('../deepSeek/APIdeepseek.js');
 
 // UNIT TEST
@@ -16,7 +16,7 @@ jest.mock('../deepSeek/APIdeepseek.js', () => ({
   })
 }));
 
-describe('parseFile', () => {
+describe('convertToChartConfig', () => {
   test('parses CSV', async () => {
     // Example test mock file
     const mockFile = {
@@ -24,8 +24,8 @@ describe('parseFile', () => {
       path: path.resolve(__dirname, 'files/csv/simple_sample.csv')
     };
 
-    // Call the real function (parseFile)
-    const result = await parseFile(mockFile);
+    // Call the real function (convertToChartConfig)
+    const result = await convertToChartConfig(mockFile);
 
     // Internally, queryDeepSeekV3 will be mocked, so no real API call
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
@@ -43,7 +43,7 @@ describe('parseFile', () => {
       mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       path: path.resolve(__dirname,'files/xlsx/simple_sample.xlsx')
     };    
-    const result = await parseFile(mockFile);
+    const result = await convertToChartConfig(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
     expect(result).toEqual(JSON.stringify([
       { "Name": "Alice", "Score": "85" },
@@ -57,7 +57,7 @@ describe('parseFile', () => {
       mimetype: 'application/pdf',
       path: path.resolve(__dirname, 'files/pdf/simple_sample.pdf')
     };    
-    const result = await parseFile(mockFile);
+    const result = await convertToChartConfig(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
     expect(result).toEqual(JSON.stringify([
       { "Name": "Alice", "Score": "85" },
@@ -71,7 +71,7 @@ describe('parseFile', () => {
       mimetype: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       path: path.resolve(__dirname, 'files/docx/simple_sample.docx')
     };    
-    const result = await parseFile(mockFile);
+    const result = await convertToChartConfig(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
     expect(result).toEqual(JSON.stringify([
       { "Name": "Alice", "Score": "85" },
@@ -85,7 +85,7 @@ describe('parseFile', () => {
       mimetype: 'text/plain',
       path: path.resolve(__dirname, 'files/txt/simple_sample.txt')
     };    
-    const result = await parseFile(mockFile);
+    const result = await convertToChartConfig(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
     expect(result).toEqual(JSON.stringify([
       { "Name": "Alice", "Score": "85" },
