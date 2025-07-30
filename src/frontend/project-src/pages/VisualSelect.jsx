@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import ChartSelectionCard from '../components/visualselect/ChartSelectionCard';
 import { ChevronLeft } from 'lucide-react';
 import VisualSelectStepper from '../components/visualselect/VisualSelectStepper';
+import LoadingPopUp from '../components/visualselect/LoadingPopUp';
 
 // not connected with backend yet
 // may need to change the inputs
@@ -18,6 +19,9 @@ function VisualSelect() {
   const { summary, graphRecommendation, chartsWithURLs } = location.state || {}; 
 
   console.log(chartsWithURLs);
+  
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const [selectedChart, setSelectedChart] = useState(null);
 
@@ -98,7 +102,7 @@ function VisualSelect() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start p-6 sm:p-10 font-inter">
-      
+      <LoadingPopUp show={isLoading} />
       <div>
         <VisualSelectStepper />
       </div>

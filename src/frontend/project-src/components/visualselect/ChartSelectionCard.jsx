@@ -1,6 +1,7 @@
 // src/components/visualselect/ChartSelectionCard.jsx
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { useState } from "react";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/visual-selected`;
 
@@ -10,10 +11,10 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
   const { chartConfig } = location.state || {};
   console.log(chartConfig);
 
+  const [isLoading, setIsLoading] = useState(false);
+  
 
   const handleSelectOption = () => {
-
-
     if (chartConfig) {
       navigate("/edit-save", { state: {chartConfig: chartConfig} });
       return;
@@ -32,9 +33,13 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
     .then(data => {
       console.log(data);
       navigate("/edit-save", { state: data });
+      setIsLoading(false);
     })
     .catch(error => {
       console.error("Error selecting option:", error);
+    })
+    .finally(() => {
+      setIsLoading(false);
     });
   }
 
