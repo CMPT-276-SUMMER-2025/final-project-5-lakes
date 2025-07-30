@@ -6,14 +6,20 @@ import { useLocation } from "react-router-dom";
 import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
 import FontPicker from 'font-picker-react';
+import DownloadOptions from '../components/editchart/DownloadOptions';
+import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
 function EditSave() {
+    const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+    const chartImageUrl = 'https://dummyimage.com/600x600'; 
     const location = useLocation();
     const { chartConfig: initialConfig } = location.state || {};
+    const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
+    const [showTextPicker, setShowTextPicker] = useState(false);
     console.log(initialConfig);
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
-    const [chartImageUrl, setChartImageUrl] = useState("");
+    //const [chartImageUrl, setChartImageUrl] = useState("");
     const [selectedColor, setSelectedColor] = useState(initialConfig?.chartStyle?.backgroundColor || "#4F46E5");
     const [textColor, setTextColor] = useState(initialConfig?.chartStyle?.textColor || "#000000");
 
@@ -217,10 +223,39 @@ function EditSave() {
                     {/* Display the chart image */}
                     <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
                         <div>
-                            <h2 className="font-semibold text-center">Edit Chart</h2>
-                            <p className="text-md text-gray-600 text-center mb-6">
-                            Review and edit your generated chart below.
-                            </p>
+                            <h2 className="font-semibold flex items-center justify-center gap-4 mb-2">
+                            <Edit3 size={30} />
+                            Edit Chart
+
+
+                            <div className="flex ml-6 space-x-3">
+                                <button
+                                onClick={handleUndo}
+                                disabled={historyIndex === 0}
+                                className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Undo"
+                                >
+                                <RotateCcw size={18} />
+                                </button>
+
+                                <button
+                                onClick={handleRedo}
+                                disabled={historyIndex === history.length - 1}
+                                className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                title="Redo"
+                                >
+                                <RotateCw size={18} />
+                                </button>
+
+                                <button
+                                onClick={handleReset}
+                                className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100"
+                                title="Reset"
+                                >
+                                <RefreshCw size={18} />
+                                </button>
+                            </div>
+                            </h2>
 
                             
                             {chartImageUrl ? (
@@ -234,19 +269,10 @@ function EditSave() {
                             )}
                         </div>
                     </div>
-                    {/* Configuration and customization options */} 
-                    <div className="space-y-6">
-                        {/* Font Family Picker */}
-                        <div className="flex flex-col items-center gap-4">
-                            <p className="text-md font-medium">Font Family</p>
-                            <FontPicker
-                                apiKey="AIzaSyAQpYbiU5EWYssK3K2rrBgcLFkz1CetCq8"
-                                activeFontFamily={activeFontFamily}
-                                onChange={handleFontChange}
-                            />
-                        </div>
 
-                        {/* Font Size Slider */}
+
+
+                    <div className="space-y-6">
                         <div
                             className="p-2 mt-2 border rounded-md bg-white shadow text-center"
                             style={{
@@ -261,50 +287,86 @@ function EditSave() {
                             Live Preview: This is your chart text
                         </div>
 
-                        {/* Font Size Slider */}
-                        <div className="flex flex-col items-center gap-4 w-full">
-                            <label htmlFor="fontSizeSlider" className="text-sm text-gray-700">Font Size: {fontSize}px</label>
-                            <input
-                                id="fontSizeSlider"
-                                type="range"
-                                min="10"
-                                max="32"
-                                value={fontSize}
-                                onChange={handleFontSizeChange}
-                                className="w-full"
-                            />
+                        <div className="w-full max-w-sm bg-white rounded-2xl shadow-md p-4 flex items-center gap-4 border border-gray-200">
+                            <p className="text-md font-bold text-gray-800">Font Family</p>
+                            <div>
+                                <FontPicker
+                                apiKey="AIzaSyAQpYbiU5EWYssK3K2rrBgcLFkz1CetCq8"
+                                activeFontFamily={activeFontFamily}
+                                onChange={handleFontChange}
+                                />
+                            </div>
+                            </div>
+
+                        <div className="w-full max-w-sm bg-white rounded-2xl shadow-md p-4 flex items-center gap-4 border border-gray-200">
+                        <label htmlFor="fontSizeDropdown" className="text-md font-bold text-black-800">
+                            Font Size
+                        </label>
+                        <select
+                            id="fontSizeDropdown"
+                            value={fontSize}
+                            onChange={handleFontSizeChange}
+                            className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                        >
+                            {[6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32].map((size) => (
+                            <option key={size} value={size}>
+                                {size}px
+                            </option>
+                            ))}
+                        </select>
                         </div>
-                        
-                        {/* Background Color Picker */}
-                        <div className="flex flex-col items-center gap-4">
-                            <p className="text-md font-medium">Background Color</p>
+
+                        {/* Section with two buttons that will cause the colour picker to pop up */}
+                        <div className="flex justify-center gap-4 mb-4">
+                        {/* for the background colour */}
+                        <button
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-00 transition"
+                            onClick={() => setShowBackgroundPicker((prev) => !prev)}
+                        >
+                            {showBackgroundPicker ? "Hide Background Color" : "Edit Background Color"}
+                        </button>
+
+                        {/* for the text colour */}
+                        <button
+                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                            onClick={() => setShowTextPicker((prev) => !prev)}
+                        >
+                            {showTextPicker ? "Hide Text Color" : "Edit Text Color"}
+                        </button>
+                        </div>
+
+
+                        {showBackgroundPicker && (
+                        <div className="flex flex-col items-center gap-4 mb-6">
                             <SketchPicker color={selectedColor} onChangeComplete={handleColorChange} />
                         </div>
+                        )}
 
-                        {/* Text Color Picker */}
-                        <div className="flex flex-col items-center gap-4">
-                            <p className="text-md font-medium">Text Color</p>
+
+                        {showTextPicker && (
+                        <div className="flex flex-col items-center gap-4 mb-6">
                             <SketchPicker color={textColor} onChangeComplete={handleTextColorChange} />
                         </div>
+                        )}
 
-                        
 
-                        {/* Action Buttons */}
-                        <div className="flex justify-center gap-4 mt-4 flex-wrap">
-                            <button onClick={handleUndo} disabled={historyIndex === 0} className="gray-base-button">Undo</button>
-                            <button onClick={handleRedo} disabled={historyIndex === history.length - 1} className="gray-base-button">Redo</button>
-                            <button onClick={handleReset} className="gray-base-button">Reset</button>
-                            <button
-                            onClick={() => {
-                                const link = document.createElement("a");
-                                link.href = chartImageUrl;
-                                link.download = "chart.png";
-                                link.click();
-                            }}
-                            className="blue-base-button"
-                            >
+
+
+                        {isDownloadModalOpen && (
+                            <DownloadOptions
+                            onClose={() => setIsDownloadModalOpen(false)}
+                            chartImageUrl={chartImageUrl}
+                            />
+                        )}
+
+                        <div className="w-full">
+                        <button
+                            className="w-full bg-blue-600 hover:bg-gray-300 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2"
+                            onClick={() => setIsDownloadModalOpen(true)}
+                        >
+                            <Download size={18} />
                             Download
-                            </button>
+                        </button>
                         </div>
                     </div>
                 </div>
