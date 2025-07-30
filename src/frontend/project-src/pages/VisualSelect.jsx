@@ -8,25 +8,38 @@ import VisualSelectStepper from '../components/visualselect/VisualSelectStepper'
 // may need to change the inputs
 // currently accepts an: ID, the title, the description, and the image URL
 
+const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/visual-select`;
+
 function VisualSelect() {
   const [chartOptions, setChartOptions] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   console.log(location.state);
-  const { chartsConfig, summary, graphRecommendation, analysis } = location.state || {}; 
+  const { summary, graphRecommendation, chartsWithURLs } = location.state || {}; 
 
   useEffect(() => {
-    fetch('/api/visualization-options')
-      .then(response => response.json())
-      .then(data => setChartOptions(data))
-      .catch(error => {
-        console.error('could not get chart options', error);
-        setChartOptions([
-          { id: 1, title: "Sample Bar Chart", description: "Will add the AI summary description here." },
-          { id: 2, title: "Sample Line Chart", description: "Will add the AI summary description here." },
-          { id: 3, title: "Sample Pie Chart", description: "Will add the AI summary description here." }
-        ]);
-      });
+    // fetch(apiUrl, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ id: 1 })
+    //   })
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     console.log('chartOptions from API:', data);
+    //     setChartOptions(data);
+    //   })
+    //   .catch(error => {
+    //     console.error('could not get chart options', error);
+    //     setChartOptions([
+    //       { id: 1, title: "Sample Bar Chart", description: "Will add the AI summary description here." },
+    //       { id: 2, title: "Sample Line Chart", description: "Will add the AI summary description here." },
+    //       { id: 3, title: "Sample Pie Chart", description: "Will add the AI summary description here." }
+    //     ]);
+    //   });
+      setChartOptions(chartsWithURLs);
+      console.log(chartOptions);
   }, []);
 
   const goPreviousPage = async () => {
@@ -56,8 +69,8 @@ function VisualSelect() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {chartOptions.map((chart, index) => (
             <ChartSelectionCard
-              key={index}
-              id={index}
+              key={chart.id}
+              id={chart.id}
               title={chart.title}
               description={chart.description}
               chartImageUrl={chart.imageUrl}

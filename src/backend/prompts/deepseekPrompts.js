@@ -83,7 +83,8 @@ const summaryPrompt =
         `
         You are given an array of datasets extracted from a file. 
         Your task is to:
-        For each of the datasets, give me a summary of the data in bullet point form as an array of strings.
+        For each of the datasets, give me a summary or key insights of the data in bullet point form
+        of maximum 4 bullet points as an array of strings.
         return it in the following JSON format in the same order as the datasets:
 
         [
@@ -125,6 +126,68 @@ const parsedDataFormat =
         - Only return clean, valid JSON.
         `
 
+const labelsSeparatorPrompt = `
+        Based on the given dataset, could you separate the x and y axis in this format
+        {
+        X: […], Y: […]
+        }
+        Where the values inside the arrays are the column labels not the values
+
+        Important rules:
+        - Do NOT include any explanations, descriptions, or natural language text.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+`
+
+const multipleDataSetsPrompt = `
+        Given a parsed file (Excel/CSV/JSON) containing multiple unrelated datasets mixed together, 
+        transform it into the following JSON format:
+
+        {
+        "dataset1Title": [
+        {"Label1": "value1", "Label2": "value2", ...},
+        {"Label1": "value1", "Label2": "value2", ...},
+        ...
+        ],
+        "dataset2Title": [
+        {"Label1": "value1", "Label2": "value2", ...},
+        {"Label1": "value1", "Label2": "value2", ...},
+        ...
+        ],
+        ...
+        }
+
+        Requirements:
+        1. Detect dataset boundaries by:
+        - Blank rows/columns
+        - Repeating header rows
+        - Known separators (e.g., "---", "Dataset 2:")
+        2. Use the first non-blank row's values as keys for each dataset
+        3. Infer dataset titles from:
+        - The first header row of each dataset
+        - Filename patterns (e.g., "sales_data.csv" -> "salesData")
+        - Sequential numbering ("dataset1", "dataset2") if no better name exists
+        4. Preserve all original data values without modification
+        5. Handle missing values as null/empty strings
+
+        Example Input (CSV):
+        Date,Sales,Product
+        1/1/2023,1000,Widget A
+        ,,,
+        Day,Temp
+        Mon,72
+
+        Example Output:
+        {
+        "salesData": [
+        {"Date": "1/1/2023", "Sales": "1000", "Product": "Widget A"}
+        ],
+        "temperatureData": [
+        {"Day": "Mon", "Temp": "72"}
+        ]
+        }
+
+`;
 
 const prompts = {
         feature1: (query, data) => 
@@ -145,7 +208,12 @@ const prompts = {
         parsedDataFormat: (query, data) =>
         `
         ${promptPrefix}${parsedDataFormat}${query}\n\nHere is the data:\n${data}
+        `,
+
+        labelsSeparatorPrompt: (query, data) =>
         `
+        ${promptPrefix}${labelsSeparatorPrompt}${query}\n\nHere is the data:\n${data}
+        `,
 };
 
 module.exports = prompts;
