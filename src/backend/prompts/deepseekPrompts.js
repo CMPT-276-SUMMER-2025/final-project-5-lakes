@@ -18,32 +18,36 @@ const promptPrefix =
 
 const promptExtractStructuredData =
         `
-        You are given a dataset extracted from a file. 
-        The file may contain multiple unrelated topics or datasets (e.g., one about student commute times, another about fruit prices).
-        Your task is to:
-        1. Identify meaningful variables (e.g. months, categories, values).
-        2. For each dataset, extract key variables such as label and values (Label should explain the meaning of the value).
-        3. Structure the data into a format compatible with the QuickChart API:
+        IMPORTANT: You MUST respond with exactly ONE of the following:
 
-        {
-                "type": "bar", // or "line", "pie", etc.
-                "data": {
-                        "labels": [...],
-                        "datasets": [
-                                {
-                                        "label": "...",
-                                        "data": [...]
-                                }
-                        ]
-                }
-        }
+        - If meaningful data is found, output ONLY a JSON array of objects as described below.
+        - If NO meaningful data is found, output EXACTLY this line:
+        Error: No data was extracted.
 
-        Return all structured datasets as a JSON array of objects - each object is one group of data set:
+        Do NOT include any other text, explanations, or formatting (no backticks, no quotes, no lists).
+
+        ---
+
+        You are given a parsed file (csv, excel, txt or pdf). Given the file, extract all the relevant data needed to
+        create a chart and format it as parsed csv file.
+        
+        Example format:
         [
-                [ {"type": ..., "data": { ... }} ],
-                [ {"type": ..., "data": { ... }} ]
+                {
+                        "Label 1": "Value 1",
+                        "Label 2": "Value 2",
+                        "Label 3": "Value 3",
+                        ...
+                },
+                {
+                        "Label 1": "Value 1",
+                        "Label 2": "Value 2",
+                        "Label 3": "Value 3",
+                        ...
+                },
+                ...
         ]
-
+        
         Important rules:
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
@@ -145,34 +149,6 @@ const summaryPrompt =
                 ...
         ]
          Important rules:
-        - Do NOT include any explanations, descriptions, or natural language text.
-        - Do NOT wrap the output in triple backticks (\`\`\`).
-        - Only return clean, valid JSON.
-        `
-
-const parsedDataFormat = 
-        `
-        You are given a parsed file (csv, excel, txt or pdf). Given the file, extract all the relevant data needed to
-        create a chart and format it as parsed csv file.
-        
-        Example format:
-        [
-                {
-                        "Label 1": "Value 1",
-                        "Label 2": "Value 2",
-                        "Label 3": "Value 3",
-                        ...
-                },
-                {
-                        "Label 1": "Value 1",
-                        "Label 2": "Value 2",
-                        "Label 3": "Value 3",
-                        ...
-                },
-                ...
-        ]
-        
-        Important rules:
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
@@ -282,11 +258,6 @@ const prompts = {
         feature3: (query, data) =>
         `
         ${promptPrefix}${summaryPrompt}${query}\n\nHere is the data:\n${data}
-        `,
-
-        parsedDataFormat: (query, data) =>
-        `
-        ${promptPrefix}${parsedDataFormat}${query}\n\nHere is the data:\n${data}
         `,
 
         labelsSeparatorPrompt: (query, data) =>
