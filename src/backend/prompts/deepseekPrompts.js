@@ -19,11 +19,15 @@ const promptPrefix =
 const promptExtractStructuredData =
         `
         You are given a dataset extracted from a file. 
-        The file may contain multiple unrelated topics or datasets (e.g., one about student commute times, another about fruit prices).
+
+        The file may contain:
+        - Multiple unrelated topics or datasets (e.g., one about student commute times, another about fruit prices).
+        - No meaningful data at all.
+
         Your task is to:
         1. Identify meaningful variables (e.g. months, categories, values).
-        2. For each dataset, extract key variables such as label and values (Label should explain the meaning of the value).
-        3. Structure the data into a format compatible with the QuickChart API:
+        2. For each dataset, extract key variables such as labels and values. The "label" of "datasets" should describe what the "data" values represent.
+        3. Structure each dataset in the following JSON format compatible with the QuickChart API:
 
         {
                 "type": "bar", // or "line", "pie", etc.
@@ -38,10 +42,11 @@ const promptExtractStructuredData =
                 }
         }
 
-        Return all structured datasets as a JSON array of objects - each object is one group of data set:
+        Output:
+        - Return all structured datasets as a JSON array of objects - each object is one group of data set:
         [
-                [ {"type": ..., "data": { ... }} ],
-                [ {"type": ..., "data": { ... }} ]
+                { {"type": ..., "data": { ... }} },
+                { {"type": ..., "data": { ... }} }
         ]
 
         Important rules:
@@ -49,6 +54,10 @@ const promptExtractStructuredData =
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
         - Choose a suitable chart type for each dataset and include it as the "type" field.
+        - Only include required fields (type, labels, data, datasets).
+
+        If the file contains no meaningful data, return exactly:
+        Error: No data was extracted.
         `;
 
 const graphRecommendationLogic = 

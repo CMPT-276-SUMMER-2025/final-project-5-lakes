@@ -63,8 +63,12 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             const result = await convertToChartConfig("", textData);
             return res.json(result);
         } catch (error) {
-            console.error('Error processing text:', error);
-            return res.status(500).send('Error processing the text.');
+            if (error.code === 'NO_DATA_EXTRACTED') {
+                return res.status(400).json({ error: 'No meaningful data could be extracted from the file.' });
+            } else {
+                console.error('Error processing text:', error);
+                return res.status(500).send('Error processing the text.');
+            }
         }
     }
 
@@ -80,7 +84,11 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         sessionData.styleConfig = null;
         return res.json(result);
     } catch (error) {
-        return res.status(500).send('Failed to process file.');
+        if (error.code === 'NO_DATA_EXTRACTED') {
+            return res.status(400).json({ error: 'No meaningful data could be extracted from the file.' });
+        } else {
+            return res.status(500).send('Failed to process file.');
+        }
     }
 });
 

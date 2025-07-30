@@ -62,8 +62,13 @@ async function parseFile(file){
         const result = await queryDeepSeekV3(prompt);
         return result;
     } catch (error) {
-        console.error('Error processing file:', error);
-        throw error;
+        if (error.code === 'NO_DATA_EXTRACTED'){
+            throw error;
+        }
+        else {
+            console.error('Error processing file:', error);
+            throw error;
+        }
     } finally {
         if (filePath && fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);

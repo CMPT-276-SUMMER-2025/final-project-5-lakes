@@ -55,16 +55,27 @@ function HomePage() {
       body: formData,
       credentials: 'include'
     })
-
-    // to go to the next page if successful
-     .then((response) => {
+     .then(async (response) => { //// to go to the next page if successful
+      const data = await response.json;
       if (!response.ok) {
-        throw new Error('error sending info');
+        throw new Error(data.error || 'error sending info');
       }
-      return response.json();
+      return data;
     })
     .then((data) => {
       navigate('/data-confirm', { state: data });
+    })
+    .catch((error) => {
+      if (error.message === 'No meaningful data could be extracted from the file.') {
+        showAlert(
+          //im not sure if this is where u add what u need but probably somewhere here u work with (- nick)
+          //this one is for cannot extract data/empty file
+        )
+      } else {
+        showAlert(
+          //this one is for any other errors
+        )
+      }
     })
   };
 
