@@ -17,6 +17,13 @@ function VisualSelect() {
   console.log(location.state);
   const { summary, graphRecommendation, chartsWithURLs } = location.state || {}; 
 
+  const [selectedChart, setSelectedChart] = useState(null);
+  const handleChartSelect = (chart) => {
+    setSelectedChart(chart);
+
+    // console.log("Selected chart:", chart);
+  };
+
   useEffect(() => {
     // fetch(apiUrl, {
     //   method: 'POST',
@@ -60,14 +67,11 @@ function VisualSelect() {
       <div>
         <VisualSelectStepper />
       </div>
-
-
       
       <div className="w-full max-w-6xl bg-blue-50 shadow-md rounded-xl p-6 sm:p-8">
         
-        
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {chartOptions.map((chart, index) => (
+          {chartOptions.map((chart) => (
             <ChartSelectionCard
               key={chart.id}
               id={chart.id}
@@ -75,6 +79,7 @@ function VisualSelect() {
               description={chart.description}
               chartImageUrl={chart.imageUrl}
               buttonText="Select"
+              onSelect={() => navigate("/edit-save", { state: { selectedChart: chart } })}
             />
           ))}
         </div>
