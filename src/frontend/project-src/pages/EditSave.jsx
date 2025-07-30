@@ -38,12 +38,17 @@ function EditSave() {
     const [historyIndex, setHistoryIndex] = useState(0);
 
     // Generate the initial chart image URL
-    useEffect(() => {
-        if (chartConfig) {
-        const newUrl = generateChartUrl(chartConfig);
-        setChartImageUrl(Url);
-        }
-    }, [chartConfig]);
+    // useEffect(() => {
+    //     if (chartConfig) {
+    //     const Url = `${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`;
+    //     setChartImageUrl(Url);
+    //     }
+    // }, [chartConfig]);
+
+    let styleConfig = {
+       backgroundColor: null,
+       
+    }
 
     
     // Handle color change from the color picker
