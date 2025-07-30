@@ -25,8 +25,6 @@ async function convertToChartConfig(query, data) {
             throw error;
         }
 
-        console.log(`CHECK: ${JSON.stringify(result)}`);
-
         return result;
     } catch (error) {
         console.error('Error converting to chart config:', error);

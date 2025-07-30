@@ -101,8 +101,21 @@ app.post('/data-confirm', async (req, res) => {
     try {
         sessionData.edittedData = JSON.stringify(data.edittedData);
 
-        // const prompt = prompts.feature1("",JSON.stringify(data.edittedData));
-        const summary = await getSummary(JSON.stringify(data.edittedData));
+        // Get summary of graphs & check for issues
+        const summary = '';
+        try {
+            summary = await getSummary(JSON.stringify(data.edittedData));
+            console.log('1');
+        } catch (error) {
+            console.log('2');
+            if (error.code === 'INVALID_EDITTED_TABLE') {
+                return res.status(400).json({ error: error.message });
+            } else {
+                return res.status(500).send('Failed to process file.');
+            }
+        }
+
+        // Get graph recommendation
         const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
 
         console.log(`LOOK THIS: ${JSON.stringify(graphRecommendation)}`);
