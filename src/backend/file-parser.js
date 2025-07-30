@@ -3,7 +3,7 @@ const pdfParse = require('pdf-parse'); // For PDF parsing
 const XLSX = require('xlsx'); // For Excel parsing
 const Papa = require('papaparse'); // For CSV parsing
 const mammoth = require('mammoth'); // For Docx parsing
-const {convertToChartConfig} = require('./deepSeek/DeepSeekFeature1');
+const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1');
 
 async function parseFile(file){
     let filePath = null;

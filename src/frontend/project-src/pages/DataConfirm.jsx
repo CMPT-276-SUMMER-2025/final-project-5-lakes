@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import DataConfirmStepper from "../components/dataconfirm/DataConfirmStepper";
 import ViewUpload from "../components/dataconfirm/ViewUpload";
 import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
+import convertDeepSeekToTable from "../utils/DeepSeekToTable";
+import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
 import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash } from "lucide-react";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/data-confirm`;
@@ -11,7 +13,7 @@ function DataConfirm() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { parsedData, file } = location.state || {};
+  const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
 
   const fileName = file?.originalname || "Unknown file";
   const fileSize = file?.size || 0;
@@ -23,6 +25,7 @@ function DataConfirm() {
   const [confirmedData, setConfirmedData] = useState(null);
   const [originalData, setOriginalData] = useState(null);
 
+  // Initialize confirmedData and originalData from parsedData
   useEffect(() => {
     if (!parsedData || !file) {
       navigate("/");
@@ -34,12 +37,19 @@ function DataConfirm() {
     setOriginalData(structuredClone(table));
   }, [parsedData, file, navigate]);
 
+  // Handle form submission
   const handleNext = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
       const formattedData = convertTableToDeepSeekFormat(confirmedData);
+
+      if (summary && graphRecommendation && chartsWithURLs) {
+        navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
+        setIsLoading(false);
+        return;
+      }
 
       // Take in data from backend
       const res = await fetch(apiUrl, {
@@ -64,6 +74,7 @@ function DataConfirm() {
     }
   };
 
+  // Functions to add/remove rows and columns
   const addRow = () => {
     const updated = structuredClone(confirmedData);
     updated.rows.push({
@@ -233,45 +244,3 @@ function DataConfirm() {
 }
 
 export default DataConfirm;
-
-// ----------------------------
-// DeepSeek Converters
-// ----------------------------
-
-function convertDeepSeekToTable(parsedData) {
-  if (!Array.isArray(parsedData) || parsedData.length === 0) {
-    return {
-      table: {
-        rowHeaderTitle: "Row",
-        columns: [],
-        rows: [],
-      },
-    };
-  }
-
-  const columns = Object.keys(parsedData[0]);
-  const rows = parsedData.map((rowObj, idx) => ({
-    header: `Row ${idx + 1}`,
-    cells: columns.map((col) => rowObj[col] ?? ""),
-  }));
-
-  return {
-    table: {
-      rowHeaderTitle: "Row",
-      columns,
-      rows,
-    },
-  };
-}
-
-function convertTableToDeepSeekFormat(table) {
-  const { columns, rows } = table;
-
-  return rows.map((row) => {
-    const obj = {};
-    columns.forEach((col, i) => {
-      obj[col] = row.cells[i] ?? "";
-    });
-    return obj;
-  });
-}
