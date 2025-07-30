@@ -6,6 +6,8 @@ import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
 import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash } from "lucide-react";
+import DefaultError from '../components/messages/DefaultError';
+import useDefaultError from '../hooks/DefaultErrorHook';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/data-confirm`;
 
@@ -14,6 +16,7 @@ function DataConfirm() {
   const location = useLocation();
   const navigate = useNavigate();
   const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
+  const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
   const fileName = file?.originalname || "Unknown file";
   const fileSize = file?.size || 0;
@@ -63,12 +66,31 @@ function DataConfirm() {
         credentials: "include",
       });
 
-      if (!res.ok) throw new Error("Chart generation failed");
+      //if (!res.ok) throw new Error("SERVER_ERROR");
+
       const data = await res.json();
       navigate("/visual-select", { state: data });
-    } catch (err) {
-      console.error(err);
-      alert("Chart generation failed. Please try again.");
+    } catch(error){
+      setIsLoading(false);
+
+      if (error.code === 'INVALID_EDITTED_TABLE'){
+        showAlert(
+          'error',
+          'Editting Failed',
+          `${error.message}`,
+          'Okay',
+          () => navigate('/data-confirm')
+        );
+      }else{
+        console.error(error);
+        showAlert(
+          'error',
+          'Generation Failed',
+          'Chart generation failed. Please try again.',
+          'Okay',
+          () => navigate('/data-confirm')
+        );
+      }
     } finally {
       setIsLoading(false);
     }
