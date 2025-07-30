@@ -144,6 +144,8 @@ function EditSave() {
         }
     }, [chartConfig]); // Only depend on chartConfig for initial setup
 
+
+
     
     // Handle color change from the color picker
     const handleColorChange = (color) => {

@@ -15,7 +15,9 @@ function VisualSelect() {
   const navigate = useNavigate();
   const location = useLocation();
   console.log(location.state);
-  const { summary, graphRecommendation, chartsWithURLs, parsedData, file } = location.state || {}; 
+  const { summary, graphRecommendation, chartsWithURLs } = location.state || {}; 
+
+  console.log(chartsWithURLs);
 
   const [selectedChart, setSelectedChart] = useState(null);
 
@@ -129,9 +131,9 @@ function VisualSelect() {
                ))}
              </ul>
            ) : (
-             <p className="text-gray-600 text-lg">
-               {summary[0] || 'No summary available'}
-             </p>
+                         <p className="text-gray-600 text-lg">
+              {(summary && summary[0]) || 'No summary available'}
+            </p>
            )}
          </div>
 
