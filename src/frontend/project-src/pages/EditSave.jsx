@@ -50,7 +50,7 @@ const hexToRgba = (hex, alpha = 1) => {
 
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
-    const chartImageUrl = 'https://dummyimage.com/600x600'; 
+    // const chartImageUrl = 'https://dummyimage.com/600x600'; 
     const location = useLocation();
     const { chartConfig: initialConfig } = location.state || {};
     const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
@@ -58,7 +58,7 @@ function EditSave() {
     console.log(initialConfig);
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
-    //const [chartImageUrl, setChartImageUrl] = useState("");
+    const [chartImageUrl, setChartImageUrl] = useState(`${quickChartURL}${encodeURIComponent(JSON.stringify(initialConfig))}`);
 
     const [selectedColor, setSelectedColor] = useState(initialConfig?.chartStyle?.backgroundColor || "#4F46E5");
     const [textColor, setTextColor] = useState(initialConfig?.chartStyle?.textColor || "#000000");
@@ -334,6 +334,7 @@ function EditSave() {
         setHistory(updatedHistory);
         setHistoryIndex(updatedHistory.length - 1);
         setChartConfig(newConfig);
+        setChartImageUrl(`${quickChartURL}${encodeURIComponent(JSON.stringify(newConfig))}`);
     };
 
     // Handle undo and redo actions

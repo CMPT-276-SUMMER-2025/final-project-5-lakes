@@ -1,18 +1,51 @@
-import { useEffect, useCallback } from 'react';
-import { FileDown, Image, FileImage, X } from 'lucide-react';
+import { useEffect, useCallback, useState } from 'react';
+import { FileDown, Image, FileImage, X, Loader2 } from 'lucide-react';
 
 
-function downloadChart(format, chartImageUrl) {
-  const url = `${chartImageUrl}&format=${format}`;
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `chart.${format.toLowerCase()}`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+async function downloadChart(format, chartImageUrl) {
+  try {
+    const url = `${chartImageUrl}&format=${format}`;
+    
+    // Fetch the image as a blob
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const blob = await response.blob();
+    
+    // Create a blob URL and trigger download
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = `chart.${format.toLowerCase()}`;
+    document.body.appendChild(link);
+    link.click();
+    
+    // Clean up
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+    
+  } catch (error) {
+    console.error('Download failed:', error);
+    alert('Download failed. Please try again.');
+  }
 }
 
 function DownloadOptions({ onClose, chartImageUrl }) {
+  const [downloading, setDownloading] = useState(null); // Track which format is downloading
+
+  const handleDownload = async (format) => {
+    setDownloading(format);
+    try {
+      await downloadChart(format, chartImageUrl);
+    } catch (error) {
+      console.error('Download error:', error);
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   const handleEscapeKey = useCallback((event) => {
     if (event.key === 'Escape') {
       onClose(); 
@@ -47,27 +80,42 @@ function DownloadOptions({ onClose, chartImageUrl }) {
 
         <div className="space-y-4 mt-5">
           <button
-            onClick={() => downloadChart('pdf', chartImageUrl)}
-            className="w-full bg-blue-600 hover:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 flex items-center justify-center"
+            onClick={() => handleDownload('pdf')}
+            disabled={downloading !== null}
+            className="w-full bg-blue-600 hover:bg-blue-400 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 flex items-center justify-center"
           >
-            <FileDown className="h-6 w-6 mr-2 flex-shrink-0" />
-            Download as PDF
+            {downloading === 'pdf' ? (
+              <Loader2 className="h-6 w-6 mr-2 flex-shrink-0 animate-spin" />
+            ) : (
+              <FileDown className="h-6 w-6 mr-2 flex-shrink-0" />
+            )}
+            {downloading === 'pdf' ? 'Downloading...' : 'Download as PDF'}
           </button>
 
           <button
-            onClick={() => downloadChart('png', chartImageUrl)}
-            className="w-full bg-blue-600 hover:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 flex items-center justify-center"
+            onClick={() => handleDownload('png')}
+            disabled={downloading !== null}
+            className="w-full bg-blue-600 hover:bg-blue-400 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 flex items-center justify-center"
           >
-            <Image className="w-6 h-6 mr-2 flex-shrink-0" />
-            Download as PNG
+            {downloading === 'png' ? (
+              <Loader2 className="w-6 h-6 mr-2 flex-shrink-0 animate-spin" />
+            ) : (
+              <Image className="w-6 h-6 mr-2 flex-shrink-0" />
+            )}
+            {downloading === 'png' ? 'Downloading...' : 'Download as PNG'}
           </button>
 
           <button
-            onClick={() => downloadChart('svg', chartImageUrl)}
-            className="w-full bg-blue-600 hover:bg-blue-400 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 flex items-center justify-center"
+            onClick={() => handleDownload('svg')}
+            disabled={downloading !== null}
+            className="w-full bg-blue-600 hover:bg-blue-400 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 flex items-center justify-center"
           >
-            <FileImage className="h-6 w-6 mr-2 flex-shrink-0" />
-            Download as SVG
+            {downloading === 'svg' ? (
+              <Loader2 className="h-6 w-6 mr-2 flex-shrink-0 animate-spin" />
+            ) : (
+              <FileImage className="h-6 w-6 mr-2 flex-shrink-0" />
+            )}
+            {downloading === 'svg' ? 'Downloading...' : 'Download as SVG'}
           </button>
         </div>
       </div>
