@@ -48,36 +48,88 @@ const promptExtractStructuredData =
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
-        - Choose a suitable chart type for each dataset and include it as the "type" field.
         `;
 
 const graphRecommendationLogic = 
-        `The user has extracted structured data into QuickChart format. 
-        Your task is to recommend the most suitable chart type for the first dataset only, based on the given chart types below:
+        `
+        You are given raw structured data in JSON format.
 
-        Available Chart Types:
+        Your task is to:
+        1. Analyze the data structure and context of the variables.
+        2. Recommend 1 to 3 appropriate chart types from a predefined list for visualizing this data using Chart.js.
+        3. Provide a brief explanation (1 sentence each) for why each chart type is suitable for the data.
+
+        You may use your judgment to decide which chart types are most suitable based on:
+        - The number and types of variables (categorical, numeric, time-based)
+        - The relationships between variables (e.g., comparisons, trends, distributions)
+        - Real-world context (e.g., time series → line chart; category shares → pie chart)
+
+        Only choose from the following allowed chart types (strictly the same name):
+
         - "Vertical Bar"
         - "Horizontal Bar"
-        - "Polar"
-        - "Stacked"
+        - "Grouped Vertical Bar"
+        - "Grouped Horizontal Bar"
+        - "Stacked Bar"
+        - "Stacked Bar With Groups"
+        - "Floating Bars"
         - "Line"
-        - "Stepped"
-        - "Point"
-        - "Exponential Smoothing"
+        - "Stepped Line"
+        - "Multi Axis Line"
+        - "Line (Multiple Series)"
+        - "Stacked Bar/Line"
+        - "Scatter"
+        - "Scatter - Multi Axis"
+        - "Bubble"
         - "Pie"
-        - "Doughnut"
         - "Labelled Pie"
+        - "Doughnut"
+        - "Labelled Doughnut"
+        - "Polar Area"
+        - "Polar Area Centered Point Labels"
+        - "Multi Series Pie"
+        - "Combo Bar/Line"
 
-        Instructions:
-        1. Analyze the first dataset only
-        2. Choose the single most appropriate chart type from the list above
-        3. Return exactly this format: {"recommendation": "[ChartType] Chart type is the recommended chart that suits your needs for your data visualization"}
+        ### Use the following as general **guidelines**, not strict rules:
 
-        CRITICAL RULES:
-        - Return ONLY the JSON object, nothing else
-        - Do NOT wrap in code blocks or backticks
-        - Do NOT include any explanations
-        - Start response directly with { and end with }`;
+        Comparison Charts:
+        - 1 categorical + 1 numeric → vertical bar, horizontal bar
+        - 1 categorical + multiple numerics → grouped vertical bars, grouped horizontal bars
+        - multiple categorical + 1 numberic → stacked bar, stacked bar with groups
+        - numeric ranges, 1 categorical → floating bars
+
+        Trend and Relationship Charts:
+        - 1 time vs 1 numeric → line, stepped line
+        - 1 time vs multiple numeric → multi axis line, line (multiple series), stacked bar/line
+        - 1 numeric vs 1 numeric → scatter, scatter - multi axis
+        - 2+ numerics → bubble
+        
+        Composition Charts:
+        - categorical proportions → pie, labelled pie, doughnut, lablled doughnut, polar area, polar area centered point labels
+        - multiple categorical → multi series pie
+        
+        Be creative but reasonable. Always ensure the chart is **valid and graphable** in Chart.js.
+
+        Return a valid JSON object with two keys:
+        - types: an array of 1 to 3 chart type strings (from the approved list)
+        - explanations: an array of the same length, where each item explains why the chart was recommended
+
+        ### Output format:
+        {
+                "types:" ["Pie", "Vertical Bar", "Line"],
+                "explanations:" [
+                        "Pie is useful to show the proportion of each category relative to the whole.",
+                        "Vertical bar is effective for comparing numeric values across categories.",
+                        "Line is appropriate for showing numeric trends over time."
+                ]
+        }
+
+        Important Rules:
+        - Do NOT include any extra commentary or Markdown.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return a clean valid JSON array.
+        - All chart types must be from the approved list and must be graphable for the dataset.
+        `;
 
 const summaryPrompt = 
         `
