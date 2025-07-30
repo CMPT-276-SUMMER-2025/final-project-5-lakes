@@ -217,6 +217,8 @@ function EditSave() {
     updateChartConfig(updated);
     };
     
+{/* BELOW IS WHERE ALL OF THE BUTTONS ARE LOCATED */}
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter">
             <EditSaveStepper />
@@ -228,7 +230,6 @@ function EditSave() {
                             <h2 className="font-semibold flex items-center justify-center gap-4 mb-2">
                             <Edit3 size={30} />
                             Edit Chart
-
 
                             <div className="flex ml-6 space-x-3">
                                 <button
@@ -259,7 +260,7 @@ function EditSave() {
                             </div>
                             </h2>
 
-                            
+                            {/* !!!! this is where the image is shown */}
                             {chartImageUrl ? (
                             <img
                                 src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
@@ -275,6 +276,8 @@ function EditSave() {
 
 
                     <div className="space-y-6">
+
+                        {/* this is the part where is show sthe preview of the text*/}
                         <div
                             className="p-2 mt-2 border rounded-md bg-white shadow text-center"
                             style={{
@@ -289,69 +292,77 @@ function EditSave() {
                             Live Preview: This is your chart text
                         </div>
 
-                        <div className="w-full max-w-sm bg-white rounded-2xl shadow-md p-4 flex items-center gap-4 border border-gray-200">
-                            <p className="text-md font-bold text-gray-800">Font Family</p>
-                            <div>
-                                <FontPicker
+
+
+                        {/* this is the "text" section card*/}
+                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                        <p className="text-lg font-semibold text-gray-800 mb-2">Text</p>
+                        <div className="flex flex-col sm:flex-row gap-4">
+
+                            <div className="flex-1">
+
+                            <FontPicker
                                 apiKey="AIzaSyAQpYbiU5EWYssK3K2rrBgcLFkz1CetCq8"
                                 activeFontFamily={activeFontFamily}
                                 onChange={handleFontChange}
-                                />
-                            </div>
+                            />
                             </div>
 
-                        <div className="w-full max-w-sm bg-white rounded-2xl shadow-md p-4 flex items-center gap-4 border border-gray-200">
-                        <label htmlFor="fontSizeDropdown" className="text-md font-bold text-black-800">
-                            Font Size
-                        </label>
-                        <select
-                            id="fontSizeDropdown"
-                            value={fontSize}
-                            onChange={handleFontSizeChange}
-                            className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                        >
-                            {[6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32].map((size) => (
-                            <option key={size} value={size}>
-                                {size}px
-                            </option>
-                            ))}
-                        </select>
+
+                            <div className="flex-1">
+                            
+                            <select
+                                id="fontSizeDropdown"
+                                value={fontSize}
+                                onChange={handleFontSizeChange}
+                                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                            >
+                                {[6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32].map((size) => (
+                                <option key={size} value={size}>
+                                    {size}px
+                                </option>
+                                ))}
+                            </select>
+                            </div>
+                        </div>
                         </div>
 
-                        {/* Section with two buttons that will cause the colour picker to pop up */}
-                        <div className="flex justify-center gap-4 mb-4">
-                        {/* for the background colour */}
-                        <button
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-00 transition"
+                        {/* This is the colour card */}
+                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                        <p className="text-lg font-semibold text-gray-800 mb-2">Colour</p>
+                        <div className="flex flex-col sm:flex-row gap-4">
+
+                            {/* This is the button where they choose the background colour*/}
+                            <button
+                            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
                             onClick={() => setShowBackgroundPicker((prev) => !prev)}
-                        >
-                            {showBackgroundPicker ? "Hide Background Color" : "Edit Background Color"}
-                        </button>
+                            >
+                            {showBackgroundPicker ? "Hide " : "Edit Background"}
+                            </button>
 
-                        {/* for the text colour */}
-                        <button
-                            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                            {/* This is the button where they choose the text colour*/}
+                            <button
+                            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
                             onClick={() => setShowTextPicker((prev) => !prev)}
-                        >
-                            {showTextPicker ? "Hide Text Color" : "Edit Text Color"}
-                        </button>
+                            >
+                            {showTextPicker ? "Hide " : "Edit Text"}
+                            </button>
+                        </div>
                         </div>
 
-
+                        {/*  choose the background colour*/}
                         {showBackgroundPicker && (
                         <div className="flex flex-col items-center gap-4 mb-6">
                             <SketchPicker color={selectedColor} onChangeComplete={handleColorChange} />
                         </div>
                         )}
 
-
+                        {/* choose the text colour*/}
                         {showTextPicker && (
                         <div className="flex flex-col items-center gap-4 mb-6">
                             <SketchPicker color={textColor} onChangeComplete={handleTextColorChange} />
                         </div>
                         )}
-
-
 
                         {isDownloadModalOpen && (
                             <DownloadOptions
@@ -360,6 +371,7 @@ function EditSave() {
                             />
                         )}
 
+                        {/* downloading button, downloading thing is a component */}
                         <div className="w-full">
                         <button
                             className="w-full bg-blue-600 hover:bg-gray-300 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2"
