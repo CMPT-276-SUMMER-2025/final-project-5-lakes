@@ -3,6 +3,7 @@ const pdfParse = require('pdf-parse'); // For PDF parsing
 const XLSX = require('xlsx'); // For Excel parsing
 const Papa = require('papaparse'); // For CSV parsing
 const mammoth = require('mammoth'); // For Docx parsing
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 const prompts = require('./prompts/deepseekPrompts.js');
 const { queryDeepSeekV3 } = require('./deepSeek/APIdeepseek.js');
@@ -10,6 +11,8 @@ const { queryDeepSeekV3 } = require('./deepSeek/APIdeepseek.js');
 =======
 const {convertToChartConfig} = require('./deepSeek/DeepSeekFeature1');
 >>>>>>> Stashed changes
+=======
+>>>>>>> a0817cbc0c29f511c190c8cc2aa85f29401aa7b6
 
 async function parseFile(file){
     let filePath = null;
@@ -62,8 +65,7 @@ async function parseFile(file){
             default:
                 throw new Error('Unsupported file type.');
         }
-        const prompt = prompts.parsedDataFormat('', data);
-        const result = await queryDeepSeekV3(prompt);
+        const result = await convertToChartConfig('', data);
         return result;
     } catch (error) {
         if (error.code === 'NO_DATA_EXTRACTED'){

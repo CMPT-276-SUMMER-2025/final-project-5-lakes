@@ -1,36 +1,47 @@
 function ViewUpload({ fileName, fileSize, fileContent }) {
   const handleClick = () => {
-    // If it's base64: create a Blob and open in new tab
-    if (fileContent.startsWith("data:")) {
-      const newWindow = window.open();
-      if (newWindow) {
-        newWindow.document.write(`
-          <iframe 
-            src="${fileContent}" 
-            frameborder="0" 
-            style="width:100%;height:100vh;"
-            allowfullscreen
-          ></iframe>
-        `);
+    
+    try {
+      if (fileContent?.startsWith("data:")) {
+        const [meta, base64Data] = fileContent.split(",");
+        const mimeMatch = meta.match(/data:(.*);base64/);
+
+        if (!mimeMatch || !base64Data) {
+          alert("Could not read file preview.");
+          return;
+        }
+
+        const mime = mimeMatch[1];
+        const byteChars = atob(base64Data);
+        const byteNumbers = new Array(byteChars.length);
+        for (let i = 0; i < byteChars.length; i++) {
+          byteNumbers[i] = byteChars.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: mime });
+
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, "_blank");
+      } else if (fileContent?.startsWith("http")) {
+        window.open(fileContent, "_blank");
       } else {
-        alert("Please allow popups for this website.");
+        alert("File preview not available.");
       }
-    } else {
-      // If it's a URL: open directly
-      window.open(fileContent, "_blank");
+    } catch (err) {
+      console.error("Failed to open file:", err);
+      alert("Something went wrong opening the file.");
     }
   };
 
   return (
-    <div>
-      <p className="text-lg font-semibold">View Upload</p>
+    <div className="w-full flex justify-center">
       <div
-        className="mt-1 p-3 border rounded bg-white shadow-sm text-sm mb-10 hover:bg-gray-100 hover:cursor-pointer"
+        className="w-full max-w-[220px] p-2 border rounded bg-white shadow-sm text-xs hover:bg-gray-100 hover:cursor-pointer"
         onClick={handleClick}
       >
         <div className="flex items-center justify-between">
-          <span>{fileName}</span>
-          <span className="text-xs text-gray-500">
+          <span className="truncate max-w-[130px]">{fileName}</span>
+          <span className="text-[10px] text-gray-500">
             {(fileSize / (1024 * 1024)).toFixed(2)} MB
           </span>
         </div>

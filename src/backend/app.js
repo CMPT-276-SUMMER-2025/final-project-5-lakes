@@ -6,8 +6,8 @@ const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
 const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
 const { separateLabels } = require('./labelSeparation.js');
-const { generateDummyChartURL } = require('./quickChart/QCFeature1.js');
-const { generateChart } = require('./quickChart/QCFeature1.js');
+const { generateDummyChart } = require('./quickChart/QCFeature1.js');
+const { generateChart, multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -78,10 +78,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         let result = { parsedData: JSON.parse(await parseFile(file)), file: file };
         sessionData.uploadedFile = file;
         sessionData.parsedData = result.parsedData;
-        sessionData.chartConfig = null;
-        sessionData.summary = null;
-        sessionData.graphRecommendation = null;
-        sessionData.styleConfig = null;
         return res.json(result);
     } catch (error) {
         if (error.code === 'NO_DATA_EXTRACTED') {
@@ -109,13 +105,19 @@ app.post('/data-confirm', async (req, res) => {
         const summary = await getSummary(JSON.stringify(data.edittedData));
         const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
 
-        const chartsWithURLs = [
-            { id: 1, type: "bar", title: "Bar Chart", description: "Bars of values", imageUrl: generateDummyChartURL(1) },
-            { id: 2, type: "line", title: "Line Chart", description: "Trends over time", imageUrl: generateDummyChartURL(2) },
-            { id: 3, type: "pie", title: "Pie Chart", description: "Proportional breakdown", imageUrl: generateDummyChartURL(3) }
-        ];
+        console.log(`LOOK THIS: ${JSON.stringify(graphRecommendation)}`);
 
-        sessionData.chartOptions = chartsWithURLs.map(chart => chart.type);
+        const chartsWithURLs = [];
+        
+        for (let i = 0; i < graphRecommendation.types.length; i++) {
+            const chartType = graphRecommendation.types[i];
+            const reasoning = graphRecommendation.explanations?.[i] || "No explanation provided.";
+            chartsWithURLs.push(generateDummyChart(chartType, reasoning));
+        }
+
+        sessionData.summary = summary;
+        sessionData.graphRecommendation = graphRecommendation;
+        sessionData.chartOptions = chartsWithURLs;
 
         /*const labels = await separateLabels(JSON.stringify(data.parsedData));
         console.log(labels);
@@ -125,9 +127,8 @@ app.post('/data-confirm', async (req, res) => {
 
         res.json({ 
             summary: JSON.parse(summary),
-            graphRecommendation: JSON.parse(graphRecommendation),
+            graphRecommendation: graphRecommendation,
             chartsWithURLs: chartsWithURLs,
-            // chartConfig: chartConfig,
             // labels: labels,
         });
     } catch (error) {
@@ -139,6 +140,7 @@ app.post('/data-confirm', async (req, res) => {
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
     sessionData.visualSelected = data.id;
+    console.log(data.id);
     //sessionData.selectedOption = sessionData.chartConfig[data.id];
 
     try{
@@ -158,12 +160,13 @@ app.post('/visual-selected', async (req, res) => {
             id: 1,
             title: "Bar Chart",
             description: "Displays values as bars.",
-            imageURL: generateDummyChartURL()
+            imageURL: generateDummyChart()
         }));*/
 
-        const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
+        // const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
+        const chartConfig = multipleDatasetsChartGenerator(sessionData.chartOptions[sessionData.visualSelected - 1], labels, sessionData.parsedData);
         console.log(chartConfig);
-
+        sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig});
     } catch (error) {
         console.error('Error generating chart URLs:', error);

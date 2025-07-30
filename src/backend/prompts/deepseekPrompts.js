@@ -18,6 +18,7 @@ const promptPrefix =
 
 const promptExtractStructuredData =
         `
+<<<<<<< HEAD
         You are given a dataset extracted from a file. 
 
         The file may contain:
@@ -28,20 +29,15 @@ const promptExtractStructuredData =
         1. Identify meaningful variables (e.g. months, categories, values).
         2. For each dataset, extract key variables such as labels and values. The "label" of "datasets" should describe what the "data" values represent.
         3. Structure each dataset in the following JSON format compatible with the QuickChart API:
+=======
+        IMPORTANT: You MUST respond with exactly ONE of the following:
+>>>>>>> a0817cbc0c29f511c190c8cc2aa85f29401aa7b6
 
-        {
-                "type": "bar", // or "line", "pie", etc.
-                "data": {
-                        "labels": [...],
-                        "datasets": [
-                                {
-                                        "label": "...",
-                                        "data": [...]
-                                }
-                        ]
-                }
-        }
+        - If meaningful data is found, output ONLY a JSON array of objects as described below.
+        - If NO meaningful data is found, output EXACTLY this line:
+        Error: No data was extracted.
 
+<<<<<<< HEAD
         Output:
         - Return all structured datasets as a JSON array of objects - each object is one group of data set:
         [
@@ -59,56 +55,12 @@ const promptExtractStructuredData =
         If the file contains no meaningful data, return exactly:
         Error: No data was extracted.
         `;
+=======
+        Do NOT include any other text, explanations, or formatting (no backticks, no quotes, no lists).
 
-const graphRecommendationLogic = 
-        `The user has extracted structured data into QuickChart format. 
-        Your task is to recommend the most suitable chart type for the first dataset only, based on the given chart types below:
+        ---
+>>>>>>> a0817cbc0c29f511c190c8cc2aa85f29401aa7b6
 
-        Available Chart Types:
-        - "Vertical Bar"
-        - "Horizontal Bar"
-        - "Polar"
-        - "Stacked"
-        - "Line"
-        - "Stepped"
-        - "Point"
-        - "Exponential Smoothing"
-        - "Pie"
-        - "Doughnut"
-        - "Labelled Pie"
-
-        Instructions:
-        1. Analyze the first dataset only
-        2. Choose the single most appropriate chart type from the list above
-        3. Return exactly this format: {"recommendation": "[ChartType] Chart type is the recommended chart that suits your needs for your data visualization"}
-
-        CRITICAL RULES:
-        - Return ONLY the JSON object, nothing else
-        - Do NOT wrap in code blocks or backticks
-        - Do NOT include any explanations
-        - Start response directly with { and end with }`;
-
-const summaryPrompt = 
-        `
-        You are given an array of datasets extracted from a file. 
-        Your task is to:
-        For each of the datasets, give me a summary or key insights of the data in bullet point form
-        of maximum 4 bullet points as an array of strings.
-        return it in the following JSON format in the same order as the datasets:
-
-        [
-                "Summary 1",
-                "Summary 2",
-                ...
-        ]
-         Important rules:
-        - Do NOT include any explanations, descriptions, or natural language text.
-        - Do NOT wrap the output in triple backticks (\`\`\`).
-        - Only return clean, valid JSON.
-        `
-
-const parsedDataFormat = 
-        `
         You are given a parsed file (csv, excel, txt or pdf). Given the file, extract all the relevant data needed to
         create a chart and format it as parsed csv file.
         
@@ -130,6 +82,106 @@ const parsedDataFormat =
         ]
         
         Important rules:
+        - Do NOT include any explanations, descriptions, or natural language text.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+        `;
+
+const graphRecommendationLogic = 
+        `
+        You are given raw structured data in JSON format.
+
+        Your task is to:
+        1. Analyze the data structure and context of the variables.
+        2. Recommend 1 to 3 appropriate chart types from a predefined list for visualizing this data using Chart.js.
+        3. Provide a brief explanation (1 sentence each) for why each chart type is suitable for the data.
+
+        You may use your judgment to decide which chart types are most suitable based on:
+        - The number and types of variables (categorical, numeric, time-based)
+        - The relationships between variables (e.g., comparisons, trends, distributions)
+        - Real-world context (e.g., time series → line chart; category shares → pie chart)
+
+        Only choose from the following allowed chart types (strictly the same name):
+
+        - "Vertical Bar"
+        - "Horizontal Bar"
+        - "Grouped Vertical Bar"
+        - "Grouped Horizontal Bar"
+        - "Stacked Bar"
+        - "Stacked Bar With Groups"
+        - "Floating Bars"
+        - "Line"
+        - "Stepped Line"
+        - "Multi Axis Line"
+        - "Line (Multiple Series)"
+        - "Stacked Bar/Line"
+        - "Scatter"
+        - "Scatter - Multi Axis"
+        - "Bubble"
+        - "Pie"
+        - "Labelled Pie"
+        - "Doughnut"
+        - "Labelled Doughnut"
+        - "Polar Area"
+        - "Polar Area Centered Point Labels"
+        - "Multi Series Pie"
+        - "Combo Bar/Line"
+
+        ### Use the following as general **guidelines**, not strict rules:
+
+        Comparison Charts:
+        - 1 categorical + 1 numeric → vertical bar, horizontal bar
+        - 1 categorical + multiple numerics → grouped vertical bars, grouped horizontal bars
+        - multiple categorical + 1 numberic → stacked bar, stacked bar with groups
+        - numeric ranges, 1 categorical → floating bars
+
+        Trend and Relationship Charts:
+        - 1 time vs 1 numeric → line, stepped line
+        - 1 time vs multiple numeric → multi axis line, line (multiple series), stacked bar/line
+        - 1 numeric vs 1 numeric → scatter, scatter - multi axis
+        - 2+ numerics → bubble
+        
+        Composition Charts:
+        - categorical proportions → pie, labelled pie, doughnut, lablled doughnut, polar area, polar area centered point labels
+        - multiple categorical → multi series pie
+        
+        Be creative but reasonable. Always ensure the chart is **valid and graphable** in Chart.js.
+
+        Return a valid JSON object with two keys:
+        - types: an array of 1 to 3 chart type strings (from the approved list)
+        - explanations: an array of the same length, where each item explains why the chart was recommended
+
+        ### Output format:
+        {
+                "types:" ["Pie", "Vertical Bar", "Line"],
+                "explanations:" [
+                        "Pie is useful to show the proportion of each category relative to the whole.",
+                        "Vertical bar is effective for comparing numeric values across categories.",
+                        "Line is appropriate for showing numeric trends over time."
+                ]
+        }
+
+        Important Rules:
+        - Do NOT include any extra commentary or Markdown.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return a clean valid JSON array.
+        - All chart types must be from the approved list and must be graphable for the dataset.
+        `;
+
+const summaryPrompt = 
+        `
+        You are given an array of datasets extracted from a file. 
+        Your task is to:
+        For each of the datasets, give me a summary or key insights of the data in bullet point form
+        of maximum 4 bullet points as an array of strings.
+        return it in the following JSON format in the same order as the datasets:
+
+        [
+                "Summary 1",
+                "Summary 2",
+                ...
+        ]
+         Important rules:
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
@@ -168,6 +220,11 @@ const labelsSeparatorPrompt = `
           "x": ["Date", "Category", "Region"],
           "y": ["Sales", "Profit"]
         }
+
+        Important rules:
+        - Do NOT include any explanations, descriptions, or natural language text.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
         `;
 
 const multipleDataSetsPrompt = `
@@ -234,11 +291,6 @@ const prompts = {
         feature3: (query, data) =>
         `
         ${promptPrefix}${summaryPrompt}${query}\n\nHere is the data:\n${data}
-        `,
-
-        parsedDataFormat: (query, data) =>
-        `
-        ${promptPrefix}${parsedDataFormat}${query}\n\nHere is the data:\n${data}
         `,
 
         labelsSeparatorPrompt: (query, data) =>
