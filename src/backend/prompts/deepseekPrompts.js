@@ -211,6 +211,11 @@ const labelsSeparatorPrompt = `
           "x": ["Date", "Category", "Region"],
           "y": ["Sales", "Profit"]
         }
+
+        Important rules:
+        - Do NOT include any explanations, descriptions, or natural language text.
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
         `;
 
 const multipleDataSetsPrompt = `

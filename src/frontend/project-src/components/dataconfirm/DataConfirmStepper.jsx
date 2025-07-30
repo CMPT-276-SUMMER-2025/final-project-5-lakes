@@ -1,4 +1,4 @@
-import { ChevronRight, Upload, Check, SquareMousePointer, Pencil, ArrowRightFromLine } from 'lucide-react';
+import { ChevronRight, Upload, Check, SquareMousePointer, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 function DataConfirmStepper() {

@@ -7,7 +7,7 @@ const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
 const { separateLabels } = require('./labelSeparation.js');
 const { generateDummyChart } = require('./quickChart/QCFeature1.js');
-const { generateChart } = require('./quickChart/QCFeature1.js');
+const { generateChart, multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -121,7 +121,6 @@ app.post('/data-confirm', async (req, res) => {
             summary: JSON.parse(summary),
             graphRecommendation: graphRecommendation,
             chartsWithURLs: chartsWithURLs,
-            // chartConfig: chartConfig,
             // labels: labels,
         });
     } catch (error) {
@@ -133,6 +132,7 @@ app.post('/data-confirm', async (req, res) => {
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
     sessionData.visualSelected = data.id;
+    console.log(data.id);
     //sessionData.selectedOption = sessionData.chartConfig[data.id];
 
     try{
@@ -155,9 +155,10 @@ app.post('/visual-selected', async (req, res) => {
             imageURL: generateDummyChart()
         }));*/
 
-        const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
+        // const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
+        const chartConfig = multipleDatasetsChartGenerator(sessionData.chartOptions[sessionData.visualSelected - 1], labels, sessionData.parsedData);
         console.log(chartConfig);
-
+        sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig});
     } catch (error) {
         console.error('Error generating chart URLs:', error);

@@ -25,7 +25,6 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
       console.error("Error selecting option:", error);
     });
   }
-  console.log(chartImageUrl);
 
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden">

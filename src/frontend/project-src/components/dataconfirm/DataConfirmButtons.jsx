@@ -1,6 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
-import convertTableRowsToQuickChartConfig from "../../utils/TableToQuick";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/reset-session`;
 
@@ -26,12 +25,12 @@ const goBackHomepage = async () => {  // this is a function to go back to the ho
 };
 
 function DataConfirmButtons({
-  setIsLoading,
-  confirmedData,
+  // setIsLoading,
+  // confirmedData,
   setConfirmedData,
   originalData,
-  chartType,
-  chartLabel,
+  // chartType,
+  // chartLabel,
 }) {
   const navigate = useNavigate();
 
