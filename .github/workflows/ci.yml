@@ -24,9 +24,7 @@ jobs:
       # Install and build frontend
       - name: Install frontend dependencies
         working-directory: ./src/frontend
-        run: |
-          npm install font-picker-react@latest --legacy-peer-deps
-          npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build frontend
         working-directory: ./src/frontend
