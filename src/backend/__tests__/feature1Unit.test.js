@@ -45,11 +45,11 @@ describe('convertToChartConfig', () => {
     };    
     const result = await convertToChartConfig(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toEqual(JSON.stringify([
+    expect(result).toEqual([
       { "Name": "Alice", "Score": "85" },
       { "Name": "Bob", "Score": "90" },
       { "Name": "Charlie", "Score": "78" }
-    ]));
+    ]);
   });
 
   test('parses PDF and sends to DeepSeek', async () => {
@@ -59,11 +59,11 @@ describe('convertToChartConfig', () => {
     };    
     const result = await convertToChartConfig(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toEqual(JSON.stringify([
+    expect(result).toEqual([
       { "Name": "Alice", "Score": "85" },
       { "Name": "Bob", "Score": "90" },
       { "Name": "Charlie", "Score": "78" }
-    ]));
+    ]);
   });
 
   test('parses DOCX and sends to DeepSeek', async () => {
@@ -73,11 +73,11 @@ describe('convertToChartConfig', () => {
     };    
     const result = await convertToChartConfig(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toEqual(JSON.stringify([
+    expect(result).toEqual([
       { "Name": "Alice", "Score": "85" },
       { "Name": "Bob", "Score": "90" },
       { "Name": "Charlie", "Score": "78" }
-    ]));
+    ]);
   });
 
   test('parses TXT and sends to DeepSeek', async () => {
@@ -87,10 +87,10 @@ describe('convertToChartConfig', () => {
     };    
     const result = await convertToChartConfig(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-    expect(result).toEqual(JSON.stringify([
+    expect(result).toEqual([
       { "Name": "Alice", "Score": "85" },
       { "Name": "Bob", "Score": "90" },
       { "Name": "Charlie", "Score": "78" }
-    ]));
+    ]);
   });
 });
