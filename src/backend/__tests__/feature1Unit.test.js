@@ -31,11 +31,11 @@ describe('convertToChartConfig', () => {
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
 
     // Check that the function returned the mocked response value (raw JSON string)
-    expect(result).toEqual(JSON.stringify([
+    expect(result).toEqual([
       { "Name": "Alice", "Score": "85" },
       { "Name": "Bob", "Score": "90" },
       { "Name": "Charlie", "Score": "78" }
-    ]));
+    ]);
   });  
 
   test('parses XLSX and sends to DeepSeek', async () => {
