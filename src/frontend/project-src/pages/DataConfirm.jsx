@@ -13,7 +13,7 @@ function DataConfirm() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { parsedData, file } = location.state || {};
+  const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
 
   const fileName = file?.originalname || "Unknown file";
   const fileSize = file?.size || 0;
@@ -44,6 +44,12 @@ function DataConfirm() {
 
     try {
       const formattedData = convertTableToDeepSeekFormat(confirmedData);
+
+      if (summary && graphRecommendation && chartsWithURLs) {
+        navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
+        setIsLoading(false);
+        return;
+      }
 
       // Take in data from backend
       const res = await fetch(apiUrl, {

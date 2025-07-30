@@ -15,9 +15,46 @@ function VisualSelect() {
   const navigate = useNavigate();
   const location = useLocation();
   console.log(location.state);
-  const { summary, graphRecommendation, chartsWithURLs } = location.state || {}; 
+  const { summary, graphRecommendation, chartsWithURLs, parsedData, file } = location.state || {}; 
 
   const [selectedChart, setSelectedChart] = useState(null);
+
+  // Function to get session data and navigate back to data-confirm
+  const getSessionDataAndNavigateBack = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/get-session-data`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Include cookies for session management
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const sessionData = await response.json();
+      console.log('Retrieved session data:', sessionData);
+      
+      // Navigate back to data-confirm with the retrieved data
+      navigate('/data-confirm', {
+        state: {
+          parsedData: sessionData.parsedData,
+          file: sessionData.uploadedFile,
+          // You can add other properties if needed
+          summary: sessionData.summary,
+          graphRecommendation: sessionData.graphRecommendation,
+          chartsWithURLs: sessionData.chartsWithURLs
+        }
+      });
+      
+    } catch (error) {
+      console.error('Error retrieving session data:', error);
+      // Handle error - maybe show a notification or fallback
+      alert('Failed to retrieve session data. Please try again.');
+    }
+  };
   const handleChartSelect = (chart) => {
     setSelectedChart(chart);
 
@@ -50,12 +87,8 @@ function VisualSelect() {
   }, []);
 
   const goPreviousPage = async () => {
-    navigate("/data-confirm", { state: { 
-      summary: summary,
-      graphRecommendation: graphRecommendation,
-      parsedData: parsedData,
-      file: file
-    } });
+    // Use session data retrieval instead of relying on current state
+    await getSessionDataAndNavigateBack();
   }
 
   console.log(summary);
