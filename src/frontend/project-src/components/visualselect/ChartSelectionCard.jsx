@@ -1,7 +1,7 @@
 // src/components/visualselect/ChartSelectionCard.jsx
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
+// import { useState } from "react";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/visual-selected`;
 
@@ -11,11 +11,9 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
   const { chartConfig } = location.state || {};
   console.log(chartConfig);
 
-  const [isLoading, setIsLoading] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
   
-
   const handleSelectOption = () => {
-
 
     // if (chartConfig) {
     //   navigate("/edit-save", { state: {chartConfig: chartConfig} });
@@ -35,14 +33,14 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
     .then(data => {
       console.log(data);
       navigate("/edit-save", { state: data });
-      setIsLoading(false);
+      // setIsLoading(false);
     })
     .catch(error => {
       console.error("Error selecting option:", error);
-    })
-    .finally(() => {
-      setIsLoading(false);
     });
+    // .finally(() => {
+    //   setIsLoading(false);
+    // });
   }
 
   return (
@@ -60,14 +58,11 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
           <p className="text-gray-600 text-sm line-clamp-3">{description}</p>
         </div>
 
-
         <div className="mt-4 text-right">
           <button onClick={handleSelectOption} className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
             {buttonText}
           </button>
         </div>
-
-
       </div>
     </div>
   );
