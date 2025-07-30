@@ -72,19 +72,22 @@ function HomePage() {
       navigate('/data-confirm', { state: data });
     })
     .catch((error) => {
+      setIsLoading(false);
       if (error.message === 'No meaningful data could be extracted from the file.') {
         showAlert(
           'error',
           'Extraction Failed',
           'No meaningful data could be extracted from the file. Please try a different file or check the contents.',
-          'Okay'
+          'Okay',
+          () => navigate('/')
         )
       } else {
         showAlert(
           'error',
           'Submission Error',
           'An unexpected error occurred while submitting your information. Please try again later.',
-          'Okay'
+          'Okay',
+          () => navigate('/')
         )
       }
     })
