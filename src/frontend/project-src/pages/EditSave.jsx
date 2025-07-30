@@ -5,15 +5,52 @@ import { SketchPicker } from 'react-color';
 import { useLocation } from "react-router-dom";
 import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
-import FontPicker from 'font-picker-react';
+// import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
 import DownloadOptions from '../components/editchart/DownloadOptions';
 import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
-const quickChartURL = "https://quickchart.io/chart?v=4&c=";
+const quickChartURL = "https://quickchart.io/chart?height=500&v=4&c=";
+
+// Google Noto fonts supported by QuickChart
+const notoFonts = [
+    { name: "Noto Sans", value: "Noto Sans" },
+    { name: "Noto Serif", value: "Noto Serif" },
+    { name: "Noto Sans Mono", value: "Noto Sans Mono" },
+    { name: "Noto Sans Display", value: "Noto Sans Display" },
+    { name: "Noto Serif Display", value: "Noto Serif Display" },
+    { name: "Noto Sans JP", value: "Noto Sans JP" },
+    { name: "Noto Sans KR", value: "Noto Sans KR" },
+    { name: "Noto Sans SC", value: "Noto Sans SC" },
+    { name: "Noto Sans TC", value: "Noto Sans TC" },
+    { name: "Noto Color Emoji", value: "Noto Color Emoji" }
+];
+
+// Utility function to convert hex to RGB
+const hexToRgb = (hex) => {
+    // Remove the hash if it exists
+    hex = hex.replace('#', '');
+    
+    // Parse the hex values
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    return `rgb(${r}, ${g}, ${b})`;
+};
+
+// Utility function to convert hex to RGBA with opacity
+const hexToRgba = (hex, alpha = 1) => {
+    hex = hex.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
-    const chartImageUrl = 'https://dummyimage.com/600x600'; 
+    // const chartImageUrl = 'https://dummyimage.com/600x600'; 
     const location = useLocation();
     const { chartConfig: initialConfig } = location.state || {};
     const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
@@ -21,7 +58,7 @@ function EditSave() {
     console.log(initialConfig);
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
-    //const [chartImageUrl, setChartImageUrl] = useState("");
+    const [chartImageUrl, setChartImageUrl] = useState(`${quickChartURL}${encodeURIComponent(JSON.stringify(initialConfig))}`);
 
     const [selectedColor, setSelectedColor] = useState(initialConfig?.chartStyle?.backgroundColor || "#4F46E5");
     const [textColor, setTextColor] = useState(initialConfig?.chartStyle?.textColor || "#000000");
@@ -29,7 +66,7 @@ function EditSave() {
     const [tempBackgroundColor, setTempBackgroundColor] = useState(selectedColor);
     const [tempTextColor, setTempTextColor] = useState(textColor);
     
-    const [activeFontFamily, setActiveFontFamily] = useState("Open Sans");
+    const [activeFontFamily, setActiveFontFamily] = useState("Noto Sans");
     const [fontSize, setFontSize] = useState(14); 
 
     const [fontStyle, setFontStyle] = useState({
@@ -40,6 +77,9 @@ function EditSave() {
 
     const [history, setHistory] = useState([initialConfig]);
     const [historyIndex, setHistoryIndex] = useState(0);
+    
+    const [chartTitle, setChartTitle] = useState("Chart Title");
+    const [tempTitle, setTempTitle] = useState("Chart Title");
 
     // Generate the initial chart image URL
     // useEffect(() => {
@@ -51,22 +91,182 @@ function EditSave() {
 
     let styleConfig = {
        backgroundColor: null,
-       
+       canvasBackgroundColor: null,
+       titleColor: null,
     }
+
+    useEffect(() => {
+        if (chartConfig && chartConfig.options) {
+            // Ensure basic chart structure exists
+            if (!chartConfig.options.plugins) {
+                chartConfig.options.plugins = {};
+            }
+            if (!chartConfig.options.plugins.title) {
+                chartConfig.options.plugins.title = {
+                    display: true,
+                    text: chartTitle,
+                    font: {
+                        family: "Noto Sans",
+                        size: fontSize
+                    }
+                };
+            }
+            if (!chartConfig.options.plugins.legend) {
+                chartConfig.options.plugins.legend = {
+                    labels: { 
+                        font: {
+                            family: "Noto Sans",
+                            size: fontSize
+                        }
+                    }
+                };
+            }
+            if (!chartConfig.options.scales) {
+                chartConfig.options.scales = {
+                    y: {
+                        ticks: {
+                            font: {
+                                family: "Noto Sans",
+                                size: fontSize
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                family: "Noto Sans",
+                                size: fontSize
+                            }
+                        }
+                    }
+                };
+            }
+        }
+    }, [chartConfig]); // Only depend on chartConfig for initial setup
+
+
 
     
     // Handle color change from the color picker
     const handleColorChange = (color) => {
-        setSelectedColor(color.hex);         
+        setSelectedColor(color.hex);        
         console.log("Confirmed background hex:", color.hex);
-        return color.hex;
+        // chartConfig.options.elements.backgroundColor = color.hex;
+        // chartConfig.data.datasets[0].backgroundColor = color.hex;
+        // console.log(color.hex);
+        // updateChartConfig(chartConfig);
+        // Convert hex to RGB for QuickChart API
+        const rgbColor = hexToRgb(color.hex);
+        console.log("Converted to RGB:", rgbColor);
+        
+        // Create a copy of chartConfig with RGB colors
+        const updated = {
+            ...chartConfig,
+            chartStyle: {
+                ...chartConfig.chartStyle,
+                backgroundColor: color.hex // Keep hex for internal state
+            }
+        };
+        
+        // Apply RGB colors to chart configuration for API
+        if (updated.options) {
+            if (updated.options.elements) {
+                updated.options.elements.backgroundColor = rgbColor;
+            }
+        }
+        
+        if (updated.data && updated.data.datasets && updated.data.datasets[0]) {
+            updated.data.datasets[0].backgroundColor = rgbColor;
+        }
+        
+        console.log("Updated chart config:", updated);
+        updateChartConfig(updated);
+    };
+
+    // Handle chart title change
+    const handleTitleChange = () => {
+        setChartTitle(tempTitle);
+        
+        const updated = {
+            ...chartConfig,
+            options: {
+                ...chartConfig.options,
+                plugins: {
+                    ...chartConfig.options?.plugins,
+                    title: {
+                        ...chartConfig.options?.plugins?.title,
+                        display: true,
+                        text: tempTitle,
+                        font: {
+                            ...chartConfig.options?.plugins?.title?.font,
+                            family: activeFontFamily,
+                            size: fontSize
+                        }
+                    }
+                }
+            }
+        };
+        
+        updateChartConfig(updated);
     };
 
     // Handle text color change
     const handleTextColorChange = (color) => {
         setTextColor(color.hex);
         console.log("Confirmed text hex:", color.hex);
-        return color.hex;
+        
+        // Create a copy of chartConfig with hex text colors (like background color)
+        const updated = {
+            ...chartConfig,
+            chartStyle: {
+                ...chartConfig.chartStyle,
+                textColor: color.hex // Keep hex for internal state
+            },
+            options: {
+                ...chartConfig.options,
+                plugins: {
+                    ...chartConfig.options?.plugins,
+                    title: {
+                        ...chartConfig.options?.plugins?.title,
+                        color: color.hex // Update chart title color
+                    },
+                    legend: {
+                        ...chartConfig.options?.plugins?.legend,
+                        labels: {
+                            ...chartConfig.options?.plugins?.legend?.labels,
+                            color: color.hex // Use hex for API (like background)
+                        }
+                    }
+                },
+                scales: {
+                    ...chartConfig.options?.scales,
+                    x: {
+                        ...chartConfig.options?.scales?.x,
+                        ticks: { 
+                            ...chartConfig.options?.scales?.x?.ticks,
+                            color: color.hex // Use hex for API (like background)
+                        },
+                        title: {
+                            ...chartConfig.options?.scales?.x?.title,
+                            color: color.hex // Update x-axis title color
+                        }
+                    },
+                    y: {
+                        ...chartConfig.options?.scales?.y,
+                        ticks: { 
+                            ...chartConfig.options?.scales?.y?.ticks,
+                            color: color.hex // Use hex for API (like background)
+                        },
+                        title: {
+                            ...chartConfig.options?.scales?.y?.title,
+                            color: color.hex // Update y-axis title color
+                        }
+                    }
+                }
+            }
+        };
+        
+        updateChartConfig(updated);
     };
 
     const handleFontSizeChange = (e) => {
@@ -75,53 +275,66 @@ function EditSave() {
 
         const updated = {
             ...chartConfig,
-            chartOptions: {
-            ...chartConfig.chartOptions,
-            plugins: {
-                ...chartConfig.chartOptions?.plugins,
-                legend: {
-                labels: {
-                    ...chartConfig.chartOptions?.plugins?.legend?.labels,
-                    font: {
-                    family: activeFontFamily,
-                    size: newSize
+            options: {
+                ...chartConfig.options,
+                plugins: {
+                    ...chartConfig.options?.plugins,
+                    title: {
+                        ...chartConfig.options?.plugins?.title,
+                        font: {
+                            ...chartConfig.options?.plugins?.title?.font,
+                            family: activeFontFamily,
+                            size: newSize
+                        }
+                    },
+                    legend: {
+                        ...chartConfig.options?.plugins?.legend,
+                        labels: {
+                            ...chartConfig.options?.plugins?.legend?.labels,
+                            font: {
+                                family: activeFontFamily,
+                                size: newSize
+                            }
+                        }
                     }
-                }
-                }
-            },
-            scales: {
-                x: {
-                ticks: {
-                    ...chartConfig.chartOptions?.scales?.x?.ticks,
-                    font: {
-                    family: activeFontFamily,
-                    size: newSize
-                    }
-                }
                 },
-                y: {
-                ticks: {
-                    ...chartConfig.chartOptions?.scales?.y?.ticks,
-                    font: {
-                    family: activeFontFamily,
-                    size: newSize
+                scales: {
+                    ...chartConfig.options?.scales,
+                    x: {
+                        ...chartConfig.options?.scales?.x,
+                        ticks: {
+                            ...chartConfig.options?.scales?.x?.ticks,
+                            font: {
+                                family: activeFontFamily,
+                                size: newSize
+                            }
+                        }
+                    },
+                    y: {
+                        ...chartConfig.options?.scales?.y,
+                        ticks: {
+                            ...chartConfig.options?.scales?.y?.ticks,
+                            font: {
+                                family: activeFontFamily,
+                                size: newSize
+                            }
+                        }
                     }
                 }
-                }
-            }
             }
         };
 
-    updateChartConfig(updated);
+        updateChartConfig(updated);
     };
 
     // helper function to update chart config and maintain history
     const updateChartConfig = (newConfig) => {
-    const updatedHistory = history.slice(0, historyIndex + 1);
-    updatedHistory.push(newConfig);
-    setHistory(updatedHistory);
-    setHistoryIndex(updatedHistory.length - 1);
-    setChartConfig(newConfig);
+        const updatedHistory = history.slice(0, historyIndex + 1);
+        updatedHistory.push(newConfig);
+        setHistory(updatedHistory);
+        setHistoryIndex(updatedHistory.length - 1);
+        setChartConfig(newConfig);
+        setChartImageUrl(`${quickChartURL}${encodeURIComponent(JSON.stringify(newConfig))}`);
     };
 
     // Handle undo and redo actions
@@ -132,6 +345,13 @@ function EditSave() {
         setHistoryIndex(prevIndex);
         setSelectedColor(history[prevIndex].chartStyle?.backgroundColor || "#4F46E5");
         setTextColor(history[prevIndex].chartStyle?.textColor || "#000000");
+        const prevTitle = history[prevIndex].options?.plugins?.title?.text || "Chart Title";
+        setChartTitle(prevTitle);
+        setTempTitle(prevTitle);
+        const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Noto Sans";
+        const prevFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 14;
+        setActiveFontFamily(prevFontFamily);
+        setFontSize(prevFontSize);
     }
     };
 
@@ -142,6 +362,13 @@ function EditSave() {
         setHistoryIndex(nextIndex);
         setSelectedColor(history[nextIndex].chartStyle?.backgroundColor || "#4F46E5");
         setTextColor(history[nextIndex].chartStyle?.textColor || "#000000");
+        const nextTitle = history[nextIndex].options?.plugins?.title?.text || "Chart Title";
+        setChartTitle(nextTitle);
+        setTempTitle(nextTitle);
+        const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Noto Sans";
+        const nextFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 14;
+        setActiveFontFamily(nextFontFamily);
+        setFontSize(nextFontSize);
     }
     };
 
@@ -149,51 +376,74 @@ function EditSave() {
     setChartConfig(initialConfig);
     setSelectedColor(initialConfig.chartStyle?.backgroundColor || "#4F46E5");
     setTextColor(initialConfig.chartStyle?.textColor || "#000000");
+    const initialTitle = initialConfig.options?.plugins?.title?.text || "Chart Title";
+    setChartTitle(initialTitle);
+    setTempTitle(initialTitle);
+    const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Noto Sans";
+    const initialFontSize = initialConfig.options?.plugins?.title?.font?.size || 14;
+    setActiveFontFamily(initialFontFamily);
+    setFontSize(initialFontSize);
     setHistory([initialConfig]);
     setHistoryIndex(0);
     };
 
     // Handle font change
-    const handleFontChange = (nextFont) => {
-    setActiveFontFamily(nextFont.family);
+    const handleFontChange = (e) => {
+        const newFontFamily = e.target.value;
+        setActiveFontFamily(newFontFamily);
 
-    const updated = {
-        ...chartConfig,
-        chartOptions: {
-        ...chartConfig.chartOptions,
-        plugins: {
-            ...chartConfig.chartOptions?.plugins,
-            legend: {
-            labels: {
-                ...chartConfig.chartOptions?.plugins?.legend?.labels,
-                font: {
-                family: nextFont.family
+        const updated = {
+            ...chartConfig,
+            options: {
+                ...chartConfig.options,
+                plugins: {
+                    ...chartConfig.options?.plugins,
+                    title: {
+                        ...chartConfig.options?.plugins?.title,
+                        font: {
+                            ...chartConfig.options?.plugins?.title?.font,
+                            family: newFontFamily,
+                            size: fontSize
+                        }
+                    },
+                    legend: {
+                        ...chartConfig.options?.plugins?.legend,
+                        labels: {
+                            ...chartConfig.options?.plugins?.legend?.labels,
+                            font: {
+                                family: newFontFamily,
+                                size: fontSize
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    ...chartConfig.options?.scales,
+                    x: {
+                        ...chartConfig.options?.scales?.x,
+                        ticks: {
+                            ...chartConfig.options?.scales?.x?.ticks,
+                            font: {
+                                family: newFontFamily,
+                                size: fontSize
+                            }
+                        }
+                    },
+                    y: {
+                        ...chartConfig.options?.scales?.y,
+                        ticks: {
+                            ...chartConfig.options?.scales?.y?.ticks,
+                            font: {
+                                family: newFontFamily,
+                                size: fontSize
+                            }
+                        }
+                    }
                 }
             }
-            }
-        },
-        scales: {
-            x: {
-            ticks: {
-                ...chartConfig.chartOptions?.scales?.x?.ticks,
-                font: {
-                family: nextFont.family
-                }
-            }
-            },
-            y: {
-            ticks: {
-                ...chartConfig.chartOptions?.scales?.y?.ticks,
-                font: {
-                family: nextFont.family
-                }
-            }
-            }
-        }
-        }
-    };
-
-    updateChartConfig(updated);
+        };
+        
+        updateChartConfig(updated);
     };
     
 {/* BELOW IS WHERE ALL OF THE BUTTONS ARE LOCATED */}
@@ -256,19 +506,25 @@ function EditSave() {
 
                     <div className="space-y-6">
 
-                        {/* this is the part where is show sthe preview of the text*/}
-                        <div
-                            className="p-2 mt-2 border rounded-md bg-white shadow text-center"
-                            style={{
-                                fontFamily: activeFontFamily,
-                                fontWeight: fontStyle.bold ? "bold" : "normal",
-                                fontStyle: fontStyle.italic ? "italic" : "normal",
-                                textDecoration: fontStyle.underline ? "underline" : "none",
-                                fontSize: `${fontSize}px`,
-                                color: textColor
-                            }}
-                            >
-                            Live Preview: This is your chart text
+                        {/* Chart Title section */}
+                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                            <p className="text-lg font-semibold text-gray-800 mb-2">Chart Title</p>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={tempTitle}
+                                    onChange={(e) => setTempTitle(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleTitleChange()}
+                                    placeholder="Enter chart title"
+                                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                />
+                                <button
+                                    onClick={handleTitleChange}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+                                >
+                                    Update
+                                </button>
+                            </div>
                         </div>
 
                         {/* this is the "text" section card*/}
@@ -276,11 +532,19 @@ function EditSave() {
                             <p className="text-lg font-semibold text-gray-800 mb-2">Text</p>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <div className="flex-1">
-                                    <FontPicker
-                                        apiKey="AIzaSyAQpYbiU5EWYssK3K2rrBgcLFkz1CetCq8"
-                                        activeFontFamily={activeFontFamily}
+                                    <select
+                                        id="fontFamilyDropdown"
+                                        value={activeFontFamily}
                                         onChange={handleFontChange}
-                                    />
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                        style={{ fontFamily: activeFontFamily }}
+                                    >
+                                        {notoFonts.map((font) => (
+                                            <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
+                                                {font.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="flex-1">  
                                     <select

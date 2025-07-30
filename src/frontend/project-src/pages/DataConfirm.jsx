@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import DataConfirmStepper from "../components/dataconfirm/DataConfirmStepper";
 // import ViewUpload from "../components/dataconfirm/ViewUpload";
 import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
-import convertDeepSeekToTable  from "../utils/DeepSeekToTable";
+import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
 import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash } from "lucide-react";
 
@@ -13,7 +13,7 @@ function DataConfirm() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { parsedData, file } = location.state || {};
+  const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
 
   // const fileName = file?.originalname || "Unknown file";
   // const fileSize = file?.size || 0;
@@ -44,6 +44,12 @@ function DataConfirm() {
 
     try {
       const formattedData = convertTableToDeepSeekFormat(confirmedData);
+
+      if (summary && graphRecommendation && chartsWithURLs) {
+        navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
+        setIsLoading(false);
+        return;
+      }
 
       // Take in data from backend
       const res = await fetch(apiUrl, {

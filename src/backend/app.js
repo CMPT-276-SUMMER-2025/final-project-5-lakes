@@ -71,7 +71,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     // Handle file
     try {
         const file = files[0]; // Process first file uploaded
-        let result = { parsedData: JSON.parse(await parseFile(file)), file: file };
+        let result = { parsedData: await parseFile(file), file: file };
         sessionData.uploadedFile = file;
         sessionData.parsedData = result.parsedData;
         return res.json(result);
@@ -110,6 +110,8 @@ app.post('/data-confirm', async (req, res) => {
         sessionData.summary = summary;
         sessionData.graphRecommendation = graphRecommendation;
         sessionData.chartOptions = chartsWithURLs;
+
+        console.log(sessionData.chartOptions);
 
         /*const labels = await separateLabels(JSON.stringify(data.parsedData));
         console.log(labels);
@@ -154,9 +156,14 @@ app.post('/visual-selected', async (req, res) => {
             description: "Displays values as bars.",
             imageURL: generateDummyChart()
         }));*/
-
+        let chartType = null;
+        for (let i = 0; i < sessionData.chartOptions.length; i++) {
+            if (sessionData.chartOptions[i].id === sessionData.visualSelected) {
+                chartType = sessionData.chartOptions[i].type;
+            }
+        }
         // const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
-        const chartConfig = multipleDatasetsChartGenerator(sessionData.chartOptions[sessionData.visualSelected - 1], labels, sessionData.parsedData);
+        const chartConfig = multipleDatasetsChartGenerator(chartType, labels, sessionData.parsedData);
         console.log(chartConfig);
         sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig});
