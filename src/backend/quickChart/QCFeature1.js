@@ -16,13 +16,16 @@ function getYValues(label, dataset) {
     return dataset.map(item => item[label]);
 }
 
-function getXLabels(label, dataset) {
-    return dataset.map(item => item[label]);
+function getXValues(labels, dataset) {
+    return dataset.map(item => {
+        const combinedValues = labels.map(label => item[label]);
+        return combinedValues.join(' -- ');
+    });
 }
     
 function generateChart(dataset, labels, type) {
     const yValues = getYValues(labels.y[0], dataset);
-    const xLabels = getXLabels(labels.x[0], dataset);
+    const xLabels = getXValues(labels.x, dataset);
     const datasetTitle = "Dataset";
     let chartConfig = {
         type: type,
@@ -41,8 +44,30 @@ function generateChart(dataset, labels, type) {
     
 }
 
-function multipleDatasetsChartGenerator(type, xlabels, datasets) {
+function getMultipleDataSets(labels, datasets) {
+    return labels.y.map((label, index) => ({
+        label: `Dataset ${index + 1}`,
+        data: getYValues(labels.y[label], datasets)
+    }));
+}
+
+function multipleDatasetsChartGenerator(type, labels, datasets) {
+    // Use the first dataset to generate X labels (assuming all datasets share same X structure)
+    const xLabels = getXValues(labels.x, datasets);
     
+    let chartConfig = {
+        type: type,
+        data: {
+            labels: xLabels,
+            datasets: labels.y.map((label, index) => ({
+                label: `Dataset ${index + 1}`,
+                data: getYValues(label, datasets)
+            }))
+        }
+    };
+
+    console.log(chartConfig.data.datasets);
+    return chartConfig;
 }
 
 module.exports = {

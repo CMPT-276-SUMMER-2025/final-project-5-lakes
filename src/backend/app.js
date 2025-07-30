@@ -7,7 +7,7 @@ const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
 const { separateLabels } = require('./labelSeparation.js');
 const { generateDummyChartURL } = require('./quickChart/QCFeature1.js');
-const { generateChart } = require('./quickChart/QCFeature1.js');
+const { generateChart, multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -152,7 +152,8 @@ app.post('/visual-selected', async (req, res) => {
             imageURL: generateDummyChartURL()
         }));*/
 
-        const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
+        // const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
+        const chartConfig = multipleDatasetsChartGenerator(sessionData.chartOptions[sessionData.visualSelected - 1], labels, sessionData.parsedData);
         console.log(chartConfig);
         sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig});
