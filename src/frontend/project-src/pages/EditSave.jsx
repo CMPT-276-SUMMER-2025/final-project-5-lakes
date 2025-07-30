@@ -22,9 +22,13 @@ function EditSave() {
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
     //const [chartImageUrl, setChartImageUrl] = useState("");
+
     const [selectedColor, setSelectedColor] = useState(initialConfig?.chartStyle?.backgroundColor || "#4F46E5");
     const [textColor, setTextColor] = useState(initialConfig?.chartStyle?.textColor || "#000000");
 
+    const [tempBackgroundColor, setTempBackgroundColor] = useState(selectedColor);
+    const [tempTextColor, setTempTextColor] = useState(textColor);
+    
     const [activeFontFamily, setActiveFontFamily] = useState("Open Sans");
     const [fontSize, setFontSize] = useState(14); 
 
@@ -48,46 +52,16 @@ function EditSave() {
     
     // Handle color change from the color picker
     const handleColorChange = (color) => {
-    setSelectedColor(color.hex);
-    const updated = {
-        ...chartConfig,
-        chartStyle: {
-        ...chartConfig.chartStyle,
-        backgroundColor: color.hex
-        }
-    };
-    updateChartConfig(updated);
+        setSelectedColor(color.hex);         
+        console.log("Confirmed background hex:", color.hex);
+        return color.hex;
     };
 
     // Handle text color change
     const handleTextColorChange = (color) => {
-    setTextColor(color.hex);
-    const updated = {
-        ...chartConfig,
-        chartStyle: {
-        ...chartConfig.chartStyle,
-        textColor: color.hex
-        },
-        chartOptions: {
-        ...chartConfig.chartOptions,
-        plugins: {
-            legend: {
-            labels: {
-                color: color.hex
-            }
-            }
-        },
-        scales: {
-            x: {
-            ticks: { color: color.hex }
-            },
-            y: {
-            ticks: { color: color.hex }
-            }
-        }
-        }
-    };
-    updateChartConfig(updated);
+        setTextColor(color.hex);
+        console.log("Confirmed text hex:", color.hex);
+        return color.hex;
     };
 
     const handleFontSizeChange = (e) => {
@@ -292,75 +266,90 @@ function EditSave() {
                             Live Preview: This is your chart text
                         </div>
 
-
-
                         {/* this is the "text" section card*/}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                        <p className="text-lg font-semibold text-gray-800 mb-2">Text</p>
-                        <div className="flex flex-col sm:flex-row gap-4">
-
-                            <div className="flex-1">
-
-                            <FontPicker
-                                apiKey="AIzaSyAQpYbiU5EWYssK3K2rrBgcLFkz1CetCq8"
-                                activeFontFamily={activeFontFamily}
-                                onChange={handleFontChange}
-                            />
+                            <p className="text-lg font-semibold text-gray-800 mb-2">Text</p>
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="flex-1">
+                                    <FontPicker
+                                        apiKey="AIzaSyAQpYbiU5EWYssK3K2rrBgcLFkz1CetCq8"
+                                        activeFontFamily={activeFontFamily}
+                                        onChange={handleFontChange}
+                                    />
+                                </div>
+                                <div className="flex-1">  
+                                    <select
+                                        id="fontSizeDropdown"
+                                        value={fontSize}
+                                        onChange={handleFontSizeChange}
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                    >
+                                        {[6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32].map((size) => (
+                                        <option key={size} value={size}>
+                                            {size}
+                                        </option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
-
-
-                            <div className="flex-1">
-                            
-                            <select
-                                id="fontSizeDropdown"
-                                value={fontSize}
-                                onChange={handleFontSizeChange}
-                                className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                            >
-                                {[6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32].map((size) => (
-                                <option key={size} value={size}>
-                                    {size}px
-                                </option>
-                                ))}
-                            </select>
-                            </div>
-                        </div>
                         </div>
 
                         {/* This is the colour card */}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                        <p className="text-lg font-semibold text-gray-800 mb-2">Colour</p>
-                        <div className="flex flex-col sm:flex-row gap-4">
+                            <p className="text-lg font-semibold text-gray-800 mb-2">Colour</p>
+                            <div className="flex flex-col sm:flex-row gap-4">
 
-                            {/* This is the button where they choose the background colour*/}
-                            <button
-                            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-                            onClick={() => setShowBackgroundPicker((prev) => !prev)}
-                            >
-                            {showBackgroundPicker ? "Hide " : "Edit Background"}
-                            </button>
+                                {/* This is the button where they choose the background colour*/}
+                                <button
+                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+                                onClick={() => {
+                                    if (showBackgroundPicker) {
+                                    setSelectedColor(tempBackgroundColor); // final color to state
+                                    handleColorChange({ hex: tempBackgroundColor }); // call your function
+                                    setShowBackgroundPicker(false); // hide picker
+                                    } else {
+                                    setShowBackgroundPicker(true); // open picker
+                                    }
+                                }}
+                                >
+                                {showBackgroundPicker ? "Confirm Colour" : "Edit Background"}
+                                </button>
 
-                            {/* This is the button where they choose the text colour*/}
-                            <button
-                            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-                            onClick={() => setShowTextPicker((prev) => !prev)}
-                            >
-                            {showTextPicker ? "Hide " : "Edit Text"}
-                            </button>
+                                {/* This is the button where they choose the text colour*/}
+                                <button
+                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+                                onClick={() => {
+                                    if (showTextPicker) {
+                                    setTextColor(tempTextColor);
+                                    handleTextColorChange({ hex: tempTextColor });
+                                    setShowTextPicker(false);
+                                    } else {
+                                    setShowTextPicker(true);
+                                    }
+                                }}
+                                >
+                                {showTextPicker ? "Confirm Colour" : "Edit Text"}
+                                </button>
+                            </div>
                         </div>
-                        </div>
 
-                        {/*  choose the background colour*/}
+                        {/* Background picker */}
                         {showBackgroundPicker && (
                         <div className="flex flex-col items-center gap-4 mb-6">
-                            <SketchPicker color={selectedColor} onChangeComplete={handleColorChange} />
+                            <SketchPicker
+                            color={tempBackgroundColor}
+                            onChangeComplete={(color) => setTempBackgroundColor(color.hex)}
+                            />
                         </div>
                         )}
 
-                        {/* choose the text colour*/}
+                        {/* Text picker */}
                         {showTextPicker && (
                         <div className="flex flex-col items-center gap-4 mb-6">
-                            <SketchPicker color={textColor} onChangeComplete={handleTextColorChange} />
+                            <SketchPicker
+                            color={tempTextColor}
+                            onChangeComplete={(color) => setTempTextColor(color.hex)}
+                            />
                         </div>
                         )}
 
@@ -374,7 +363,7 @@ function EditSave() {
                         {/* downloading button, downloading thing is a component */}
                         <div className="w-full">
                         <button
-                            className="w-full bg-blue-600 hover:bg-gray-300 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2"
+                            className="w-full bg-blue-600 hover:bg-gray-300 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer"
                             onClick={() => setIsDownloadModalOpen(true)}
                         >
                             <Download size={18} />
