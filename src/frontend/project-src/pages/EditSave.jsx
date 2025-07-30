@@ -63,6 +63,9 @@ function EditSave() {
 
     const [history, setHistory] = useState([initialConfig]);
     const [historyIndex, setHistoryIndex] = useState(0);
+    
+    const [chartTitle, setChartTitle] = useState("Chart Title");
+    const [tempTitle, setTempTitle] = useState("Chart Title");
 
     // Generate the initial chart image URL
     // useEffect(() => {
@@ -81,25 +84,46 @@ function EditSave() {
     useEffect(() => {
         if (chartConfig && chartConfig.options) {
             chartConfig.options = {
-                title: {
-                    display: true,
-                    text: "Chart Title"
+                plugins: {
+                    title: {
+                        display: true,
+                        text: chartTitle,
+                        font: {
+                            family: activeFontFamily,
+                            size: fontSize
+                        }
+                    },
+                    legend: {
+                        labels: { 
+                            font: {
+                                family: activeFontFamily,
+                                size: fontSize
+                            }
+                        }
+                    }
                 },
                 elements: {},
-                legend: {
-                    labels: { fontFamily: "Open Sans" }
-                },
                 scales: {
-                    yAxes: {
-                        ticks: {fontFamily: "Open Sans"}
+                    y: {
+                        ticks: {
+                            font: {
+                                family: activeFontFamily,
+                                size: fontSize
+                            }
+                        }
                     },
-                    xAxes: {
-                        ticks: {fontFamily: "Open Sans"}
+                    x: {
+                        ticks: {
+                            font: {
+                                family: activeFontFamily,
+                                size: fontSize
+                            }
+                        }
                     }
                 }
             }
         }
-    }, [chartConfig]);
+    }, [chartConfig, chartTitle, activeFontFamily, fontSize]);
 
     
     // Handle color change from the color picker
@@ -138,16 +162,33 @@ function EditSave() {
         updateChartConfig(updated);
     };
 
+    // Handle chart title change
+    const handleTitleChange = () => {
+        setChartTitle(tempTitle);
+        
+        const updated = {
+            ...chartConfig,
+            options: {
+                ...chartConfig.options,
+                plugins: {
+                    ...chartConfig.options?.plugins,
+                    title: {
+                        ...chartConfig.options?.plugins?.title,
+                        text: tempTitle
+                    }
+                }
+            }
+        };
+        
+        updateChartConfig(updated);
+    };
+
     // Handle text color change
     const handleTextColorChange = (color) => {
         setTextColor(color.hex);
         console.log("Confirmed text hex:", color.hex);
         
-        // Convert hex to RGB for QuickChart API
-        const rgbColor = hexToRgb(color.hex);
-        console.log("Text color converted to RGB:", rgbColor);
-        
-        // Create a copy of chartConfig with RGB text colors
+        // Create a copy of chartConfig with hex text colors (like background color)
         const updated = {
             ...chartConfig,
             chartStyle: {
@@ -158,11 +199,15 @@ function EditSave() {
                 ...chartConfig.options,
                 plugins: {
                     ...chartConfig.options?.plugins,
+                    title: {
+                        ...chartConfig.options?.plugins?.title,
+                        color: color.hex // Update chart title color
+                    },
                     legend: {
                         ...chartConfig.options?.plugins?.legend,
                         labels: {
                             ...chartConfig.options?.plugins?.legend?.labels,
-                            color: rgbColor // Use RGB for API
+                            color: color.hex // Use hex for API (like background)
                         }
                     }
                 },
@@ -172,14 +217,22 @@ function EditSave() {
                         ...chartConfig.options?.scales?.x,
                         ticks: { 
                             ...chartConfig.options?.scales?.x?.ticks,
-                            color: rgbColor // Use RGB for API
+                            color: color.hex // Use hex for API (like background)
+                        },
+                        title: {
+                            ...chartConfig.options?.scales?.x?.title,
+                            color: color.hex // Update x-axis title color
                         }
                     },
                     y: {
                         ...chartConfig.options?.scales?.y,
                         ticks: { 
                             ...chartConfig.options?.scales?.y?.ticks,
-                            color: rgbColor // Use RGB for API
+                            color: color.hex // Use hex for API (like background)
+                        },
+                        title: {
+                            ...chartConfig.options?.scales?.y?.title,
+                            color: color.hex // Update y-axis title color
                         }
                     }
                 }
@@ -195,44 +248,56 @@ function EditSave() {
 
         const updated = {
             ...chartConfig,
-            chartOptions: {
-            ...chartConfig.chartOptions,
-            plugins: {
-                ...chartConfig.chartOptions?.plugins,
-                legend: {
-                labels: {
-                    ...chartConfig.chartOptions?.plugins?.legend?.labels,
-                    font: {
-                    family: activeFontFamily,
-                    size: newSize
+            options: {
+                ...chartConfig.options,
+                plugins: {
+                    ...chartConfig.options?.plugins,
+                    title: {
+                        ...chartConfig.options?.plugins?.title,
+                        font: {
+                            ...chartConfig.options?.plugins?.title?.font,
+                            family: activeFontFamily,
+                            size: newSize
+                        }
+                    },
+                    legend: {
+                        ...chartConfig.options?.plugins?.legend,
+                        labels: {
+                            ...chartConfig.options?.plugins?.legend?.labels,
+                            font: {
+                                family: activeFontFamily,
+                                size: newSize
+                            }
+                        }
                     }
-                }
-                }
-            },
-            scales: {
-                x: {
-                ticks: {
-                    ...chartConfig.chartOptions?.scales?.x?.ticks,
-                    font: {
-                    family: activeFontFamily,
-                    size: newSize
-                    }
-                }
                 },
-                y: {
-                ticks: {
-                    ...chartConfig.chartOptions?.scales?.y?.ticks,
-                    font: {
-                    family: activeFontFamily,
-                    size: newSize
+                scales: {
+                    ...chartConfig.options?.scales,
+                    x: {
+                        ...chartConfig.options?.scales?.x,
+                        ticks: {
+                            ...chartConfig.options?.scales?.x?.ticks,
+                            font: {
+                                family: activeFontFamily,
+                                size: newSize
+                            }
+                        }
+                    },
+                    y: {
+                        ...chartConfig.options?.scales?.y,
+                        ticks: {
+                            ...chartConfig.options?.scales?.y?.ticks,
+                            font: {
+                                family: activeFontFamily,
+                                size: newSize
+                            }
+                        }
                     }
                 }
-                }
-            }
             }
         };
 
-    updateChartConfig(updated);
+        updateChartConfig(updated);
     };
 
     // helper function to update chart config and maintain history
@@ -252,6 +317,13 @@ function EditSave() {
         setHistoryIndex(prevIndex);
         setSelectedColor(history[prevIndex].chartStyle?.backgroundColor || "#4F46E5");
         setTextColor(history[prevIndex].chartStyle?.textColor || "#000000");
+        const prevTitle = history[prevIndex].options?.plugins?.title?.text || "Chart Title";
+        setChartTitle(prevTitle);
+        setTempTitle(prevTitle);
+        const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Open Sans";
+        const prevFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 14;
+        setActiveFontFamily(prevFontFamily);
+        setFontSize(prevFontSize);
     }
     };
 
@@ -262,6 +334,13 @@ function EditSave() {
         setHistoryIndex(nextIndex);
         setSelectedColor(history[nextIndex].chartStyle?.backgroundColor || "#4F46E5");
         setTextColor(history[nextIndex].chartStyle?.textColor || "#000000");
+        const nextTitle = history[nextIndex].options?.plugins?.title?.text || "Chart Title";
+        setChartTitle(nextTitle);
+        setTempTitle(nextTitle);
+        const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Open Sans";
+        const nextFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 14;
+        setActiveFontFamily(nextFontFamily);
+        setFontSize(nextFontSize);
     }
     };
 
@@ -269,53 +348,73 @@ function EditSave() {
     setChartConfig(initialConfig);
     setSelectedColor(initialConfig.chartStyle?.backgroundColor || "#4F46E5");
     setTextColor(initialConfig.chartStyle?.textColor || "#000000");
+    const initialTitle = initialConfig.options?.plugins?.title?.text || "Chart Title";
+    setChartTitle(initialTitle);
+    setTempTitle(initialTitle);
+    const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Open Sans";
+    const initialFontSize = initialConfig.options?.plugins?.title?.font?.size || 14;
+    setActiveFontFamily(initialFontFamily);
+    setFontSize(initialFontSize);
     setHistory([initialConfig]);
     setHistoryIndex(0);
     };
 
     // Handle font change
     const handleFontChange = (nextFont) => {
-    setActiveFontFamily(nextFont.family);
+        setActiveFontFamily(nextFont.family);
 
-    const updated = {
-        ...chartConfig,
-        chartOptions: {
-        ...chartConfig.chartOptions,
-        plugins: {
-            ...chartConfig.chartOptions?.plugins,
-            legend: {
-            labels: {
-                ...chartConfig.chartOptions?.plugins?.legend?.labels,
-                font: {
-                family: nextFont.family
+        const updated = {
+            ...chartConfig,
+            options: {
+                ...chartConfig.options,
+                plugins: {
+                    ...chartConfig.options?.plugins,
+                    title: {
+                        ...chartConfig.options?.plugins?.title,
+                        font: {
+                            ...chartConfig.options?.plugins?.title?.font,
+                            family: nextFont.family,
+                            size: fontSize
+                        }
+                    },
+                    legend: {
+                        ...chartConfig.options?.plugins?.legend,
+                        labels: {
+                            ...chartConfig.options?.plugins?.legend?.labels,
+                            font: {
+                                family: nextFont.family,
+                                size: fontSize
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    ...chartConfig.options?.scales,
+                    x: {
+                        ...chartConfig.options?.scales?.x,
+                        ticks: {
+                            ...chartConfig.options?.scales?.x?.ticks,
+                            font: {
+                                family: nextFont.family,
+                                size: fontSize
+                            }
+                        }
+                    },
+                    y: {
+                        ...chartConfig.options?.scales?.y,
+                        ticks: {
+                            ...chartConfig.options?.scales?.y?.ticks,
+                            font: {
+                                family: nextFont.family,
+                                size: fontSize
+                            }
+                        }
+                    }
                 }
             }
-            }
-        },
-        scales: {
-            x: {
-            ticks: {
-                ...chartConfig.chartOptions?.scales?.x?.ticks,
-                font: {
-                family: nextFont.family
-                }
-            }
-            },
-            y: {
-            ticks: {
-                ...chartConfig.chartOptions?.scales?.y?.ticks,
-                font: {
-                family: nextFont.family
-                }
-            }
-            }
-        }
-        }
-    };
-    updated.options.legend.labels.fontFamily = nextFont.family;
-    updated.options.scales.x.ticks.fontFamily = nextFont.family;
-    updated.options.scales.y.ticks.fontFamily = nextFont.family;
-    updateChartConfig(updated);
+        };
+        
+        updateChartConfig(updated);
     };
     
 {/* BELOW IS WHERE ALL OF THE BUTTONS ARE LOCATED */}
@@ -379,7 +478,7 @@ function EditSave() {
                     <div className="space-y-6">
 
                         {/* this is the part where is show sthe preview of the text*/}
-                        <div
+                        {/* <div
                             className="p-2 mt-2 border rounded-md bg-white shadow text-center"
                             style={{
                                 fontFamily: activeFontFamily,
@@ -391,6 +490,27 @@ function EditSave() {
                             }}
                             >
                             Live Preview: This is your chart text
+                        </div> */}
+
+                        {/* Chart Title section */}
+                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                            <p className="text-lg font-semibold text-gray-800 mb-2">Chart Title</p>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={tempTitle}
+                                    onChange={(e) => setTempTitle(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && handleTitleChange()}
+                                    placeholder="Enter chart title"
+                                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                />
+                                <button
+                                    onClick={handleTitleChange}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+                                >
+                                    Update
+                                </button>
+                            </div>
                         </div>
 
                         {/* this is the "text" section card*/}
