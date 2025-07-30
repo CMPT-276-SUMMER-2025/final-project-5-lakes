@@ -5,11 +5,25 @@ import { SketchPicker } from 'react-color';
 import { useLocation } from "react-router-dom";
 import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
-import FontPicker from 'font-picker-react';
+// import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
 import DownloadOptions from '../components/editchart/DownloadOptions';
 import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&v=4&c=";
+
+// Google Noto fonts supported by QuickChart
+const notoFonts = [
+    { name: "Noto Sans", value: "Noto Sans" },
+    { name: "Noto Serif", value: "Noto Serif" },
+    { name: "Noto Sans Mono", value: "Noto Sans Mono" },
+    { name: "Noto Sans Display", value: "Noto Sans Display" },
+    { name: "Noto Serif Display", value: "Noto Serif Display" },
+    { name: "Noto Sans JP", value: "Noto Sans JP" },
+    { name: "Noto Sans KR", value: "Noto Sans KR" },
+    { name: "Noto Sans SC", value: "Noto Sans SC" },
+    { name: "Noto Sans TC", value: "Noto Sans TC" },
+    { name: "Noto Color Emoji", value: "Noto Color Emoji" }
+];
 
 // Utility function to convert hex to RGB
 const hexToRgb = (hex) => {
@@ -52,7 +66,7 @@ function EditSave() {
     const [tempBackgroundColor, setTempBackgroundColor] = useState(selectedColor);
     const [tempTextColor, setTempTextColor] = useState(textColor);
     
-    const [activeFontFamily, setActiveFontFamily] = useState("Open Sans");
+    const [activeFontFamily, setActiveFontFamily] = useState("Noto Sans");
     const [fontSize, setFontSize] = useState(14); 
 
     const [fontStyle, setFontStyle] = useState({
@@ -83,31 +97,36 @@ function EditSave() {
 
     useEffect(() => {
         if (chartConfig && chartConfig.options) {
-            chartConfig.options = {
-                plugins: {
-                    title: {
-                        display: true,
-                        text: chartTitle,
+            // Ensure basic chart structure exists
+            if (!chartConfig.options.plugins) {
+                chartConfig.options.plugins = {};
+            }
+            if (!chartConfig.options.plugins.title) {
+                chartConfig.options.plugins.title = {
+                    display: true,
+                    text: chartTitle,
+                    font: {
+                        family: "Noto Sans",
+                        size: fontSize
+                    }
+                };
+            }
+            if (!chartConfig.options.plugins.legend) {
+                chartConfig.options.plugins.legend = {
+                    labels: { 
                         font: {
-                            family: activeFontFamily,
+                            family: "Noto Sans",
                             size: fontSize
                         }
-                    },
-                    legend: {
-                        labels: { 
-                            font: {
-                                family: activeFontFamily,
-                                size: fontSize
-                            }
-                        }
                     }
-                },
-                elements: {},
-                scales: {
+                };
+            }
+            if (!chartConfig.options.scales) {
+                chartConfig.options.scales = {
                     y: {
                         ticks: {
                             font: {
-                                family: activeFontFamily,
+                                family: "Noto Sans",
                                 size: fontSize
                             }
                         }
@@ -115,15 +134,15 @@ function EditSave() {
                     x: {
                         ticks: {
                             font: {
-                                family: activeFontFamily,
+                                family: "Noto Sans",
                                 size: fontSize
                             }
                         }
                     }
-                }
+                };
             }
         }
-    }, [chartConfig, chartTitle, activeFontFamily, fontSize]);
+    }, [chartConfig]); // Only depend on chartConfig for initial setup
 
     
     // Handle color change from the color picker
@@ -174,7 +193,13 @@ function EditSave() {
                     ...chartConfig.options?.plugins,
                     title: {
                         ...chartConfig.options?.plugins?.title,
-                        text: tempTitle
+                        display: true,
+                        text: tempTitle,
+                        font: {
+                            ...chartConfig.options?.plugins?.title?.font,
+                            family: activeFontFamily,
+                            size: fontSize
+                        }
                     }
                 }
             }
@@ -320,7 +345,7 @@ function EditSave() {
         const prevTitle = history[prevIndex].options?.plugins?.title?.text || "Chart Title";
         setChartTitle(prevTitle);
         setTempTitle(prevTitle);
-        const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Open Sans";
+        const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Noto Sans";
         const prevFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 14;
         setActiveFontFamily(prevFontFamily);
         setFontSize(prevFontSize);
@@ -337,7 +362,7 @@ function EditSave() {
         const nextTitle = history[nextIndex].options?.plugins?.title?.text || "Chart Title";
         setChartTitle(nextTitle);
         setTempTitle(nextTitle);
-        const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Open Sans";
+        const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Noto Sans";
         const nextFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 14;
         setActiveFontFamily(nextFontFamily);
         setFontSize(nextFontSize);
@@ -351,7 +376,7 @@ function EditSave() {
     const initialTitle = initialConfig.options?.plugins?.title?.text || "Chart Title";
     setChartTitle(initialTitle);
     setTempTitle(initialTitle);
-    const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Open Sans";
+    const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Noto Sans";
     const initialFontSize = initialConfig.options?.plugins?.title?.font?.size || 14;
     setActiveFontFamily(initialFontFamily);
     setFontSize(initialFontSize);
@@ -360,8 +385,9 @@ function EditSave() {
     };
 
     // Handle font change
-    const handleFontChange = (nextFont) => {
-        setActiveFontFamily(nextFont.family);
+    const handleFontChange = (e) => {
+        const newFontFamily = e.target.value;
+        setActiveFontFamily(newFontFamily);
 
         const updated = {
             ...chartConfig,
@@ -373,7 +399,7 @@ function EditSave() {
                         ...chartConfig.options?.plugins?.title,
                         font: {
                             ...chartConfig.options?.plugins?.title?.font,
-                            family: nextFont.family,
+                            family: newFontFamily,
                             size: fontSize
                         }
                     },
@@ -382,7 +408,7 @@ function EditSave() {
                         labels: {
                             ...chartConfig.options?.plugins?.legend?.labels,
                             font: {
-                                family: nextFont.family,
+                                family: newFontFamily,
                                 size: fontSize
                             }
                         }
@@ -395,7 +421,7 @@ function EditSave() {
                         ticks: {
                             ...chartConfig.options?.scales?.x?.ticks,
                             font: {
-                                family: nextFont.family,
+                                family: newFontFamily,
                                 size: fontSize
                             }
                         }
@@ -405,7 +431,7 @@ function EditSave() {
                         ticks: {
                             ...chartConfig.options?.scales?.y?.ticks,
                             font: {
-                                family: nextFont.family,
+                                family: newFontFamily,
                                 size: fontSize
                             }
                         }
@@ -477,20 +503,7 @@ function EditSave() {
 
                     <div className="space-y-6">
 
-                        {/* this is the part where is show sthe preview of the text*/}
-                        {/* <div
-                            className="p-2 mt-2 border rounded-md bg-white shadow text-center"
-                            style={{
-                                fontFamily: activeFontFamily,
-                                fontWeight: fontStyle.bold ? "bold" : "normal",
-                                fontStyle: fontStyle.italic ? "italic" : "normal",
-                                textDecoration: fontStyle.underline ? "underline" : "none",
-                                fontSize: `${fontSize}px`,
-                                color: textColor
-                            }}
-                            >
-                            Live Preview: This is your chart text
-                        </div> */}
+
 
                         {/* Chart Title section */}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
@@ -518,11 +531,19 @@ function EditSave() {
                             <p className="text-lg font-semibold text-gray-800 mb-2">Text</p>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <div className="flex-1">
-                                    <FontPicker
-                                        apiKey="AIzaSyAQpYbiU5EWYssK3K2rrBgcLFkz1CetCq8"
-                                        activeFontFamily={activeFontFamily}
+                                    <select
+                                        id="fontFamilyDropdown"
+                                        value={activeFontFamily}
                                         onChange={handleFontChange}
-                                    />
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                        style={{ fontFamily: activeFontFamily }}
+                                    >
+                                        {notoFonts.map((font) => (
+                                            <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
+                                                {font.name}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div className="flex-1">  
                                     <select
