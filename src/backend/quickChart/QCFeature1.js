@@ -88,6 +88,18 @@ function multipleDatasetsChartGenerator(type, labels, datasets) {
                 data: getYValues(label, datasets),
                 backgroundColor: colors[index % colors.length],
             }))
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Chart Title",
+                    font: {
+                        family: "Noto Sans",
+                        size: 24
+                    }
+                }
+            }
         }
     };
 
