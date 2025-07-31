@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import DownloadOptions from '../components/editchart/DownloadOptions';
 import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
-const quickChartURL = "https://quickchart.io/chart?height=500&v=4&c=";
+const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
 
 // Google Noto fonts supported by QuickChart
 const notoFonts = [
@@ -96,15 +96,17 @@ function EditSave() {
     }
 
     useEffect(() => {
+        console.log("Createing chartConfig");
         if (chartConfig && chartConfig.options) {
             // Ensure basic chart structure exists
             if (!chartConfig.options.plugins) {
                 chartConfig.options.plugins = {};
             }
             if (!chartConfig.options.plugins.title) {
+                console.log("Setting title");
                 chartConfig.options.plugins.title = {
                     display: true,
-                    text: chartTitle,
+                    text: chartTitle || "Chart Title",
                     font: {
                         family: "Noto Sans",
                         size: fontSize
