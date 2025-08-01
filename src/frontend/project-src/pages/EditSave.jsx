@@ -581,7 +581,7 @@ function EditSave() {
 
                                 {/* This is the button where they choose the background colour*/}
                                 <button
-                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+                                className={`flex-1 ${showBackgroundPicker ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-md transition cursor-pointer`}
                                 onClick={() => {
                                     if (showBackgroundPicker) {
                                     setSelectedColor(tempBackgroundColor); // final color to state
@@ -589,15 +589,16 @@ function EditSave() {
                                     setShowBackgroundPicker(false); // hide picker
                                     } else {
                                     setShowBackgroundPicker(true); // open picker
+                                    setShowTextPicker(false);
                                     }
                                 }}
                                 >
-                                {showBackgroundPicker ? "Confirm Colour" : "Edit Background"}
+                                {showBackgroundPicker ? "Confirm Chart Colour" : "Chart Colour"}
                                 </button>
 
                                 {/* This is the button where they choose the text colour*/}
                                 <button
-                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+                                className={`flex-1 ${showTextPicker ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-md transition cursor-pointer`}
                                 onClick={() => {
                                     if (showTextPicker) {
                                     setTextColor(tempTextColor);
@@ -605,10 +606,11 @@ function EditSave() {
                                     setShowTextPicker(false);
                                     } else {
                                     setShowTextPicker(true);
+                                    setShowBackgroundPicker(false);
                                     }
                                 }}
                                 >
-                                {showTextPicker ? "Confirm Colour" : "Edit Text"}
+                                {showTextPicker ? "Confirm Text Colour" : "Text Colour"}
                                 </button>
                             </div>
                         </div>
@@ -646,7 +648,7 @@ function EditSave() {
                             className="w-full bg-blue-600 hover:bg-gray-300 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer"
                             onClick={() => setIsDownloadModalOpen(true)}
                         >
-                            <Download size={18} />
+                            <Download size={18} strokeWidth={4}/>
                             Download
                         </button>
                         </div>
