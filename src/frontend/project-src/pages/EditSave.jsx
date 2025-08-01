@@ -7,7 +7,7 @@ import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
 import DownloadOptions from '../components/editchart/DownloadOptions';
-import { Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
+import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
 
@@ -55,6 +55,7 @@ function EditSave() {
     const { chartConfig: initialConfig } = location.state || {};
     const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
     const [showTextPicker, setShowTextPicker] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     console.log(initialConfig);
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
@@ -447,6 +448,13 @@ function EditSave() {
         
         updateChartConfig(updated);
     };
+
+    useEffect(() => {
+    if (chartConfig) {
+        setIsLoading(true);
+        setChartImageUrl(`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`);
+    }
+}, [chartConfig]);
     
 {/* BELOW IS WHERE ALL OF THE BUTTONS ARE LOCATED */}
 
@@ -456,7 +464,7 @@ function EditSave() {
             <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
                 <div className="flex flex-col md:flex-row gap-8 w-full">
                     {/* Display the chart image */}
-                    <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
+                    <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg relative">
                         <div>
                             <h2 className="font-semibold flex items-center justify-center gap-4 mb-2">
                             {/* <Edit3 size={30} />
@@ -492,15 +500,23 @@ function EditSave() {
                             </h2>
 
                             {/* !!!! this is where the image is shown */}
-                            {chartImageUrl ? (
-                            <img
-                                src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
-                                alt="Live Chart Preview"
-                                className="w-full max-w-md mx-auto rounded-md shadow-md"
-                            />
-                            ) : (
-                            <p className="text-center text-gray-500">No chart available</p>
-                            )}
+                            <>
+                                {isLoading && (
+                                    <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-md z-10" style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
+                                        <Loader2 size={48} className="animate-spin text-blue-500" />
+                                    </div>
+                                )}
+                                {chartImageUrl ? (
+                                <img
+                                    src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
+                                    alt="Live Chart Preview"
+                                    onLoad={() => setIsLoading(false)} 
+                                    className="w-full max-w-md mx-auto rounded-md shadow-md"
+                                />
+                                ) : (
+                                <p className="text-center text-gray-500">No chart available</p>
+                                )}
+                            </>
                         </div>
                     </div>
 
