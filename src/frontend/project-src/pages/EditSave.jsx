@@ -7,7 +7,7 @@ import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
 import DownloadOptions from '../components/editchart/DownloadOptions';
-import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
+import { Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
 
@@ -459,8 +459,8 @@ function EditSave() {
                     <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
                         <div>
                             <h2 className="font-semibold flex items-center justify-center gap-4 mb-2">
-                            <Edit3 size={30} />
-                            Edit Chart
+                            {/* <Edit3 size={30} />
+                            Edit Chart */}
 
                             <div className="flex ml-6 space-x-3">
                                 <button
@@ -510,7 +510,10 @@ function EditSave() {
 
                         {/* Chart Title section */}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <p className="text-lg font-semibold text-gray-800 mb-2">Chart Title</p>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Text size={18} className="text-black" strokeWidth={2.5} />
+                                <p className="text-lg font-semibold text-gray-800">Chart Title</p>
+                            </div>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
@@ -531,7 +534,10 @@ function EditSave() {
 
                         {/* this is the "text" section card*/}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <p className="text-lg font-semibold text-gray-800 mb-2">Text</p>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Edit3 size={18} className="text-black" strokeWidth={2.5} />
+                                <p className="text-lg font-semibold text-gray-800">Edit Text</p>
+                            </div>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <div className="flex-1">
                                     <select
@@ -567,7 +573,10 @@ function EditSave() {
 
                         {/* This is the colour card */}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <p className="text-lg font-semibold text-gray-800 mb-2">Colour</p>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Paintbrush size={18} className="text-black" strokeWidth={2.5}/>
+                                <p className="text-lg font-semibold text-gray-800">Edit Colour</p>
+                            </div>
                             <div className="flex flex-col sm:flex-row gap-4">
 
                                 {/* This is the button where they choose the background colour*/}
