@@ -42,7 +42,7 @@ function VisualSelect() {
       // Navigate back to data-confirm with the retrieved data
       navigate('/data-confirm', {
         state: {
-          parsedData: sessionData.parsedData,
+          parsedData: sessionData.edittedData,
           file: sessionData.uploadedFile,
           // You can add other properties if needed
           summary: sessionData.summary,
@@ -64,26 +64,6 @@ function VisualSelect() {
   };
 
   useEffect(() => {
-    // fetch(apiUrl, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({ id: 1 })
-    //   })
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     console.log('chartOptions from API:', data);
-    //     setChartOptions(data);
-    //   })
-    //   .catch(error => {
-    //     console.error('could not get chart options', error);
-    //     setChartOptions([
-    //       { id: 1, title: "Sample Bar Chart", description: "Will add the AI summary description here." },
-    //       { id: 2, title: "Sample Line Chart", description: "Will add the AI summary description here." },
-    //       { id: 3, title: "Sample Pie Chart", description: "Will add the AI summary description here." }
-    //     ]);
-    //   });
       setChartOptions(chartsWithURLs);
       console.log(chartOptions);
   }, []);
@@ -111,7 +91,7 @@ function VisualSelect() {
               key={chart.id}
               id={chart.id}
               title={chart.title}
-              description={chart.description}
+              description={`${chart.description} (The above chart is generated using dummy data)`}
               chartImageUrl={chart.imageUrl}
               buttonText="Select"
               onSelect={() => navigate("/edit-save", { state: { selectedChart: chart } })}
