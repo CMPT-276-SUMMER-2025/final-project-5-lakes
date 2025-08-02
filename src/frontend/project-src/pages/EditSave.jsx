@@ -25,6 +25,8 @@ const notoFonts = [
     { name: "Noto Color Emoji", value: "Noto Color Emoji" }
 ];
 
+
+
 // Utility function to convert hex to RGB
 const hexToRgb = (hex) => {
     // Remove the hash if it exists
@@ -52,10 +54,11 @@ function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
     // const chartImageUrl = 'https://dummyimage.com/600x600'; 
     const location = useLocation();
-    const { chartConfig: initialConfig } = location.state || {};
+    const { chartConfig: initialConfig, labels: labels } = location.state || {};
     const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
     const [showTextPicker, setShowTextPicker] = useState(false);
     console.log(initialConfig);
+    console.log(labels.y);
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
     const [chartImageUrl, setChartImageUrl] = useState(`${quickChartURL}${encodeURIComponent(JSON.stringify(initialConfig))}`);
@@ -81,6 +84,9 @@ function EditSave() {
     const [chartTitle, setChartTitle] = useState("Chart Title");
     const [tempTitle, setTempTitle] = useState("Chart Title");
 
+    const [datasetSelected, setDatasetSelected] = useState(0);
+    const [segmentSelected, setSegmentSelected] = useState(0);
+
     // Generate the initial chart image URL
     // useEffect(() => {
     //     if (chartConfig) {
@@ -96,7 +102,7 @@ function EditSave() {
     }
 
     useEffect(() => {
-        console.log("Createing chartConfig");
+        console.log("Creating chartConfig");
         if (chartConfig && chartConfig.options) {
             // Ensure basic chart structure exists
             if (!chartConfig.options.plugins) {
@@ -146,6 +152,23 @@ function EditSave() {
         }
     }, [chartConfig]); // Only depend on chartConfig for initial setup
 
+    // Ensure dataset/segment selection stays within bounds
+    useEffect(() => {
+        const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
+        
+        if (isPieChart) {
+            // For pie charts, check segment bounds
+            if (chartConfig?.data?.datasets?.[0]?.data && segmentSelected >= chartConfig.data.datasets[0].data.length) {
+                setSegmentSelected(0);
+            }
+        } else {
+            // For other charts, check dataset bounds
+            if (chartConfig?.data?.datasets && datasetSelected >= chartConfig.data.datasets.length) {
+                setDatasetSelected(0);
+            }
+        }
+    }, [chartConfig, datasetSelected, segmentSelected]);
+
 
 
     
@@ -153,10 +176,7 @@ function EditSave() {
     const handleColorChange = (color) => {
         setSelectedColor(color.hex);        
         console.log("Confirmed background hex:", color.hex);
-        // chartConfig.options.elements.backgroundColor = color.hex;
-        // chartConfig.data.datasets[0].backgroundColor = color.hex;
-        // console.log(color.hex);
-        // updateChartConfig(chartConfig);
+        
         // Convert hex to RGB for QuickChart API
         const rgbColor = hexToRgb(color.hex);
         console.log("Converted to RGB:", rgbColor);
@@ -166,7 +186,7 @@ function EditSave() {
             ...chartConfig,
             chartStyle: {
                 ...chartConfig.chartStyle,
-                backgroundColor: color.hex // Keep hex for internal state
+                backgroundColor: rgbColor // Keep hex for internal state
             }
         };
         
@@ -177,8 +197,30 @@ function EditSave() {
             }
         }
         
-        if (updated.data && updated.data.datasets && updated.data.datasets[0]) {
-            updated.data.datasets[0].backgroundColor = rgbColor;
+        // Check if it's a pie chart
+        const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
+        
+        if (isPieChart) {
+            // For pie charts, update the specific segment color
+            console.log("Selected segment index:", segmentSelected);
+            if (updated.data && updated.data.datasets && updated.data.datasets[0]) {
+                const dataset = updated.data.datasets[0];
+                if (Array.isArray(dataset.backgroundColor)) {
+                    // Update specific segment
+                    dataset.backgroundColor[segmentSelected] = rgbColor;
+                } else {
+                    // Convert single color to array and update specific segment
+                    const dataLength = dataset.data ? dataset.data.length : 1;
+                    dataset.backgroundColor = new Array(dataLength).fill(dataset.backgroundColor || rgbColor);
+                    dataset.backgroundColor[segmentSelected] = rgbColor;
+                }
+            }
+        } else {
+            // For other charts, update the selected dataset
+            console.log("Selected dataset index:", datasetSelected);
+            if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
+                updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
+            }
         }
         
         console.log("Updated chart config:", updated);
@@ -354,6 +396,10 @@ function EditSave() {
         const prevFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 14;
         setActiveFontFamily(prevFontFamily);
         setFontSize(prevFontSize);
+        
+        // Reset selections to stay within bounds of the restored config
+        setDatasetSelected(0);
+        setSegmentSelected(0);
     }
     };
 
@@ -371,6 +417,10 @@ function EditSave() {
         const nextFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 14;
         setActiveFontFamily(nextFontFamily);
         setFontSize(nextFontSize);
+        
+        // Reset selections to stay within bounds of the restored config
+        setDatasetSelected(0);
+        setSegmentSelected(0);
     }
     };
 
@@ -385,6 +435,8 @@ function EditSave() {
     const initialFontSize = initialConfig.options?.plugins?.title?.font?.size || 14;
     setActiveFontFamily(initialFontFamily);
     setFontSize(initialFontSize);
+    setDatasetSelected(0); // Reset to first dataset
+    setSegmentSelected(0); // Reset to first segment
     setHistory([initialConfig]);
     setHistoryIndex(0);
     };
@@ -565,9 +617,86 @@ function EditSave() {
                             </div>
                         </div>
 
+                        {/* Dataset/Segment Selection section */}
+                        {(() => {
+                            const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
+                            const shouldShowSelection = isPieChart 
+                                ? chartConfig?.data?.datasets?.[0]?.data?.length > 1
+                                : chartConfig?.data?.datasets?.length > 1;
+
+                            if (!shouldShowSelection) return null;
+
+                            return (
+                                <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                                    <p className="text-lg font-semibold text-gray-800 mb-2">
+                                        {isPieChart ? 'Select Segment' : 'Select Dataset'}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {isPieChart ? (
+                                            // Pie chart segments
+                                            chartConfig.data.datasets[0].data.map((value, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setSegmentSelected(index)}
+                                                    className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
+                                                        segmentSelected === index
+                                                            ? 'bg-blue-600 text-white border-blue-600'
+                                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    {chartConfig.data.labels?.[index] || `Segment ${index + 1}`}
+                                                </button>
+                                            ))
+                                        ) : (
+                                            // Regular chart datasets
+                                            chartConfig.data.datasets.map((dataset, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setDatasetSelected(index)}
+                                                    className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
+                                                        datasetSelected === index
+                                                            ? 'bg-blue-600 text-white border-blue-600'
+                                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    {dataset.label || `Dataset ${index + 1}`}
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-gray-600">
+                                        Selected: {isPieChart 
+                                            ? (chartConfig.data.labels?.[segmentSelected] || `Segment ${segmentSelected + 1}`)
+                                            : (chartConfig.data.datasets[datasetSelected]?.label || `Dataset ${datasetSelected + 1}`)
+                                        }
+                                    </p>
+                                </div>
+                            );
+                        })()}
+
                         {/* This is the colour card */}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <p className="text-lg font-semibold text-gray-800 mb-2">Colour</p>
+                            <p className="text-lg font-semibold text-gray-800 mb-2">
+                                Colour
+                                {(() => {
+                                    const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
+                                    const shouldShowLabel = isPieChart 
+                                        ? chartConfig?.data?.datasets?.[0]?.data?.length > 1
+                                        : chartConfig?.data?.datasets?.length > 1;
+
+                                    if (!shouldShowLabel) return null;
+
+                                    const label = isPieChart 
+                                        ? (chartConfig.data.labels?.[segmentSelected] || `Segment ${segmentSelected + 1}`)
+                                        : (chartConfig.data.datasets[datasetSelected]?.label || `Dataset ${datasetSelected + 1}`);
+
+                                    return (
+                                        <span className="text-sm font-normal text-blue-600 ml-2">
+                                            ({label})
+                                        </span>
+                                    );
+                                })()}
+                            </p>
                             <div className="flex flex-col sm:flex-row gap-4">
 
                                 {/* This is the button where they choose the background colour*/}
