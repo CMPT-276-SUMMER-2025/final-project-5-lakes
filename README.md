@@ -7,8 +7,46 @@ EasyChart
 **Group Members:**
 Nick Ze Kun Lei, Javier Deng Xu, Shelby Haines, Tony Junxiang Wu
 
-**Brief Description of Project:**
+**Brief Description of Project**
+---
 A website that provides a simple way for users to visualize data, without having to learn complex tools. Users can upload data in various formats, and the platform will automatically generate relevant visualizations such as charts and graphs. These visuals can then be exported in various formats.
 
-**Brief Description of API changes from Milestone 0:**
+**Brief Description of API changes from Milestone 0**
+---
 In milestone 0, our team mentioned to use the OpenAI API for chart analysis, NLQ parsing, and smart selection. However, during our process in working on milestone 1, we figured that the OpenAI API did not offer a free tier. To compensate, we will be changing our API to DeepSeek's free APIs (Using OpenRouter, which allows free access to DeepSeek V3 0324) while maintaining identical features.
+
+
+**Folder Structure**
+---
+```bash
+my-project/
+├── README.md
+├── docs/
+│   ├── ai-disclosure/
+│   ├── communication/
+│   ├── design/
+│   └── final/
+├── misc/
+├── src/
+│   ├── backend/
+│   │   ├── app.js
+│   │   ├── server.js
+│   │   ├── deepSeek/
+│   │   ├── quickChart/
+│   │   ├── prompts/
+│   │   ├── uploads/
+│   │   └── __tests__/
+│   └── frontend/
+│       ├── index.html
+│       ├── vite.config.js
+│       ├── project-src/
+│       │   ├── App.jsx
+│       │   ├── components/
+│       │   ├── pages/
+│       │   ├── styles/
+│       │   └── utils/
+│       └── public/
+├── tools/
+├── package.json
+└── package-lock.json
+```
