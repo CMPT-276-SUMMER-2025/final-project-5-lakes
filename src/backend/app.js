@@ -91,7 +91,7 @@ app.post('/data-confirm', async (req, res) => {
     }
     
     try {
-        sessionData.edittedData = JSON.stringify(data.edittedData);
+        sessionData.edittedData = data.edittedData;
 
         // const prompt = prompts.feature1("",JSON.stringify(data.edittedData));
         const summary = await getSummary(JSON.stringify(data.edittedData));
@@ -139,11 +139,11 @@ app.post('/visual-selected', async (req, res) => {
 
     try{
         // Check if theres data
-        if (!sessionData.parsedData){
+        if (!sessionData.edittedData){
             return res.status(400).json({ error: 'No parsed data avaiable.' });
         }
 
-        const labels = await separateLabels(JSON.stringify(sessionData.parsedData));
+        const labels = await separateLabels(JSON.stringify(sessionData.edittedData));
         console.log(labels);
 
         // Attach chartImageURL using QuickChart
@@ -162,11 +162,11 @@ app.post('/visual-selected', async (req, res) => {
                 chartType = sessionData.chartOptions[i].type;
             }
         }
-        // const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
-        const chartConfig = multipleDatasetsChartGenerator(chartType, labels, sessionData.parsedData);
+
+        const chartConfig = multipleDatasetsChartGenerator(chartType, labels, sessionData.edittedData, data.id);
         console.log(chartConfig);
         sessionData.chartConfig = chartConfig;
-        res.json({chartConfig: chartConfig});
+        res.json({chartConfig: chartConfig, labels: labels});
     } catch (error) {
         console.error('Error generating chart URLs:', error);
         res.status(500).json({ error: 'Failed to generate visualization options' });
@@ -185,10 +185,15 @@ app.delete('/reset-session', async (req, res) => {
     sessionData = {
         uploadedFile: null,
         parsedData: null,
+        edittedData: null,
         chartConfig: null,
         summary: null,
         graphRecommendation: null,
         styleConfig: null,
+        chartOptions: null,
+        visualSelected: null,
+        selectedOption: null,
+        labels: null
     };
     console.log('Session reset successfully');
     res.status(200).send('Session reset successfully');

@@ -32,6 +32,7 @@ function getYValues(label, dataset) {
 }
 
 function getXValues(labels, dataset) {
+
     return dataset.map(item => {
         const combinedValues = labels.map(label => item[label]);
         return combinedValues.join(' -- ');
@@ -66,7 +67,9 @@ function getMultipleDataSets(labels, datasets) {
     }));
 }
 
-function multipleDatasetsChartGenerator(type, labels, datasets) {
+function multipleDatasetsChartGenerator(type, labels, datasets, id) {
+    const chart = dummyChart.find(c => c.id === id);
+
     // Use the first dataset to generate X labels (assuming all datasets share same X structure)
     const xLabels = getXValues(labels.x, datasets);
 
@@ -84,7 +87,7 @@ function multipleDatasetsChartGenerator(type, labels, datasets) {
         data: {
             labels: xLabels,
             datasets: labels.y.map((label, index) => ({
-                label: `Dataset ${index + 1}`,
+                label: label,
                 data: getYValues(label, datasets),
                 backgroundColor: colors[index % colors.length],
             }))
@@ -102,6 +105,30 @@ function multipleDatasetsChartGenerator(type, labels, datasets) {
             }
         }
     };
+
+    if (chart?.config) {
+        // Merge top-level fields like options, parsing
+        if (chart.config.options) {
+            chartConfig.options = {
+                ...chartConfig.options,
+                ...chart.config.options,
+                plugins: {
+                    ...chartConfig.options.plugins,
+                    ...chart.config.options.plugins,
+                    title: {
+                        ...chartConfig.options.plugins?.title,
+                        ...chart.config.options.plugins?.title,
+                        display: true,
+                        text: chart?.title || "Chart Title",
+                        font: {
+                            family: "Noto Sans",
+                            size: 24
+                        }
+                    }
+                }
+            };
+        }
+    }
 
     console.log(chartConfig.data.datasets);
     return chartConfig;
