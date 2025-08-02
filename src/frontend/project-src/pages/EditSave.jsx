@@ -7,7 +7,7 @@ import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
 import DownloadOptions from '../components/editchart/DownloadOptions';
-import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
+import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
 
@@ -57,8 +57,9 @@ function EditSave() {
     const { chartConfig: initialConfig, labels: labels } = location.state || {};
     const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
     const [showTextPicker, setShowTextPicker] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     console.log(initialConfig);
-    console.log(labels.y);
+
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
     const [chartImageUrl, setChartImageUrl] = useState(`${quickChartURL}${encodeURIComponent(JSON.stringify(initialConfig))}`);
@@ -499,6 +500,13 @@ function EditSave() {
         
         updateChartConfig(updated);
     };
+
+    useEffect(() => {
+    if (chartConfig) {
+        setIsLoading(true);
+        setChartImageUrl(`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`);
+    }
+}, [chartConfig]);
     
 {/* BELOW IS WHERE ALL OF THE BUTTONS ARE LOCATED */}
 
@@ -508,11 +516,11 @@ function EditSave() {
             <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
                 <div className="flex flex-col md:flex-row gap-8 w-full">
                     {/* Display the chart image */}
-                    <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
+                    <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg relative">
                         <div>
                             <h2 className="font-semibold flex items-center justify-center gap-4 mb-2">
-                            <Edit3 size={30} />
-                            Edit Chart
+                            {/* <Edit3 size={30} />
+                            Edit Chart */}
 
                             <div className="flex ml-6 space-x-3">
                                 <button
@@ -544,15 +552,23 @@ function EditSave() {
                             </h2>
 
                             {/* !!!! this is where the image is shown */}
-                            {chartImageUrl ? (
-                            <img
-                                src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
-                                alt="Live Chart Preview"
-                                className="w-full max-w-md mx-auto rounded-md shadow-md"
-                            />
-                            ) : (
-                            <p className="text-center text-gray-500">No chart available</p>
-                            )}
+                            <>
+                                {isLoading && (
+                                    <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-md z-10" style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
+                                        <Loader2 size={48} className="animate-spin text-blue-500" />
+                                    </div>
+                                )}
+                                {chartImageUrl ? (
+                                <img
+                                    src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
+                                    alt="Live Chart Preview"
+                                    onLoad={() => setIsLoading(false)} 
+                                    className="w-full max-w-md mx-auto rounded-md shadow-md"
+                                />
+                                ) : (
+                                <p className="text-center text-gray-500">No chart available</p>
+                                )}
+                            </>
                         </div>
                     </div>
 
@@ -562,7 +578,10 @@ function EditSave() {
 
                         {/* Chart Title section */}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <p className="text-lg font-semibold text-gray-800 mb-2">Chart Title</p>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Text size={18} className="text-black" strokeWidth={2.5} />
+                                <p className="text-lg font-semibold text-gray-800">Chart Title</p>
+                            </div>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
@@ -583,7 +602,10 @@ function EditSave() {
 
                         {/* this is the "text" section card*/}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <p className="text-lg font-semibold text-gray-800 mb-2">Text</p>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Edit3 size={18} className="text-black" strokeWidth={2.5} />
+                                <p className="text-lg font-semibold text-gray-800">Edit Text</p>
+                            </div>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <div className="flex-1">
                                     <select
@@ -676,8 +698,12 @@ function EditSave() {
 
                         {/* This is the colour card */}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Paintbrush size={18} className="text-black" strokeWidth={2.5}/>
+                                <p className="text-lg font-semibold text-gray-800">Edit Colour</p>
+                            </div>
                             <p className="text-lg font-semibold text-gray-800 mb-2">
-                                Colour
+                                
                                 {(() => {
                                     const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
                                     const shouldShowLabel = isPieChart 
@@ -701,7 +727,7 @@ function EditSave() {
 
                                 {/* This is the button where they choose the background colour*/}
                                 <button
-                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+                                className={`flex-1 ${showBackgroundPicker ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-md transition cursor-pointer`}
                                 onClick={() => {
                                     if (showBackgroundPicker) {
                                     setSelectedColor(tempBackgroundColor); // final color to state
@@ -709,15 +735,16 @@ function EditSave() {
                                     setShowBackgroundPicker(false); // hide picker
                                     } else {
                                     setShowBackgroundPicker(true); // open picker
+                                    setShowTextPicker(false);
                                     }
                                 }}
                                 >
-                                {showBackgroundPicker ? "Confirm Colour" : "Edit Background"}
+                                {showBackgroundPicker ? "Confirm Chart Colour" : "Chart Colour"}
                                 </button>
 
                                 {/* This is the button where they choose the text colour*/}
                                 <button
-                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+                                className={`flex-1 ${showTextPicker ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-md transition cursor-pointer`}
                                 onClick={() => {
                                     if (showTextPicker) {
                                     setTextColor(tempTextColor);
@@ -725,10 +752,11 @@ function EditSave() {
                                     setShowTextPicker(false);
                                     } else {
                                     setShowTextPicker(true);
+                                    setShowBackgroundPicker(false);
                                     }
                                 }}
                                 >
-                                {showTextPicker ? "Confirm Colour" : "Edit Text"}
+                                {showTextPicker ? "Confirm Text Colour" : "Text Colour"}
                                 </button>
                             </div>
                         </div>
@@ -739,6 +767,7 @@ function EditSave() {
                             <SketchPicker
                             color={tempBackgroundColor}
                             onChangeComplete={(color) => setTempBackgroundColor(color.hex)}
+                            disableAlpha={true}
                             />
                         </div>
                         )}
@@ -749,6 +778,7 @@ function EditSave() {
                             <SketchPicker
                             color={tempTextColor}
                             onChangeComplete={(color) => setTempTextColor(color.hex)}
+                            disableAlpha={true}
                             />
                         </div>
                         )}
@@ -766,7 +796,7 @@ function EditSave() {
                             className="w-full bg-blue-600 hover:bg-gray-300 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer"
                             onClick={() => setIsDownloadModalOpen(true)}
                         >
-                            <Download size={18} />
+                            <Download size={18} strokeWidth={4}/>
                             Download
                         </button>
                         </div>
