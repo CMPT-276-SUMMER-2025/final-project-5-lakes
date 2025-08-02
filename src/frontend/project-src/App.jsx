@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";     
-import DataConfirm from "./pages/DataConfirm"; 
+import EditData from "./pages/EditData"; 
 import VisualSelect from "./pages/VisualSelect";
 import EditSave from "./pages/EditSave";
 import Header from "./components/layout/Header";     
@@ -12,7 +12,7 @@ const App = () => {
       <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/data-confirm" element={<DataConfirm/>} /> 
+        <Route path="/edit-data" element={<EditData />} />
         <Route path="/visual-select" element={<VisualSelect />} />
         <Route path="/edit-save" element={<EditSave />} />
       </Routes>

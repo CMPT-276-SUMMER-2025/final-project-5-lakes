@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import DataConfirmStepper from "../components/dataconfirm/DataConfirmStepper";
-// import ViewUpload from "../components/dataconfirm/ViewUpload";
-import LoadingPopUp from "../components/dataconfirm/LoadingPopUp";
+import EditDataStepper from "../components/editdata/EditDataStepper";
+import LoadingPopUp from "../components/editdata/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
 import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash } from "lucide-react";
 
-const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/data-confirm`;
+const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
-function DataConfirm() {
+function EditData() {
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -109,7 +108,7 @@ function DataConfirm() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
       <LoadingPopUp show={isLoading} />
-      <DataConfirmStepper />
+      <EditDataStepper />
       <form onSubmit={handleNext}>
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
           <div className="flex flex-col md:flex-row items-center gap-1 w-full max-w-7xl mx-auto">
@@ -243,4 +242,4 @@ function DataConfirm() {
   );
 }
 
-export default DataConfirm;
+export default EditData;

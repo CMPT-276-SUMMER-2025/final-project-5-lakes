@@ -70,7 +70,7 @@ function HomePage() {
     })
     .then((data) => {
       setIsLoading(false);
-      navigate('/data-confirm', { state: data });
+      navigate('/edit-data', { state: data });
     })
   };
 
