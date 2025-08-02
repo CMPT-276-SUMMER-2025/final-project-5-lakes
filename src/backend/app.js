@@ -166,7 +166,7 @@ app.post('/visual-selected', async (req, res) => {
         const chartConfig = multipleDatasetsChartGenerator(chartType, labels, sessionData.parsedData);
         console.log(chartConfig);
         sessionData.chartConfig = chartConfig;
-        res.json({chartConfig: chartConfig});
+        res.json({chartConfig: chartConfig, labels: labels});
     } catch (error) {
         console.error('Error generating chart URLs:', error);
         res.status(500).json({ error: 'Failed to generate visualization options' });

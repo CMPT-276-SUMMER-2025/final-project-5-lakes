@@ -32,6 +32,7 @@ function getYValues(label, dataset) {
 }
 
 function getXValues(labels, dataset) {
+
     return dataset.map(item => {
         const combinedValues = labels.map(label => item[label]);
         return combinedValues.join(' -- ');
@@ -84,7 +85,7 @@ function multipleDatasetsChartGenerator(type, labels, datasets) {
         data: {
             labels: xLabels,
             datasets: labels.y.map((label, index) => ({
-                label: `Dataset ${index + 1}`,
+                label: label,
                 data: getYValues(label, datasets),
                 backgroundColor: colors[index % colors.length],
             }))
