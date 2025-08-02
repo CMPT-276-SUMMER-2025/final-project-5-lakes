@@ -637,6 +637,7 @@ function EditSave() {
                             <SketchPicker
                             color={tempBackgroundColor}
                             onChangeComplete={(color) => setTempBackgroundColor(color.hex)}
+                            disableAlpha={true}
                             />
                         </div>
                         )}
@@ -647,6 +648,7 @@ function EditSave() {
                             <SketchPicker
                             color={tempTextColor}
                             onChangeComplete={(color) => setTempTextColor(color.hex)}
+                            disableAlpha={true}
                             />
                         </div>
                         )}
