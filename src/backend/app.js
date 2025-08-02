@@ -81,9 +81,9 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 });
 
 // Information edit confirm
-app.post('/data-confirm', async (req, res) => {
+app.post('/edit-data', async (req, res) => {
     const data = req.body;
-    console.log(`DATA FROM DATACONFIRM ${JSON.stringify(data.edittedData)}`);
+    console.log(`DATA FROM EDITDATA ${JSON.stringify(data.edittedData)}`);
     // Validate that data exists and has chartConfig property
     // console.log(data);
     if (!data) {
