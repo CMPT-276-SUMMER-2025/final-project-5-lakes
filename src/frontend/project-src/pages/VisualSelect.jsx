@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ChartSelectionCard from '../components/visualselect/ChartSelectionCard';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ClipboardList } from 'lucide-react';
 import VisualSelectStepper from '../components/visualselect/VisualSelectStepper';
 
 // not connected with backend yet
@@ -99,8 +99,12 @@ function VisualSelect() {
           ))}
         </div>
 
-        <div className="w-full max-w-6xl mt-6 mb-6 text-left">
-           <h3 className="text-lg font-semibold">Summary</h3>
+        <div className="w-full max-w-6xl mt-10 text-left bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+          <div className="flex items-center mb-4">
+            <ClipboardList className="text-blue-600 mr-3 mb-2" size={25} />
+            <h3 className="text-xl font-semibold text-gray-800 leading-none">Data Summary</h3>
+        </div>
+
            {summary && summary[0] ? (
              <ul className="text-gray-600 text-lg space-y-2 mt-2">
                {summary.map((item, index) => (
@@ -126,7 +130,7 @@ function VisualSelect() {
           <button onClick={goPreviousPage}
             className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
             <ChevronLeft size={18} className="mr-1" />
-            Back
+            Edit my data
           </button>
         </div>
 
