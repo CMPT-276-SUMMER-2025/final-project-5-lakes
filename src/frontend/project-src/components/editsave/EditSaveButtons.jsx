@@ -1,54 +1,10 @@
-// src/components/EditSaveButtons.jsx
 import { ChevronLeft, CirclePlus } from 'lucide-react';
-import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+// import { useNavigate } from "react-router-dom"; not currently used
 
-const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-selected`;
 
-function EditSaveButtons() {
-  const navigate = useNavigate();
-
-  const getSessionDataAndNavigateBack = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/get-session-data`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Include cookies for session management
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const sessionData = await response.json();
-      console.log('Retrieved session data:', sessionData);
-      
-      // Navigate back to data-confirm with the retrieved data
-      navigate('/visual-select', {
-        state: {
-          // You can add other properties if needed
-          summary: JSON.parse(sessionData.summary),
-          graphRecommendation: sessionData.graphRecommendation,
-          chartsWithURLs: sessionData.chartOptions,
-          chartConfig: sessionData.chartConfig
-        }
-      });
-      
-    } catch (error) {
-      console.error('Error retrieving session data:', error);
-      // Handle error - maybe show a notification or fallback
-      alert('Failed to retrieve session data. Please try again.');
-    }
-  };
-
-  const goPreviousPage = async () => {
-      // Use session data retrieval instead of relying on current state
-      await getSessionDataAndNavigateBack();
-  }
-
-  const goBackHomepage = async () => {
+const goBackHomepage = async () => {  // this is a function to go back to the homepage
+    // setIsLoading(true);
     try {
       await fetch(apiUrl, {
         method: "DELETE",
@@ -58,32 +14,69 @@ function EditSaveButtons() {
         body: "{}",
         credentials: 'include'
       });
-      navigate("/"); // back to homepage
+      // 👇 pretend this came from the backend
+      navigate("/");
     } catch (err) {
-      console.error("Error resetting chart state:", err);
-      alert("Something went wrong while resetting.");
+      console.error("Error generating mock chart:", err);
+      alert("Something went wrong generating the chart.");
+    } finally {
+      // setIsLoading(false);
     }
-  };
+};
 
-  return (
-    <div className="flex justify-between mt-10 flex-wrap gap-4">
-      <button
-        onClick={goPreviousPage}
-        className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-      >
-        <ChevronLeft size={25} className="mr-2" />
-        Go to last step
-      </button>
+const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-selected`;
 
-      <button
-        onClick={goBackHomepage}
-        className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-      >
-        <CirclePlus size={25} className="mr-3" />
-        Create another chart
-      </button>
-    </div>
-  );
+function EditSaveButtons() {
+    const location = useLocation();
+    const { chartConfig } = location.state || {};
+    console.log(chartConfig);
+
+    // const editConfig = {
+    //     chartLabel: chartConfig.chartLabel,
+    //     chartData: chartConfig.chartData,
+    //     chartOptions: chartConfig.chartOptions,
+    //     chartStyle: chartConfig.chartStyle,
+    //     chartTheme: chartConfig.chartTheme,
+    // };
+
+    const handleGoToLastStep = async () => {
+        fetch(apiUrl, {
+            method: "POST",
+            body: JSON.stringify(editConfig),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }).then(response => response.json())
+        .then(data => {
+            console.log(data);
+            navigate("/export", { state: data });
+        })
+        .catch(error => {
+            console.error("Error editing chart:", error);   
+        });
+    }
+
+
+    return (
+        <div className="flex justify-between mt-10 flex-wrap gap-4">
+            {/* Buttons */}
+            <button
+                onClick={handleGoToLastStep}
+                className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            >
+                <ChevronLeft size={25} className="mr-2" />
+                Go to the last step
+            </button>
+            
+            <button
+                onClick={goBackHomepage}
+                className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            >
+                <CirclePlus size={25} className="mr-3" />
+                Create another chart
+            </button>
+        </div>
+    );
 }
 
 export default EditSaveButtons;

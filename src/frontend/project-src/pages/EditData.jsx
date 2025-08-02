@@ -24,6 +24,9 @@ function EditData() {
   const [confirmedData, setConfirmedData] = useState(null);
   const [originalData, setOriginalData] = useState(null);
 
+  const [undoStack, setUndoStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
+
   // Initialize confirmedData and originalData from parsedData
   useEffect(() => {
     if (!parsedData || !file) {
@@ -80,21 +83,21 @@ function EditData() {
       header: `Row ${updated.rows.length + 1}`,
       cells: new Array(updated.columns.length).fill(""),
     });
-    setConfirmedData(updated);
+    updateConfirmedData(updated);
   };
 
   const removeRow = () => {
     if (confirmedData.rows.length === 0) return;
     const updated = structuredClone(confirmedData);
     updated.rows.pop();
-    setConfirmedData(updated);
+    updateConfirmedData(updated);
   };
 
   const addColumn = () => {
     const updated = structuredClone(confirmedData);
     updated.columns.push(`Column ${updated.columns.length + 1}`);
     updated.rows.forEach((row) => row.cells.push(""));
-    setConfirmedData(updated);
+    updateConfirmedData(updated);
   };
 
   const removeColumn = () => {
@@ -102,7 +105,30 @@ function EditData() {
     const updated = structuredClone(confirmedData);
     updated.columns.pop();
     updated.rows.forEach((row) => row.cells.pop());
-    setConfirmedData(updated);
+    updateConfirmedData(updated);
+  };
+
+  // Undo/Redo functionality
+  const updateConfirmedData = (newData) => {
+    setUndoStack((prev) => [...prev, structuredClone(confirmedData)]);
+    setRedoStack([]); // clear redo on new action
+    updateConfirmedData(updated);
+  };
+
+  const undo = () => {
+    if (undoStack.length === 0) return;
+    const prev = undoStack[undoStack.length - 1];
+    setUndoStack((prevStack) => prevStack.slice(0, -1));
+    setRedoStack((prevStack) => [...prevStack, structuredClone(confirmedData)]);
+    setConfirmedData(prev);
+  };
+
+  const redo = () => {
+    if (redoStack.length === 0) return;
+    const next = redoStack[redoStack.length - 1];
+    setRedoStack((prevStack) => prevStack.slice(0, -1));
+    setUndoStack((prevStack) => [...prevStack, structuredClone(confirmedData)]);
+    setConfirmedData(next);
   };
 
   return (
@@ -156,7 +182,7 @@ function EditData() {
                                 onChange={(e) => {
                                   const updated = structuredClone(confirmedData);
                                   updated.columns[i] = e.target.value;
-                                  setConfirmedData(updated);
+                                  updateConfirmedData(updated);
                                 }}
                                 className="w-full"
                               />
@@ -173,7 +199,7 @@ function EditData() {
                                 onChange={(e) => {
                                   const updated = structuredClone(confirmedData);
                                   updated.rows[rowIdx].header = e.target.value;
-                                  setConfirmedData(updated);
+                                  updateConfirmedData(updated);
                                 }}
                                 className="w-full"
                               />
@@ -185,7 +211,7 @@ function EditData() {
                                   onChange={(e) => {
                                     const updated = structuredClone(confirmedData);
                                     updated.rows[rowIdx].cells[colIdx] = e.target.value;
-                                    setConfirmedData(updated);
+                                    updateConfirmedData(updated);
                                   }}
                                   className="w-full"
                                 />
@@ -203,6 +229,23 @@ function EditData() {
                         fileContent={parsedData?.base64 || file?.url || "about:blank"}
                       />
                   </div> */}
+                  <button
+                    type="button"
+                    onClick={undo}
+                    className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100 disabled:opacity-50"
+                    disabled={undoStack.length === 0}
+                  >
+                    Undo
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={redo}
+                    className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100 disabled:opacity-50"
+                    disabled={redoStack.length === 0}
+                  >
+                    Redo
+                  </button>
                 </>
               )}
             </div>
