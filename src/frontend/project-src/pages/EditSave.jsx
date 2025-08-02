@@ -186,7 +186,7 @@ function EditSave() {
             ...chartConfig,
             chartStyle: {
                 ...chartConfig.chartStyle,
-                backgroundColor: rgbColor // Keep hex for internal state
+                backgroundColor: color.hex // Keep hex for internal state
             }
         };
         
