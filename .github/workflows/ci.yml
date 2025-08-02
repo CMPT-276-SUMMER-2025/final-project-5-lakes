@@ -2,16 +2,19 @@ name: EasyChart setup
 
 on:
   push:
-    branches: [main]
+    branches: ['**']
   pull_request:
     branches: [main]
 
 jobs:
   build-and-test:
+    name: Frontend & Backend CI
     runs-on: ubuntu-latest
 
     env:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      VITE_API_BASE_URL: "http://localhost:3000"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,19 +24,30 @@ jobs:
         with:
           node-version: 20
 
-      # Install and build frontend
+      # Install frontend dependencies
       - name: Install frontend dependencies
         working-directory: ./src/frontend
         run: npm install --legacy-peer-deps
 
-      - name: Build frontend
-        working-directory: ./src/frontend
-        run: npm run build
-
-      # Install and test backend
+      # Install backend dependencies
       - name: Install backend dependencies
         working-directory: ./src/backend
         run: npm install
+
+      # Run lint frontend
+      - name: Run lint
+        working-directory: ./src/frontend
+        run: npm run lint
+
+      # Run lint backend
+      - name: Run lint
+        working-directory: ./src/backend
+        run: npm run lint
+
+      # Build frontend
+      - name: Build frontend
+        working-directory: ./src/frontend
+        run: npm run build
 
       # Run backend tests
       - name: Run backend tests
