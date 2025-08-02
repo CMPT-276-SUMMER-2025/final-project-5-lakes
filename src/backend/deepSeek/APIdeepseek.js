@@ -24,19 +24,24 @@ async function queryDeepSeekV3(prompt) {
     });
 
     //get/check API returns
-    const data = await response.json();
-    if(data.choices && data.choices[0]){
-      console.log("Raw API response data: ", data.choices[0].message.content);
-      // console.log(JSON.parse(data.choices[0].message.content));
-    }
-    else{
-      console.error("Unexpected/empty response: ", data);
-      return data.choices?.[0]?.message?.content || "No response from model.";
+    if (!response.ok) {
+      console.error("API request failed with status:", response.status, response.statusText);
+      return null;
     }
 
-    return data.choices[0].message.content;
+    const data = await response.json();
+    if(data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content){
+      console.log("Raw API response data: ", data.choices[0].message.content);
+      return data.choices[0].message.content;
+    }
+    else{
+      console.error("Unexpected/empty response structure: ", data);
+      return null; // Return null instead of fallback string
+    }
+
   } catch (err) {
     console.error("Error calling API: ", err);
+    return null; // Return null instead of undefined
   }
 };
 

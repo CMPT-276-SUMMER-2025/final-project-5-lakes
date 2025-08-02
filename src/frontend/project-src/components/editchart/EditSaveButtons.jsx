@@ -1,6 +1,6 @@
 import { ChevronLeft, CirclePlus } from 'lucide-react';
 import { useLocation } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom"; not currently used
 
 
 const goBackHomepage = async () => {  // this is a function to go back to the homepage
@@ -31,15 +31,13 @@ function EditSaveButtons() {
     const { chartConfig } = location.state || {};
     console.log(chartConfig);
 
-    const editConfig = {
-        chartConfig: chartConfig,
-        chartType: chartConfig.chartType,
-        chartLabel: chartConfig.chartLabel,
-        chartData: chartConfig.chartData,
-        chartOptions: chartConfig.chartOptions,
-        chartStyle: chartConfig.chartStyle,
-        chartTheme: chartConfig.chartTheme,
-    };
+    // const editConfig = {
+    //     chartLabel: chartConfig.chartLabel,
+    //     chartData: chartConfig.chartData,
+    //     chartOptions: chartConfig.chartOptions,
+    //     chartStyle: chartConfig.chartStyle,
+    //     chartTheme: chartConfig.chartTheme,
+    // };
 
     const handleGoToLastStep = async () => {
         fetch(apiUrl, {

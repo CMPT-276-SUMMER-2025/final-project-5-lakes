@@ -5,6 +5,9 @@ const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1.js');
 const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
 const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
+const { separateLabels } = require('./labelSeparation.js');
+const { generateDummyChart } = require('./quickChart/QCFeature1.js');
+const { generateChart, multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -17,12 +20,15 @@ const upload = multer({dest: 'uploads/'});
 let sessionData = {
     uploadedFile: null,
     parsedData: null,
+    edittedData: null,
     chartConfig: null,
     summary: null,
     graphRecommendation: null,
     styleConfig: null,
+    chartOptions: null,
     visualSelected: null,
     selectedOption: null,
+    labels: null,
 };
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
@@ -65,14 +71,9 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     // Handle file
     try {
         const file = files[0]; // Process first file uploaded
-        let result = { parsedData: JSON.parse(await parseFile(file)), file: file };
-        console.log(result.parsedData);
+        let result = { parsedData: await parseFile(file), file: file };
         sessionData.uploadedFile = file;
         sessionData.parsedData = result.parsedData;
-        sessionData.chartConfig = null;
-        sessionData.summary = null;
-        sessionData.graphRecommendation = null;
-        sessionData.styleConfig = null;
         return res.json(result);
     } catch (error) {
         return res.status(500).send('Failed to process file.');
@@ -80,37 +81,96 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 });
 
 // Information edit confirm
-app.post('/edit-confirm', async (req, res) => {
+app.post('/data-confirm', async (req, res) => {
     const data = req.body;
+    console.log(`DATA FROM DATACONFIRM ${JSON.stringify(data.edittedData)}`);
     // Validate that data exists and has chartConfig property
+    // console.log(data);
     if (!data) {
         return res.status(400).json({ error: 'No data provided in request body' });
     }
     
     try {
+        sessionData.edittedData = JSON.stringify(data.edittedData);
+
         // const prompt = prompts.feature1("",JSON.stringify(data.edittedData));
-        const summary = await getSummary(JSON.stringify(data.parsedData));
-        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.parsedData));
+        const summary = await getSummary(JSON.stringify(data.edittedData));
+        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
+
+        console.log(`LOOK THIS: ${JSON.stringify(graphRecommendation)}`);
+
+        const chartsWithURLs = [];
+        
+        for (let i = 0; i < graphRecommendation.types.length; i++) {
+            const chartType = graphRecommendation.types[i];
+            const reasoning = graphRecommendation.explanations?.[i] || "No explanation provided.";
+            chartsWithURLs.push(generateDummyChart(chartType, reasoning));
+        }
+
+        sessionData.summary = summary;
+        sessionData.graphRecommendation = graphRecommendation;
+        sessionData.chartOptions = chartsWithURLs;
+
+        console.log(sessionData.chartOptions);
+
+        /*const labels = await separateLabels(JSON.stringify(data.parsedData));
+        console.log(labels);
         // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
         sessionData.summary = JSON.parse(summary);
-        sessionData.graphRecommendation = JSON.parse(graphRecommendation);
+        sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
 
         res.json({ 
             summary: JSON.parse(summary),
-            graphRecommendation: JSON.parse(graphRecommendation),
-            // chartConfig: chartConfig,
+            graphRecommendation: graphRecommendation,
+            chartsWithURLs: chartsWithURLs,
+            // labels: labels,
         });
     } catch (error) {
+        console.log(error);
         res.status(500).send('Failed to process data.');
     }
 });
 
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
-    console.log(data);
     sessionData.visualSelected = data.id;
-    sessionData.selectedOption = sessionData.chartConfig[data.id];
-    res.json({ chartConfig: sessionData.selectedOption });
+    console.log(data.id);
+    //sessionData.selectedOption = sessionData.chartConfig[data.id];
+
+    try{
+        // Check if theres data
+        if (!sessionData.parsedData){
+            return res.status(400).json({ error: 'No parsed data avaiable.' });
+        }
+
+        const labels = await separateLabels(JSON.stringify(sessionData.parsedData));
+        console.log(labels);
+
+        // Attach chartImageURL using QuickChart
+        /*const chartsWithURLs = chartConfigs.map(chart => ({
+            //id: chart.id,
+            //title: chart.title,
+            //description: chart.description,
+            id: 1,
+            title: "Bar Chart",
+            description: "Displays values as bars.",
+            imageURL: generateDummyChart()
+        }));*/
+        let chartType = null;
+        for (let i = 0; i < sessionData.chartOptions.length; i++) {
+            if (sessionData.chartOptions[i].id === sessionData.visualSelected) {
+                chartType = sessionData.chartOptions[i].type;
+            }
+        }
+        // const chartConfig = generateChart(sessionData.parsedData, labels, sessionData.chartOptions[sessionData.visualSelected - 1]);
+        const chartConfig = multipleDatasetsChartGenerator(chartType, labels, sessionData.parsedData);
+        console.log(chartConfig);
+        sessionData.chartConfig = chartConfig;
+        res.json({chartConfig: chartConfig});
+    } catch (error) {
+        console.error('Error generating chart URLs:', error);
+        res.status(500).json({ error: 'Failed to generate visualization options' });
+    }
 });
 
 app.post('/edit-selected', async (req, res) => {

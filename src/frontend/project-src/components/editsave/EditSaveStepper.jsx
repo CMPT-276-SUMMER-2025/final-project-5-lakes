@@ -1,6 +1,6 @@
 import { ChevronRight, Upload, Check, SquareMousePointer, Pencil } from 'lucide-react';
 
-function DataConfirmStepper() {
+function EditSaveStepper() {
     return (
         <div className="items-center justify-center space-y-4 mb-8">
             <button className="stepper-button-1 mb-4 mr-5">
@@ -13,12 +13,12 @@ function DataConfirmStepper() {
                 Confirm Data
                 <ChevronRight size={25} className="ml-2" />
             </button>
-            <button className="stepper-button-2 mb-4 mr-5">
+            <button className="stepper-button-1 mb-4 mr-5">
                 <SquareMousePointer size={20} className="mr-2" />
                 Choose Visual
                 <ChevronRight size={25} className="ml-2" />
             </button>
-            <button className="stepper-button-2 mb-4 mr-5">
+            <button className="stepper-button-1 mb-4 mr-5">
                 <Pencil size={20} className="mr-2" />
                 Edit & Save
                 <ChevronRight size={25} className="ml-2" />
@@ -27,4 +27,4 @@ function DataConfirmStepper() {
     );
 }
 
-export default DataConfirmStepper;
+export default EditSaveStepper;

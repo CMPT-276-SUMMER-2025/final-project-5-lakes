@@ -1,12 +1,24 @@
 // src/components/visualselect/ChartSelectionCard.jsx
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/visual-selected`;
 
 const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText = "Select Option" }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { chartConfig } = location.state || {};
+  console.log(chartConfig);
+
 
   const handleSelectOption = () => {
+
+
+    // if (chartConfig) {
+    //   navigate("/edit-save", { state: {chartConfig: chartConfig} });
+    //   return;
+    // }
+
     fetch(apiUrl, {
       method: "POST",
       body: JSON.stringify({
@@ -19,23 +31,22 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
     .then(response => response.json())
     .then(data => {
       console.log(data);
-      navigate("/edit-chart", { state: data });
+      navigate("/edit-save", { state: data });
     })
     .catch(error => {
       console.error("Error selecting option:", error);
     });
   }
 
-
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden">
     
-      <div
+      {/* <div
         className="h-48 bg-gray-100 bg-cover bg-center"
-        style={{ backgroundImage: `url(${chartImageUrl || 'https://via.placeholder.com/400x250?text=Chart+Visual'})` }}
-      />
+        // style={{ backgroundImage: `url(${chartImageUrl || 'https://via.placeholder.com/400x250?text=Chart+Visual'})` }}
+      /> */}
 
-      
+      <img className="h-48 bg-cover bg-center w-full" src={chartImageUrl} alt={title} />
       <div className="p-5 flex flex-col flex-grow justify-between">
         <div>
           <h3 className="text-xl text-gray-800 mb-2">{title}</h3>
