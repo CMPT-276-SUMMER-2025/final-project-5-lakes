@@ -3,7 +3,7 @@ const app = require('../app.js');
 const path = require('path');
 const fs = require('fs');
 
-const tempDir = path.resolve(__dirname, 'temp');
+const tempDir = path.resolve(__dirname, 'tempIntegration');
 const tempCsvPath = path.join(tempDir, 'temp_sample.csv');
 
 // Create dummy dir and file
@@ -23,10 +23,16 @@ afterAll(() => {
     }
 });
 
-// INTEGRATION TEST 
+// INTEGRATION TEST FOR APP.JS
 // Mock feature 1
-jest.mock('../file-parser.js', () => ({
-    parseFile: jest.fn(() => Promise.resolve('123'))
+jest.mock('../deepSeek/APIdeepseek.js', () => ({
+  queryDeepSeekV3: jest.fn(() => {
+    return Promise.resolve(JSON.stringify([
+      { "Name": "Alice", "Score": "85" },
+      { "Name": "Bob", "Score": "90" },
+      { "Name": "Charlie", "Score": "78" }
+    ]));
+  })
 }));
 
 describe('Integration test of file upload flow', () => {
@@ -37,6 +43,6 @@ describe('Integration test of file upload flow', () => {
             .post('/file-submit')
             .attach('files', tempCsvPath);
         
-        expect(res.body.parsedData).toEqual(JSON.parse('123'));
+        expect(res.body.parsedData).toEqual(JSON.parse('[{"Name": "Alice", "Score": "85"}, {"Name": "Bob", "Score": "90"}, {"Name": "Charlie", "Score": "78"}]'));
     });
 });

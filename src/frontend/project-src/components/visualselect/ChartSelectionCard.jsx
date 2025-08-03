@@ -14,10 +14,10 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
   const handleSelectOption = () => {
 
 
-    if (chartConfig) {
-      navigate("/edit-save", { state: {chartConfig: chartConfig} });
-      return;
-    }
+    // if (chartConfig) {
+    //   navigate("/edit-save", { state: {chartConfig: chartConfig} });
+    //   return;
+    // }
 
     fetch(apiUrl, {
       method: "POST",
@@ -55,7 +55,7 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
 
 
         <div className="mt-4 text-right">
-          <button onClick={handleSelectOption} className="px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
+          <button onClick={handleSelectOption} className="cursor-pointer px-4 py-2 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700 transition">
             {buttonText}
           </button>
         </div>

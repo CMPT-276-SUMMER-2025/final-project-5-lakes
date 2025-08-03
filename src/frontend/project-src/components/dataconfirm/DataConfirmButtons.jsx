@@ -3,27 +3,6 @@ import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/reset-session`;
 
-const goBackHomepage = async () => {  // this is a function to go back to the homepage
-  // setIsLoading(true);
-  try {
-    await fetch(apiUrl, {
-      method: "DELETE",
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: "{}",
-      credentials: 'include'
-    });
-    // 👇 pretend this came from the backend
-    navigate("/");
-  } catch (err) {
-    console.error("Error generating mock chart:", err);
-    alert("Something went wrong generating the chart.");
-  } finally {
-    // setIsLoading(false);
-  }
-};
-
 function DataConfirmButtons({
   // setIsLoading,
   // confirmedData,
@@ -33,6 +12,27 @@ function DataConfirmButtons({
   // chartLabel,
 }) {
   const navigate = useNavigate();
+
+  const goBackHomepage = async () => {  // this is a function to go back to the homepage
+    // setIsLoading(true);
+    try {
+      await fetch(apiUrl, {
+        method: "DELETE",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: "{}",
+        credentials: 'include'
+      });
+      // 👇 pretend this came from the backend
+      navigate("/");
+    } catch (err) {
+      console.error("Error generating mock chart:", err);
+      alert("Something went wrong generating the chart.");
+    } finally {
+      // setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex justify-between mt-10 flex-wrap gap-4">

@@ -7,9 +7,9 @@ import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
 import DownloadOptions from '../components/editchart/DownloadOptions';
-import { Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
+import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
-const quickChartURL = "https://quickchart.io/chart?height=500&v=4&c=";
+const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
 
 // Google Noto fonts supported by QuickChart
 const notoFonts = [
@@ -25,6 +25,8 @@ const notoFonts = [
     { name: "Noto Color Emoji", value: "Noto Color Emoji" }
 ];
 
+
+
 // Utility function to convert hex to RGB
 const hexToRgb = (hex) => {
     // Remove the hash if it exists
@@ -38,29 +40,47 @@ const hexToRgb = (hex) => {
     return `rgb(${r}, ${g}, ${b})`;
 };
 
-// Utility function to convert hex to RGBA with opacity
-const hexToRgba = (hex, alpha = 1) => {
-    hex = hex.replace('#', '');
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
+// Utility function to convert RGB string back to hex
+const rgbToHex = (rgb) => {
+    if (!rgb || typeof rgb !== 'string') return '#36A2EB';
     
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    // If it's already a hex color, return it
+    if (rgb.startsWith('#')) return rgb;
+    
+    // Extract RGB values from rgb(r, g, b) or rgba(r, g, b, a) format
+    const rgbMatch = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!rgbMatch) return '#36A2EB';
+    
+    const r = parseInt(rgbMatch[1], 10);
+    const g = parseInt(rgbMatch[2], 10);
+    const b = parseInt(rgbMatch[3], 10);
+    
+    // Convert to hex
+    const toHex = (n) => {
+        const hex = n.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+    };
+    
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 };
+
+
 
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
-    const chartImageUrl = 'https://dummyimage.com/600x600'; 
+    // const chartImageUrl = 'https://dummyimage.com/600x600'; 
     const location = useLocation();
-    const { chartConfig: initialConfig } = location.state || {};
+    const { chartConfig: initialConfig, labels: labels } = location.state || {};
     const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
     const [showTextPicker, setShowTextPicker] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     console.log(initialConfig);
 
-    const [chartConfig, setChartConfig] = useState(initialConfig);
-    //const [chartImageUrl, setChartImageUrl] = useState("");
 
-    const [selectedColor, setSelectedColor] = useState(initialConfig?.chartStyle?.backgroundColor || "#4F46E5");
+    const [chartConfig, setChartConfig] = useState(initialConfig);
+    const [chartImageUrl, setChartImageUrl] = useState(`${quickChartURL}${encodeURIComponent(JSON.stringify(initialConfig))}`);
+
+    const [selectedColor, setSelectedColor] = useState(initialConfig?.chartStyle?.backgroundColor || "#36A2EB");
     const [textColor, setTextColor] = useState(initialConfig?.chartStyle?.textColor || "#000000");
 
     const [tempBackgroundColor, setTempBackgroundColor] = useState(selectedColor);
@@ -81,6 +101,12 @@ function EditSave() {
     const [chartTitle, setChartTitle] = useState("Chart Title");
     const [tempTitle, setTempTitle] = useState("Chart Title");
 
+    const [datasetSelected, setDatasetSelected] = useState(0);
+    const [segmentSelected, setSegmentSelected] = useState(0);
+    
+    // Track selection history for undo/redo
+    const [selectionHistory, setSelectionHistory] = useState([{ dataset: 0, segment: 0 }]);
+
     // Generate the initial chart image URL
     // useEffect(() => {
     //     if (chartConfig) {
@@ -89,22 +115,18 @@ function EditSave() {
     //     }
     // }, [chartConfig]);
 
-    let styleConfig = {
-       backgroundColor: null,
-       canvasBackgroundColor: null,
-       titleColor: null,
-    }
-
     useEffect(() => {
+        console.log("Creating chartConfig");
         if (chartConfig && chartConfig.options) {
             // Ensure basic chart structure exists
             if (!chartConfig.options.plugins) {
                 chartConfig.options.plugins = {};
             }
             if (!chartConfig.options.plugins.title) {
+                console.log("Setting title");
                 chartConfig.options.plugins.title = {
                     display: true,
-                    text: chartTitle,
+                    text: chartTitle || "Chart Title",
                     font: {
                         family: "Noto Sans",
                         size: fontSize
@@ -141,8 +163,27 @@ function EditSave() {
                     }
                 };
             }
+            console.log(datasetSelected);
+            chartConfig.data.datasets[datasetSelected].backgroundColor = hexToRgb(selectedColor);
         }
     }, [chartConfig]); // Only depend on chartConfig for initial setup
+
+    // Ensure dataset/segment selection stays within bounds
+    useEffect(() => {
+        const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
+        
+        if (isPieChart) {
+            // For pie charts, check segment bounds
+            if (chartConfig?.data?.datasets?.[0]?.data && segmentSelected >= chartConfig.data.datasets[0].data.length) {
+                setSegmentSelected(0);
+            }
+        } else {
+            // For other charts, check dataset bounds
+            if (chartConfig?.data?.datasets && datasetSelected >= chartConfig.data.datasets.length) {
+                setDatasetSelected(0);
+            }
+        }
+    }, [chartConfig, datasetSelected, segmentSelected]);
 
 
 
@@ -150,14 +191,10 @@ function EditSave() {
     // Handle color change from the color picker
     const handleColorChange = (color) => {
         setSelectedColor(color.hex);        
-        console.log("Confirmed background hex:", color.hex);
-        // chartConfig.options.elements.backgroundColor = color.hex;
-        // chartConfig.data.datasets[0].backgroundColor = color.hex;
-        // console.log(color.hex);
-        // updateChartConfig(chartConfig);
+
+        
         // Convert hex to RGB for QuickChart API
         const rgbColor = hexToRgb(color.hex);
-        console.log("Converted to RGB:", rgbColor);
         
         // Create a copy of chartConfig with RGB colors
         const updated = {
@@ -175,10 +212,32 @@ function EditSave() {
             }
         }
         
-        if (updated.data && updated.data.datasets && updated.data.datasets[0]) {
-            updated.data.datasets[0].backgroundColor = rgbColor;
-        }
+        // Check if it's a pie chart
+        const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
         
+        if (isPieChart) {
+            // For pie charts, update the specific segment color
+            console.log("Selected segment index:", segmentSelected);
+            if (updated.data && updated.data.datasets && updated.data.datasets[0]) {
+                const dataset = updated.data.datasets[0];
+                if (Array.isArray(dataset.backgroundColor)) {
+                    // Update specific segment
+                    dataset.backgroundColor[segmentSelected] = rgbColor;
+                } else {
+                    // Convert single color to array and update specific segment
+                    const dataLength = dataset.data ? dataset.data.length : 1;
+                    dataset.backgroundColor = new Array(dataLength).fill(dataset.backgroundColor || rgbColor);
+                    dataset.backgroundColor[segmentSelected] = rgbColor;
+                }
+            }
+        } else {
+            // For other charts, update the selected dataset
+            console.log("Selected dataset index:", datasetSelected);
+            if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
+                updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
+            }
+
+        }
         console.log("Updated chart config:", updated);
         updateChartConfig(updated);
     };
@@ -334,56 +393,78 @@ function EditSave() {
         setHistory(updatedHistory);
         setHistoryIndex(updatedHistory.length - 1);
         setChartConfig(newConfig);
+        setChartImageUrl(`${quickChartURL}${encodeURIComponent(JSON.stringify(newConfig))}`);
+        
+        // Save current selection to history
+        console.log("dataset modified to", datasetSelected);
+        const updatedSelectionHistory = selectionHistory.slice(0, historyIndex + 1);
+        updatedSelectionHistory.push({ dataset: datasetSelected, segment: segmentSelected });
+        setSelectionHistory(updatedSelectionHistory);
     };
 
     // Handle undo and redo actions
     const handleUndo = () => {
-    if (historyIndex > 0) {
-        const prevIndex = historyIndex - 1;
-        setChartConfig(history[prevIndex]);
-        setHistoryIndex(prevIndex);
-        setSelectedColor(history[prevIndex].chartStyle?.backgroundColor || "#4F46E5");
-        setTextColor(history[prevIndex].chartStyle?.textColor || "#000000");
-        const prevTitle = history[prevIndex].options?.plugins?.title?.text || "Chart Title";
-        setChartTitle(prevTitle);
-        setTempTitle(prevTitle);
-        const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Noto Sans";
-        const prevFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 14;
-        setActiveFontFamily(prevFontFamily);
-        setFontSize(prevFontSize);
-    }
+        if (historyIndex > 0) {
+            const prevIndex = historyIndex - 1;
+            const prevSelection = selectionHistory[prevIndex];
+            // Restore the previous dataset/segment selection
+            setDatasetSelected(prevSelection.dataset);
+            setSegmentSelected(prevSelection.segment);
+            setChartConfig(history[prevIndex]);
+            setHistoryIndex(prevIndex);
+            setSelectedColor(history[prevIndex].chartStyle?.backgroundColor || "#36A2EB");
+            setTextColor(history[prevIndex].chartStyle?.textColor || "#000000");
+            const prevTitle = history[prevIndex].options?.plugins?.title?.text || "Chart Title";
+            setChartTitle(prevTitle);
+            setTempTitle(prevTitle);
+            const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Noto Sans";
+            const prevFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 14;
+            setActiveFontFamily(prevFontFamily);
+            setFontSize(prevFontSize);
+            
+
+        }
     };
 
     const handleRedo = () => {
-    if (historyIndex < history.length - 1) {
-        const nextIndex = historyIndex + 1;
-        setChartConfig(history[nextIndex]);
-        setHistoryIndex(nextIndex);
-        setSelectedColor(history[nextIndex].chartStyle?.backgroundColor || "#4F46E5");
-        setTextColor(history[nextIndex].chartStyle?.textColor || "#000000");
-        const nextTitle = history[nextIndex].options?.plugins?.title?.text || "Chart Title";
-        setChartTitle(nextTitle);
-        setTempTitle(nextTitle);
-        const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Noto Sans";
-        const nextFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 14;
-        setActiveFontFamily(nextFontFamily);
-        setFontSize(nextFontSize);
-    }
+        if (historyIndex < history.length - 1) {
+            const nextIndex = historyIndex + 1;
+            const nextSelection = selectionHistory[nextIndex];
+            // Restore the next dataset/segment selection
+            setDatasetSelected(nextSelection.dataset);
+            setSegmentSelected(nextSelection.segment);
+            setChartConfig(history[nextIndex]);
+            setHistoryIndex(nextIndex);
+            setSelectedColor(history[nextIndex].chartStyle?.backgroundColor || "#36A2EB");
+            setTextColor(history[nextIndex].chartStyle?.textColor || "#000000");
+            const nextTitle = history[nextIndex].options?.plugins?.title?.text || "Chart Title";
+            setChartTitle(nextTitle);
+            setTempTitle(nextTitle);
+            const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Noto Sans";
+            const nextFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 14;
+            setActiveFontFamily(nextFontFamily);
+            setFontSize(nextFontSize);
+            
+
+        }
     };
 
     const handleReset = () => {
-    setChartConfig(initialConfig);
-    setSelectedColor(initialConfig.chartStyle?.backgroundColor || "#4F46E5");
-    setTextColor(initialConfig.chartStyle?.textColor || "#000000");
-    const initialTitle = initialConfig.options?.plugins?.title?.text || "Chart Title";
-    setChartTitle(initialTitle);
-    setTempTitle(initialTitle);
-    const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Noto Sans";
-    const initialFontSize = initialConfig.options?.plugins?.title?.font?.size || 14;
-    setActiveFontFamily(initialFontFamily);
-    setFontSize(initialFontSize);
-    setHistory([initialConfig]);
-    setHistoryIndex(0);
+        setChartConfig(initialConfig);
+        setSelectedColor(initialConfig.chartStyle?.backgroundColor || "#4F46E5");
+        setTextColor(initialConfig.chartStyle?.textColor || "#000000");
+        const initialTitle = initialConfig.options?.plugins?.title?.text || "Chart Title";
+        setChartTitle(initialTitle);
+        setTempTitle(initialTitle);
+        const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Noto Sans";
+        const initialFontSize = initialConfig.options?.plugins?.title?.font?.size || 14;
+        setActiveFontFamily(initialFontFamily);
+        setFontSize(initialFontSize);
+        setDatasetSelected(0); // Reset to first dataset
+        setSegmentSelected(0); // Reset to first segment
+        setHistory([initialConfig]);
+        setHistoryIndex(0);
+        setSelectionHistory([{ dataset: 0, segment: 0 }]); // Reset selection history
     };
 
     // Handle font change
@@ -444,6 +525,13 @@ function EditSave() {
         
         updateChartConfig(updated);
     };
+
+    useEffect(() => {
+    if (chartConfig) {
+        setIsLoading(true);
+        setChartImageUrl(`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`);
+    }
+}, [chartConfig]);
     
 {/* BELOW IS WHERE ALL OF THE BUTTONS ARE LOCATED */}
 
@@ -453,11 +541,11 @@ function EditSave() {
             <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
                 <div className="flex flex-col md:flex-row gap-8 w-full">
                     {/* Display the chart image */}
-                    <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
+                    <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg relative">
                         <div>
                             <h2 className="font-semibold flex items-center justify-center gap-4 mb-2">
-                            <Edit3 size={30} />
-                            Edit Chart
+                            {/* <Edit3 size={30} />
+                            Edit Chart */}
 
                             <div className="flex ml-6 space-x-3">
                                 <button
@@ -489,15 +577,23 @@ function EditSave() {
                             </h2>
 
                             {/* !!!! this is where the image is shown */}
-                            {chartImageUrl ? (
-                            <img
-                                src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
-                                alt="Live Chart Preview"
-                                className="w-full max-w-md mx-auto rounded-md shadow-md"
-                            />
-                            ) : (
-                            <p className="text-center text-gray-500">No chart available</p>
-                            )}
+                            <>
+                                {isLoading && (
+                                    <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-md z-10" style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
+                                        <Loader2 size={48} className="animate-spin text-blue-500" />
+                                    </div>
+                                )}
+                                {chartImageUrl ? (
+                                <img
+                                    src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
+                                    alt="Live Chart Preview"
+                                    onLoad={() => setIsLoading(false)} 
+                                    className="w-full max-w-md mx-auto rounded-md shadow-md"
+                                />
+                                ) : (
+                                <p className="text-center text-gray-500">No chart available</p>
+                                )}
+                            </>
                         </div>
                     </div>
 
@@ -505,11 +601,12 @@ function EditSave() {
 
                     <div className="space-y-6">
 
-
-
                         {/* Chart Title section */}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <p className="text-lg font-semibold text-gray-800 mb-2">Chart Title</p>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Text size={18} className="text-black" strokeWidth={2.5} />
+                                <p className="text-lg font-semibold text-gray-800">Chart Title</p>
+                            </div>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
@@ -530,7 +627,10 @@ function EditSave() {
 
                         {/* this is the "text" section card*/}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <p className="text-lg font-semibold text-gray-800 mb-2">Text</p>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Edit3 size={18} className="text-black" strokeWidth={2.5} />
+                                <p className="text-lg font-semibold text-gray-800">Edit Text</p>
+                            </div>
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <div className="flex-1">
                                     <select
@@ -564,14 +664,95 @@ function EditSave() {
                             </div>
                         </div>
 
+                        {/* Dataset/Segment Selection section */}
+                        {(() => {
+                            const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
+                            const shouldShowSelection = isPieChart 
+                                ? chartConfig?.data?.datasets?.[0]?.data?.length > 1
+                                : chartConfig?.data?.datasets?.length > 1;
+
+                            if (!shouldShowSelection) return null;
+
+                            return (
+                                <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                                    <p className="text-lg font-semibold text-gray-800 mb-2">
+                                        {isPieChart ? 'Select Segment' : 'Select Dataset'}
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {isPieChart ? (
+                                            // Pie chart segments
+                                            chartConfig.data.datasets[0].data.map((value, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setSegmentSelected(index)}
+                                                    className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
+                                                        segmentSelected === index
+                                                            ? 'bg-blue-600 text-white border-blue-600'
+                                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    {chartConfig.data.labels?.[index] || `Segment ${index + 1}`}
+                                                </button>
+                                            ))
+                                        ) : (
+                                            // Regular chart datasets
+                                            chartConfig.data.datasets.map((dataset, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setDatasetSelected(index)}
+                                                    className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
+                                                        datasetSelected === index
+                                                            ? 'bg-blue-600 text-white border-blue-600'
+                                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    {dataset.label || `Dataset ${index + 1}`}
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-gray-600">
+                                        Selected: {isPieChart 
+                                            ? (chartConfig.data.labels?.[segmentSelected] || `Segment ${segmentSelected + 1}`)
+                                            : (chartConfig.data.datasets[datasetSelected]?.label || `Dataset ${datasetSelected + 1}`)
+                                        }
+                                    </p>
+                                </div>
+                            );
+                        })()}
+
                         {/* This is the colour card */}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <p className="text-lg font-semibold text-gray-800 mb-2">Colour</p>
+                            <div className="flex items-center gap-2 mb-2">
+                                <Paintbrush size={18} className="text-black" strokeWidth={2.5}/>
+                                <p className="text-lg font-semibold text-gray-800">Edit Colour</p>
+                            </div>
+                            <p className="text-lg font-semibold text-gray-800 mb-2">
+                                
+                                {(() => {
+                                    const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
+                                    const shouldShowLabel = isPieChart 
+                                        ? chartConfig?.data?.datasets?.[0]?.data?.length > 1
+                                        : chartConfig?.data?.datasets?.length > 1;
+
+                                    if (!shouldShowLabel) return null;
+
+                                    const label = isPieChart 
+                                        ? (chartConfig.data.labels?.[segmentSelected] || `Segment ${segmentSelected + 1}`)
+                                        : (chartConfig.data.datasets[datasetSelected]?.label || `Dataset ${datasetSelected + 1}`);
+
+                                    return (
+                                        <span className="text-sm font-normal text-blue-600 ml-2">
+                                            ({label})
+                                        </span>
+                                    );
+                                })()}
+                            </p>
                             <div className="flex flex-col sm:flex-row gap-4">
 
                                 {/* This is the button where they choose the background colour*/}
                                 <button
-                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+                                className={`flex-1 ${showBackgroundPicker ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-md transition cursor-pointer`}
                                 onClick={() => {
                                     if (showBackgroundPicker) {
                                     setSelectedColor(tempBackgroundColor); // final color to state
@@ -579,15 +760,16 @@ function EditSave() {
                                     setShowBackgroundPicker(false); // hide picker
                                     } else {
                                     setShowBackgroundPicker(true); // open picker
+                                    setShowTextPicker(false);
                                     }
                                 }}
                                 >
-                                {showBackgroundPicker ? "Confirm Colour" : "Edit Background"}
+                                {showBackgroundPicker ? "Confirm Chart Colour" : "Chart Colour"}
                                 </button>
 
                                 {/* This is the button where they choose the text colour*/}
                                 <button
-                                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
+                                className={`flex-1 ${showTextPicker ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-md transition cursor-pointer`}
                                 onClick={() => {
                                     if (showTextPicker) {
                                     setTextColor(tempTextColor);
@@ -595,10 +777,11 @@ function EditSave() {
                                     setShowTextPicker(false);
                                     } else {
                                     setShowTextPicker(true);
+                                    setShowBackgroundPicker(false);
                                     }
                                 }}
                                 >
-                                {showTextPicker ? "Confirm Colour" : "Edit Text"}
+                                {showTextPicker ? "Confirm Text Colour" : "Text Colour"}
                                 </button>
                             </div>
                         </div>
@@ -609,6 +792,7 @@ function EditSave() {
                             <SketchPicker
                             color={tempBackgroundColor}
                             onChangeComplete={(color) => setTempBackgroundColor(color.hex)}
+                            disableAlpha={true}
                             />
                         </div>
                         )}
@@ -619,6 +803,7 @@ function EditSave() {
                             <SketchPicker
                             color={tempTextColor}
                             onChangeComplete={(color) => setTempTextColor(color.hex)}
+                            disableAlpha={true}
                             />
                         </div>
                         )}
@@ -636,7 +821,7 @@ function EditSave() {
                             className="w-full bg-blue-600 hover:bg-gray-300 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer"
                             onClick={() => setIsDownloadModalOpen(true)}
                         >
-                            <Download size={18} />
+                            <Download size={18} strokeWidth={4}/>
                             Download
                         </button>
                         </div>

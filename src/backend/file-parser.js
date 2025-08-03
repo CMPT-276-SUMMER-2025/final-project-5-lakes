@@ -33,6 +33,7 @@ async function parseFile(file){
             case 'application/pdf': {
                 const pdfContent = fs.readFileSync(file.path);
                 const pdfText = await pdfParse(pdfContent);
+                console.log(`DATA FOR CICD: ${pdfText}`);
                 data = pdfText.text.split('\n');
                 break;
             }
