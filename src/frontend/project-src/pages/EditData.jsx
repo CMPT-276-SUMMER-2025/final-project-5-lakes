@@ -188,7 +188,7 @@ function EditData() {
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-7xl">
           <div className="flex flex-col md:flex-row items-center gap-1 w-full">
             <div className="w-full bg-white rounded-xl p-4 sm:p-6 shadow-lg">
-              <h2 className="font-semibold text-center">Confirm Data</h2>
+              <h2 className="font-semibold text-center">Edit Data</h2>
               <p className="text-md text-gray-600 text-center mb-4">
                 Modify values, add/remove rows or columns as needed.
               </p>
