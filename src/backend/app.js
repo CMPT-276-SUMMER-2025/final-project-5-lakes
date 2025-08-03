@@ -107,7 +107,6 @@ app.post('/data-confirm', async (req, res) => {
             summary = await getSummary(JSON.stringify(data.edittedData));
             sessionData.summary = summary
         } catch (error) {
-            console.log(error);
             if(error.code === 'INVALID_EDITED_TABLE'){
                 return res.status(400).json({ error: error.message, code: error.code });
             } else {
@@ -137,7 +136,6 @@ app.post('/data-confirm', async (req, res) => {
                 // labels: labels,
             });
         } catch (error) {
-            console.log(error);
             return res.status(500).send('Failed to get graph recommendation or generate charts.');
         }
 
@@ -148,7 +146,6 @@ app.post('/data-confirm', async (req, res) => {
         sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
 
     } catch (error) {
-        console.log(error);
         return res.status(500).send('Failed to process data.');
     }
 });
