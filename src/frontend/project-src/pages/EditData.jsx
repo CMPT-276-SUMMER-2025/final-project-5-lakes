@@ -232,7 +232,7 @@ function EditData() {
                   <button
                     type="button"
                     onClick={undo}
-                    className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100 disabled:opacity-50"
+                    className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100 disabled:opacity-50"
                     disabled={undoStack.length === 0}
                   >
                     Undo
@@ -241,7 +241,7 @@ function EditData() {
                   <button
                     type="button"
                     onClick={redo}
-                    className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100 disabled:opacity-50"
+                    className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100 disabled:opacity-50"
                     disabled={redoStack.length === 0}
                   >
                     Redo
@@ -257,7 +257,7 @@ function EditData() {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
           >
             <ChevronLeft size={25} className="mr-2" />
             Go to the last step
@@ -265,7 +265,7 @@ function EditData() {
 
           <button
             type="button"
-            className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
             onClick={() => setConfirmedData(structuredClone(originalData))}
           >
             <RotateCw size={20} className="mr-2" />
@@ -274,7 +274,7 @@ function EditData() {
 
           <button
             type="submit"
-            className="white-base-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
           >
             Go to the next step
             <ChevronRight size={25} className="ml-2" />

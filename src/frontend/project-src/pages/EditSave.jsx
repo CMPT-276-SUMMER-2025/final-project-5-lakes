@@ -24,8 +24,6 @@ const notoFonts = [
     { name: "Noto Color Emoji", value: "Noto Color Emoji" }
 ];
 
-
-
 // Utility function to convert hex to RGB
 const hexToRgb = (hex) => {
     // Remove the hash if it exists
@@ -184,14 +182,10 @@ function EditSave() {
         }
     }, [chartConfig, datasetSelected, segmentSelected]);
 
-
-
-    
     // Handle color change from the color picker
     const handleColorChange = (color) => {
         setSelectedColor(color.hex);        
 
-        
         // Convert hex to RGB for QuickChart API
         const rgbColor = hexToRgb(color.hex);
         
@@ -235,7 +229,6 @@ function EditSave() {
             if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
                 updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
             }
-
         }
         console.log("Updated chart config:", updated);
         updateChartConfig(updated);
@@ -817,7 +810,7 @@ function EditSave() {
                         {/* downloading button, downloading thing is a component */}
                         <div className="w-full">
                         <button
-                            className="w-full bg-blue-600 hover:bg-gray-300 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer"
+                            className="w-full bg-blue-600 hover:bg-gray-300 text-white py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer"
                             onClick={() => setIsDownloadModalOpen(true)}
                         >
                             <Download size={18} strokeWidth={4}/>
