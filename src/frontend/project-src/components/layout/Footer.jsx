@@ -1,21 +1,25 @@
 import { Link } from 'react-router-dom';
 
 function Footer() {
+  return (
+    <footer className="bg-white text-gray-800 p-4 text-center text-sm mt-auto">
+      <div className="flex justify-center items-center space-x-4">
+        <span>&copy; {2025} EasyChart.</span>
 
-return (
-  <footer className="bg-white text-gray-800 p-4 text-center text-sm mt-auto">
-    <div className="flex justify-center items-center space-x-4">
+        <span>|</span>
 
-      <span>&copy; {2025} EasyChart. </span>
+        <Link to="/about-us" className="underline hover:text-blue-600">
+          About Us
+        </Link>
 
-      <span>|</span>
+        <span>|</span>
 
         <Link to="/faq" className="underline hover:text-blue-600">
           FAQs
         </Link>
       </div>
-  </footer>
-);
+    </footer>
+  );
 }
 
 export default Footer;
