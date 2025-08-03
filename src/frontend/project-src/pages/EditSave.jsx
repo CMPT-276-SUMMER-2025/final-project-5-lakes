@@ -160,8 +160,11 @@ function EditSave() {
                     }
                 };
             }
-            console.log(datasetSelected);
-            chartConfig.data.datasets[datasetSelected].backgroundColor = hexToRgb(selectedColor);
+            if (chartConfig.type === "pie" || chartConfig.type === "doughnut") {
+                chartConfig.data.datasets[0].backgroundColor[segmentSelected] = hexToRgb(selectedColor);
+            } else {
+                chartConfig.data.datasets[datasetSelected].backgroundColor = hexToRgb(selectedColor);
+            }
         }
     }, [chartConfig]); // Only depend on chartConfig for initial setup
 
