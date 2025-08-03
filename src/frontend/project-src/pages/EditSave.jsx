@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
-import DownloadOptions from '../components/editchart/DownloadOptions';
+import DownloadOptions from '../components/editsave/DownloadOptions';
 import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
