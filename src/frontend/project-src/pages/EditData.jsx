@@ -4,7 +4,7 @@ import EditDataStepper from "../components/editdata/EditDataStepper";
 import LoadingPopUp from "../components/editdata/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
-import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash, Undo, Redo } from "lucide-react";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
@@ -26,6 +26,8 @@ function EditData() {
 
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
+
+  const [selectedCell, setSelectedCell] = useState(null); 
 
   // Initialize confirmedData and originalData from parsedData
   useEffect(() => {
@@ -108,11 +110,58 @@ function EditData() {
     updateConfirmedData(updated);
   };
 
+  const insertRowAbove = (index) => {
+    const updated = structuredClone(confirmedData);
+    updated.rows.splice(index, 0, {
+      cells: new Array(updated.columns.length).fill(""),
+    });
+    updateConfirmedData(updated);
+  };
+
+  const insertRowBelow = (index) => {
+    const updated = structuredClone(confirmedData);
+    updated.rows.splice(index + 1, 0, {
+      cells: new Array(updated.columns.length).fill(""),
+    });
+    updateConfirmedData(updated);
+  };
+
+  const insertColumnLeft = (index) => {
+    const updated = structuredClone(confirmedData);
+    updated.columns.splice(index, 0, `Column ${updated.columns.length + 1}`);
+    updated.rows.forEach((row) => row.cells.splice(index, 0, ""));
+    updateConfirmedData(updated);
+  };
+
+  const insertColumnRight = (index) => {
+    const updated = structuredClone(confirmedData);
+    updated.columns.splice(index + 1, 0, `Column ${updated.columns.length + 1}`);
+    updated.rows.forEach((row) => row.cells.splice(index + 1, 0, ""));
+    updateConfirmedData(updated);
+  };
+
+  const removeSelectedRow = (index) => {
+    if (confirmedData.rows.length <= 1) return;
+    const updated = structuredClone(confirmedData);
+    updated.rows.splice(index, 1);
+    updateConfirmedData(updated);
+    setSelectedCell(null); // clear selection
+  };
+
+  const removeSelectedColumn = (index) => {
+    if (confirmedData.columns.length <= 1) return;
+    const updated = structuredClone(confirmedData);
+    updated.columns.splice(index, 1);
+    updated.rows.forEach((row) => row.cells.splice(index, 1));
+    updateConfirmedData(updated);
+    setSelectedCell(null);
+  };
+
   // Undo/Redo functionality
   const updateConfirmedData = (newData) => {
     setUndoStack((prev) => [...prev, structuredClone(confirmedData)]);
     setRedoStack([]); // clear redo on new action
-    updateConfirmedData(updated);
+    setConfirmedData(newData); // ✅ FIXED: use newData instead of 'updated'
   };
 
   const undo = () => {
@@ -136,9 +185,9 @@ function EditData() {
       <LoadingPopUp show={isLoading} />
       <EditDataStepper />
       <form onSubmit={handleNext}>
-        <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
-          <div className="flex flex-col md:flex-row items-center gap-1 w-full max-w-7xl mx-auto">
-            <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg">
+        <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-7xl">
+          <div className="flex flex-col md:flex-row items-center gap-1 w-full">
+            <div className="w-full bg-white rounded-xl p-4 sm:p-6 shadow-lg">
               <h2 className="font-semibold text-center">Confirm Data</h2>
               <p className="text-md text-gray-600 text-center mb-4">
                 Modify values, add/remove rows or columns as needed.
@@ -146,25 +195,22 @@ function EditData() {
 
               {confirmedData && (
                 <>
-                  <div className="flex flex-wrap justify-between gap-y-4 w-full max-w-xl mx-auto mb-4">
-                    <button type="button" onClick={addRow} className="btn-icon">
-                      <Plus />
-                      <span>Add Row</span>
+                  <div className="flex justify-center gap-2 mb-4">
+                    <button
+                      type="button"
+                      onClick={undo}
+                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
+                      disabled={undoStack.length === 0}
+                    >
+                      <Undo size={18} />
                     </button>
-
-                    <button type="button" onClick={addColumn} className="btn-icon">
-                      <Plus />
-                      <span>Add Column</span>
-                    </button>
-
-                    <button type="button" onClick={removeRow} className="btn-icon">
-                      <Trash />
-                      <span>Remove Row</span>
-                    </button>
-
-                    <button type="button" onClick={removeColumn} className="btn-icon">
-                      <Trash />
-                      <span>Remove Column</span>
+                    <button
+                      type="button"
+                      onClick={redo}
+                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
+                      disabled={redoStack.length === 0}
+                    >
+                      <Redo size={18} />
                     </button>
                   </div>
 
@@ -172,19 +218,16 @@ function EditData() {
                     <table className="min-w-full border border-gray-300">
                       <thead>
                         <tr>
-                          <th className="border px-3 py-2 bg-gray-100 text-left">
-                            Row
-                          </th>
-                          {confirmedData.columns.map((col, i) => (
-                            <th key={i} className="border px-3 py-2 bg-gray-100">
+                          {confirmedData.columns.map((col, colIdx) => (
+                            <th key={colIdx} className="border px-3 py-2 bg-gray-100">
                               <input
                                 value={col}
                                 onChange={(e) => {
                                   const updated = structuredClone(confirmedData);
-                                  updated.columns[i] = e.target.value;
+                                  updated.columns[colIdx] = e.target.value;
                                   updateConfirmedData(updated);
                                 }}
-                                className="w-full"
+                                className="w-full font-semibold"
                               />
                             </th>
                           ))}
@@ -193,27 +236,17 @@ function EditData() {
                       <tbody>
                         {confirmedData.rows.map((row, rowIdx) => (
                           <tr key={rowIdx}>
-                            <td className="border px-3 py-2 bg-gray-50">
-                              <input
-                                value={row.header}
-                                onChange={(e) => {
-                                  const updated = structuredClone(confirmedData);
-                                  updated.rows[rowIdx].header = e.target.value;
-                                  updateConfirmedData(updated);
-                                }}
-                                className="w-full"
-                              />
-                            </td>
                             {row.cells.map((cell, colIdx) => (
                               <td key={colIdx} className="border px-3 py-2">
                                 <input
                                   value={cell}
+                                  onClick={() => setSelectedCell({ row: rowIdx, col: colIdx })}
                                   onChange={(e) => {
                                     const updated = structuredClone(confirmedData);
                                     updated.rows[rowIdx].cells[colIdx] = e.target.value;
                                     updateConfirmedData(updated);
                                   }}
-                                  className="w-full"
+                                  className={`w-full ${selectedCell?.row === rowIdx && selectedCell?.col === colIdx ? "bg-yellow-100" : ""}`}
                                 />
                               </td>
                             ))}
@@ -222,6 +255,34 @@ function EditData() {
                       </tbody>
                     </table>
                   </div>
+                  {selectedCell && (
+                      <div className="flex flex-wrap justify-center gap-4 mt-4 mb-4 mr-4 ml-4">
+                        <button type="button" onClick={() => insertRowAbove(selectedCell.row)} className="btn-icon">
+                          <Plus size={10} className="mr-1" />
+                          Row Above
+                        </button>
+                        <button type="button" onClick={() => insertRowBelow(selectedCell.row)} className="btn-icon">
+                          <Plus size={10} className="mr-1" />
+                          Row Below
+                        </button>
+                        <button type="button" onClick={() => insertColumnLeft(selectedCell.col)} className="btn-icon">
+                          <Plus size={10} className="mr-1" />
+                          Col Left
+                        </button>
+                        <button type="button" onClick={() => insertColumnRight(selectedCell.col)} className="btn-icon">
+                          <Plus size={10} className="mr-1" />
+                          Col Right
+                        </button>
+                        <button type="button" onClick={() => removeSelectedRow(selectedCell.row)} className="btn-icon">
+                          <Trash size={10} className="mr-1" />
+                          Row
+                        </button>
+                        <button type="button" onClick={() => removeSelectedColumn(selectedCell.col)} className="btn-icon">
+                          <Trash size={10} className="mr-1" />
+                          Col
+                        </button>
+                      </div>
+                    )}
                   {/* <div className="flex justify-center mt-4">
                       <ViewUpload
                         fileName={fileName}
@@ -229,23 +290,6 @@ function EditData() {
                         fileContent={parsedData?.base64 || file?.url || "about:blank"}
                       />
                   </div> */}
-                  <button
-                    type="button"
-                    onClick={undo}
-                    className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100 disabled:opacity-50"
-                    disabled={undoStack.length === 0}
-                  >
-                    Undo
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={redo}
-                    className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100 disabled:opacity-50"
-                    disabled={redoStack.length === 0}
-                  >
-                    Redo
-                  </button>
                 </>
               )}
             </div>
