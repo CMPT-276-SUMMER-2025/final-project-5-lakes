@@ -40,15 +40,31 @@ const hexToRgb = (hex) => {
     return `rgb(${r}, ${g}, ${b})`;
 };
 
-// Utility function to convert hex to RGBA with opacity
-const hexToRgba = (hex, alpha = 1) => {
-    hex = hex.replace('#', '');
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
+// Utility function to convert RGB string back to hex
+const rgbToHex = (rgb) => {
+    if (!rgb || typeof rgb !== 'string') return '#36A2EB';
     
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    // If it's already a hex color, return it
+    if (rgb.startsWith('#')) return rgb;
+    
+    // Extract RGB values from rgb(r, g, b) or rgba(r, g, b, a) format
+    const rgbMatch = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!rgbMatch) return '#36A2EB';
+    
+    const r = parseInt(rgbMatch[1], 10);
+    const g = parseInt(rgbMatch[2], 10);
+    const b = parseInt(rgbMatch[3], 10);
+    
+    // Convert to hex
+    const toHex = (n) => {
+        const hex = n.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+    };
+    
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 };
+
+
 
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -64,7 +80,7 @@ function EditSave() {
     const [chartConfig, setChartConfig] = useState(initialConfig);
     const [chartImageUrl, setChartImageUrl] = useState(`${quickChartURL}${encodeURIComponent(JSON.stringify(initialConfig))}`);
 
-    const [selectedColor, setSelectedColor] = useState(initialConfig?.chartStyle?.backgroundColor || "#4F46E5");
+    const [selectedColor, setSelectedColor] = useState(initialConfig?.chartStyle?.backgroundColor || "#36A2EB");
     const [textColor, setTextColor] = useState(initialConfig?.chartStyle?.textColor || "#000000");
 
     const [tempBackgroundColor, setTempBackgroundColor] = useState(selectedColor);
@@ -87,6 +103,9 @@ function EditSave() {
 
     const [datasetSelected, setDatasetSelected] = useState(0);
     const [segmentSelected, setSegmentSelected] = useState(0);
+    
+    // Track selection history for undo/redo
+    const [selectionHistory, setSelectionHistory] = useState([{ dataset: 0, segment: 0 }]);
 
     // Generate the initial chart image URL
     // useEffect(() => {
@@ -95,12 +114,6 @@ function EditSave() {
     //     setChartImageUrl(Url);
     //     }
     // }, [chartConfig]);
-
-    let styleConfig = {
-       backgroundColor: null,
-       canvasBackgroundColor: null,
-       titleColor: null,
-    }
 
     useEffect(() => {
         console.log("Creating chartConfig");
@@ -150,6 +163,8 @@ function EditSave() {
                     }
                 };
             }
+            console.log(datasetSelected);
+            chartConfig.data.datasets[datasetSelected].backgroundColor = hexToRgb(selectedColor);
         }
     }, [chartConfig]); // Only depend on chartConfig for initial setup
 
@@ -176,11 +191,10 @@ function EditSave() {
     // Handle color change from the color picker
     const handleColorChange = (color) => {
         setSelectedColor(color.hex);        
-        console.log("Confirmed background hex:", color.hex);
+
         
         // Convert hex to RGB for QuickChart API
         const rgbColor = hexToRgb(color.hex);
-        console.log("Converted to RGB:", rgbColor);
         
         // Create a copy of chartConfig with RGB colors
         const updated = {
@@ -222,8 +236,8 @@ function EditSave() {
             if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
                 updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
             }
+
         }
-        
         console.log("Updated chart config:", updated);
         updateChartConfig(updated);
     };
@@ -380,66 +394,77 @@ function EditSave() {
         setHistoryIndex(updatedHistory.length - 1);
         setChartConfig(newConfig);
         setChartImageUrl(`${quickChartURL}${encodeURIComponent(JSON.stringify(newConfig))}`);
+        
+        // Save current selection to history
+        console.log("dataset modified to", datasetSelected);
+        const updatedSelectionHistory = selectionHistory.slice(0, historyIndex + 1);
+        updatedSelectionHistory.push({ dataset: datasetSelected, segment: segmentSelected });
+        setSelectionHistory(updatedSelectionHistory);
     };
 
     // Handle undo and redo actions
     const handleUndo = () => {
-    if (historyIndex > 0) {
-        const prevIndex = historyIndex - 1;
-        setChartConfig(history[prevIndex]);
-        setHistoryIndex(prevIndex);
-        setSelectedColor(history[prevIndex].chartStyle?.backgroundColor || "#4F46E5");
-        setTextColor(history[prevIndex].chartStyle?.textColor || "#000000");
-        const prevTitle = history[prevIndex].options?.plugins?.title?.text || "Chart Title";
-        setChartTitle(prevTitle);
-        setTempTitle(prevTitle);
-        const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Noto Sans";
-        const prevFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 14;
-        setActiveFontFamily(prevFontFamily);
-        setFontSize(prevFontSize);
-        
-        // Reset selections to stay within bounds of the restored config
-        setDatasetSelected(0);
-        setSegmentSelected(0);
-    }
+        if (historyIndex > 0) {
+            const prevIndex = historyIndex - 1;
+            const prevSelection = selectionHistory[prevIndex];
+            // Restore the previous dataset/segment selection
+            setDatasetSelected(prevSelection.dataset);
+            setSegmentSelected(prevSelection.segment);
+            setChartConfig(history[prevIndex]);
+            setHistoryIndex(prevIndex);
+            setSelectedColor(history[prevIndex].chartStyle?.backgroundColor || "#36A2EB");
+            setTextColor(history[prevIndex].chartStyle?.textColor || "#000000");
+            const prevTitle = history[prevIndex].options?.plugins?.title?.text || "Chart Title";
+            setChartTitle(prevTitle);
+            setTempTitle(prevTitle);
+            const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Noto Sans";
+            const prevFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 14;
+            setActiveFontFamily(prevFontFamily);
+            setFontSize(prevFontSize);
+            
+
+        }
     };
 
     const handleRedo = () => {
-    if (historyIndex < history.length - 1) {
-        const nextIndex = historyIndex + 1;
-        setChartConfig(history[nextIndex]);
-        setHistoryIndex(nextIndex);
-        setSelectedColor(history[nextIndex].chartStyle?.backgroundColor || "#4F46E5");
-        setTextColor(history[nextIndex].chartStyle?.textColor || "#000000");
-        const nextTitle = history[nextIndex].options?.plugins?.title?.text || "Chart Title";
-        setChartTitle(nextTitle);
-        setTempTitle(nextTitle);
-        const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Noto Sans";
-        const nextFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 14;
-        setActiveFontFamily(nextFontFamily);
-        setFontSize(nextFontSize);
-        
-        // Reset selections to stay within bounds of the restored config
-        setDatasetSelected(0);
-        setSegmentSelected(0);
-    }
+        if (historyIndex < history.length - 1) {
+            const nextIndex = historyIndex + 1;
+            const nextSelection = selectionHistory[nextIndex];
+            // Restore the next dataset/segment selection
+            setDatasetSelected(nextSelection.dataset);
+            setSegmentSelected(nextSelection.segment);
+            setChartConfig(history[nextIndex]);
+            setHistoryIndex(nextIndex);
+            setSelectedColor(history[nextIndex].chartStyle?.backgroundColor || "#36A2EB");
+            setTextColor(history[nextIndex].chartStyle?.textColor || "#000000");
+            const nextTitle = history[nextIndex].options?.plugins?.title?.text || "Chart Title";
+            setChartTitle(nextTitle);
+            setTempTitle(nextTitle);
+            const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Noto Sans";
+            const nextFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 14;
+            setActiveFontFamily(nextFontFamily);
+            setFontSize(nextFontSize);
+            
+
+        }
     };
 
     const handleReset = () => {
-    setChartConfig(initialConfig);
-    setSelectedColor(initialConfig.chartStyle?.backgroundColor || "#4F46E5");
-    setTextColor(initialConfig.chartStyle?.textColor || "#000000");
-    const initialTitle = initialConfig.options?.plugins?.title?.text || "Chart Title";
-    setChartTitle(initialTitle);
-    setTempTitle(initialTitle);
-    const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Noto Sans";
-    const initialFontSize = initialConfig.options?.plugins?.title?.font?.size || 14;
-    setActiveFontFamily(initialFontFamily);
-    setFontSize(initialFontSize);
-    setDatasetSelected(0); // Reset to first dataset
-    setSegmentSelected(0); // Reset to first segment
-    setHistory([initialConfig]);
-    setHistoryIndex(0);
+        setChartConfig(initialConfig);
+        setSelectedColor(initialConfig.chartStyle?.backgroundColor || "#4F46E5");
+        setTextColor(initialConfig.chartStyle?.textColor || "#000000");
+        const initialTitle = initialConfig.options?.plugins?.title?.text || "Chart Title";
+        setChartTitle(initialTitle);
+        setTempTitle(initialTitle);
+        const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Noto Sans";
+        const initialFontSize = initialConfig.options?.plugins?.title?.font?.size || 14;
+        setActiveFontFamily(initialFontFamily);
+        setFontSize(initialFontSize);
+        setDatasetSelected(0); // Reset to first dataset
+        setSegmentSelected(0); // Reset to first segment
+        setHistory([initialConfig]);
+        setHistoryIndex(0);
+        setSelectionHistory([{ dataset: 0, segment: 0 }]); // Reset selection history
     };
 
     // Handle font change
