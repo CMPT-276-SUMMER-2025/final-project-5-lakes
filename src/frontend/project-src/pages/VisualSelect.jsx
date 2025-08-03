@@ -21,7 +21,7 @@ function VisualSelect() {
 
   const [selectedChart, setSelectedChart] = useState(null);
 
-  // Function to get session data and navigate back to data-confirm
+  // Function to get session data and navigate back to edit-data
   const getSessionDataAndNavigateBack = async () => {
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/get-session-data`, {
@@ -39,8 +39,8 @@ function VisualSelect() {
       const sessionData = await response.json();
       console.log('Retrieved session data:', sessionData);
       
-      // Navigate back to data-confirm with the retrieved data
-      navigate('/data-confirm', {
+      // Navigate back to edit-data with the retrieved data
+      navigate('/edit-data', {
         state: {
           parsedData: sessionData.edittedData,
           file: sessionData.uploadedFile,
