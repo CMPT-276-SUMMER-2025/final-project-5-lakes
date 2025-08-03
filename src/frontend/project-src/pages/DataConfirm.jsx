@@ -80,10 +80,16 @@ function DataConfirm() {
     .catch((error) => {
       console.error("Caught error in DataConfirm:", error);
       setIsLoading(false);
+      
+      // Log more details to help debug
+      console.log("Error code:", error.code);
+      console.log("Error message:", error.message);
+      console.log("Full error object:", error);
+      
       if (error.code === 'INVALID_EDITED_TABLE'){
         showAlert(
           'error',
-          'Editting Failed',
+          'Editing Failed',
           `${error.message}`,
           'Okay'
         );
@@ -91,7 +97,7 @@ function DataConfirm() {
         showAlert(
         'error',
         'Generation Failed',
-        '11Chart generation failed. Please try again.',
+        `Chart generation failed: ${error.message || 'Unknown error'}`,
         'Okay'
         );
       }
