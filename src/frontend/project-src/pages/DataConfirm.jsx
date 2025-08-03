@@ -15,7 +15,7 @@ function DataConfirm() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
+  const { parsedData, file } = location.state || {};
   const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
   // const fileName = file?.originalname || "Unknown file";
@@ -41,59 +41,61 @@ function DataConfirm() {
   }, [parsedData, file, navigate]);
 
   // Handle form submission
-  const handleNext = async (e) => {
+  const handleNext = (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const formattedData = convertTableToDeepSeekFormat(confirmedData);
+    const formattedData = convertTableToDeepSeekFormat(confirmedData);
 
-      if (summary && graphRecommendation && chartsWithURLs) {
-        navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
-        setIsLoading(false);
-        return;
-      }
-
-      // Take in data from backend
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          edittedData: formattedData,
-          parsedData: parsedData,
-          file: file
-        }),
-        credentials: "include",
-      });
-
-      //if (!res.ok) throw new Error("SERVER_ERROR");
-
-      const data = await res.json();
-      navigate("/visual-select", { state: data });
-    } catch(error){
+    /*if (summary && graphRecommendation && chartsWithURLs) {
+      navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
       setIsLoading(false);
+      return;
+    }*/
 
-      if (error.code === 'INVALID_EDITTED_TABLE'){
+    // Take in data from backend
+    fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        edittedData: formattedData,
+        parsedData: parsedData,
+        file: file
+      }),
+      credentials: "include",
+    })
+    .then(async (response) =>{
+      const data = await response.json();
+      if (!response.ok) {
+        const error = new Error(data.error || 'error sending info');
+        error.code = data.code || "UNKNOWN";
+        throw error;
+      }
+      return data;
+    })
+    .then((data) => {
+      setIsLoading(false);
+      navigate("/visual-select", { state: data });
+    })
+    .catch((error) => {
+      console.error("Caught error in DataConfirm:", error);
+      setIsLoading(false);
+      if (error.code === 'INVALID_EDITED_TABLE'){
         showAlert(
           'error',
           'Editting Failed',
           `${error.message}`,
-          'Okay',
-          () => navigate('/data-confirm')
+          'Okay'
         );
-      }else{
-        console.error(error);
+      } else {
         showAlert(
-          'error',
-          'Generation Failed',
-          'Chart generation failed. Please try again.',
-          'Okay',
-          () => navigate('/data-confirm')
+        'error',
+        'Generation Failed',
+        '11Chart generation failed. Please try again.',
+        'Okay'
         );
       }
-    } finally {
-      setIsLoading(false);
-    }
+    })
   };
 
   // Functions to add/remove rows and columns
@@ -131,6 +133,19 @@ function DataConfirm() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
       <LoadingPopUp show={isLoading} />
+
+      {isAlertVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <DefaultError
+            title={alertConfig.title}
+            message={alertConfig.message}
+            buttonText={alertConfig.buttonText}
+            onButtonClick={hideAlert}
+            isVisible={isAlertVisible}
+          />
+        </div>
+      )}
+
       <DataConfirmStepper />
       <form onSubmit={handleNext}>
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">

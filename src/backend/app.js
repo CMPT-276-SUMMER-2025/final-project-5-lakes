@@ -61,6 +61,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             // Process text input
             const textData = text.split('\n').filter(line => line.trim() !== '');
             const result = await convertToChartConfig("", textData);
+            sessionData.parsedData = result;
             return res.json(result);
         } catch (error) {
             if (error.code === 'NO_DATA_EXTRACTED') {
@@ -101,38 +102,42 @@ app.post('/data-confirm', async (req, res) => {
     try {
         sessionData.edittedData = data.edittedData;
 
-        // Get summary of graphs & check for issues
-        const summary = '';
+        let summary;
         try {
             summary = await getSummary(JSON.stringify(data.edittedData));
-            console.log('1');
+            sessionData.summary = summary
         } catch (error) {
-            console.log('2');
-            if (error.code === 'INVALID_EDITTED_TABLE') {
-                return res.status(400).json({ error: error.message });
+            if(error.code === 'INVALID_EDITED_TABLE'){
+                return res.status(400).json({ error: error.message, code: error.code });
             } else {
-                return res.status(500).send('Failed to process file.');
+                return res.status(500).send('Failed to process data.');
             }
         }
 
-        // Get graph recommendation
-        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
+        let graphRecommendation;
+        try{
+            graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
 
-        console.log(`LOOK THIS: ${JSON.stringify(graphRecommendation)}`);
-
-        const chartsWithURLs = [];
+            const chartsWithURLs = [];
         
-        for (let i = 0; i < graphRecommendation.types.length; i++) {
-            const chartType = graphRecommendation.types[i];
-            const reasoning = graphRecommendation.explanations?.[i] || "No explanation provided.";
-            chartsWithURLs.push(generateDummyChart(chartType, reasoning));
+            for (let i = 0; i < graphRecommendation.types.length; i++) {
+                const chartType = graphRecommendation.types[i];
+                const reasoning = graphRecommendation.explanations?.[i] || "No explanation provided.";
+                chartsWithURLs.push(generateDummyChart(chartType, reasoning));
+            }
+
+            sessionData.graphRecommendation = graphRecommendation;
+            sessionData.chartOptions = chartsWithURLs;
+
+            res.json({ 
+                summary: JSON.parse(summary),
+                graphRecommendation: graphRecommendation,
+                chartsWithURLs: chartsWithURLs,
+                // labels: labels,
+            });
+        } catch (error) {
+            return res.status(500).send('Failed to get graph recommendation or generate charts.');
         }
-
-        sessionData.summary = summary;
-        sessionData.graphRecommendation = graphRecommendation;
-        sessionData.chartOptions = chartsWithURLs;
-
-        console.log(sessionData.chartOptions);
 
         /*const labels = await separateLabels(JSON.stringify(data.parsedData));
         console.log(labels);
@@ -140,15 +145,8 @@ app.post('/data-confirm', async (req, res) => {
         sessionData.summary = JSON.parse(summary);
         sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
 
-        res.json({ 
-            summary: JSON.parse(summary),
-            graphRecommendation: graphRecommendation,
-            chartsWithURLs: chartsWithURLs,
-            // labels: labels,
-        });
     } catch (error) {
-        console.log(error);
-        res.status(500).send('Failed to process data.');
+        return res.status(500).send('Failed to process data.');
     }
 });
 

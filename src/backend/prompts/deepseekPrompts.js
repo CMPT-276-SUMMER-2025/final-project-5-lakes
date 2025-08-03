@@ -156,6 +156,11 @@ const summaryPrompt =
                 "errorTrigger": "TableInvalid", 
                 "issue": "specific reason here"
         }
+
+        Important rules:
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+
         - If the data is VALID, follow the instructions below.
 
         Do NOT include any other text, explanations, or formatting (no backticks, no quotes, no lists).
@@ -173,7 +178,8 @@ const summaryPrompt =
                 "Summary 2",
                 ...
         ]
-         Important rules:
+
+        Important rules:
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
