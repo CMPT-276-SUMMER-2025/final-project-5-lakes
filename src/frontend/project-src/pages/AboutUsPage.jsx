@@ -4,6 +4,9 @@ import React from "react";
 // import NickImg from '../../assets/team/nick.jpg';
 // import JavierImg from '../../assets/team/javier.jpg';
 
+import { PlusCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 // UPLOAD IMAGES ABOVE IN THE RIGHT DIRECTORY AND UNCOMMENT THE IMPORTS
 
 const teamMembers = [
@@ -54,6 +57,14 @@ function AboutUs() {
           </div>
         ))}
       </div>
+
+      <Link
+          to="/"
+          className="inline-flex items-center justify-center px-6 py-3 mt-8 text-lg font-medium rounded-md shadow-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
+        >
+          <PlusCircle size={24} className="mr-2" />
+          Create a Chart
+        </Link>
     </div>
   );
 }
