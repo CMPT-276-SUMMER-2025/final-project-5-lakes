@@ -1,13 +1,19 @@
-import React from 'react';
-// resuable footer component 
+import { Link } from 'react-router-dom';
+
 function Footer() {
 
 return (
   <footer className="bg-white text-gray-800 p-4 text-center text-sm mt-auto">
-    <div>
-        {/* displays the copyright symbol, next to the year and website name */}
-      &copy; {2025} EasyChart.
-    </div>
+    <div className="flex justify-center items-center space-x-4">
+
+      <span>&copy; {2025} EasyChart. </span>
+
+      <span>|</span>
+
+        <Link to="/faq" className="underline hover:text-blue-600">
+          FAQs
+        </Link>
+      </div>
   </footer>
 );
 }
