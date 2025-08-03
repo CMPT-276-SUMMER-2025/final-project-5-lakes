@@ -7,8 +7,61 @@ EasyChart
 **Group Members:**
 Nick Ze Kun Lei, Javier Deng Xu, Shelby Haines, Tony Junxiang Wu
 
-**Brief Description of Project:**
+**Brief Description of Project**
+---
 A website that provides a simple way for users to visualize data, without having to learn complex tools. Users can upload data in various formats, and the platform will automatically generate relevant visualizations such as charts and graphs. These visuals can then be exported in various formats.
 
-**Brief Description of API changes from Milestone 0:**
+**Brief Description of API changes from Milestone 0**
+---
 In milestone 0, our team mentioned to use the OpenAI API for chart analysis, NLQ parsing, and smart selection. However, during our process in working on milestone 1, we figured that the OpenAI API did not offer a free tier. To compensate, we will be changing our API to DeepSeek's free APIs (Using OpenRouter, which allows free access to DeepSeek V3 0324) while maintaining identical features.
+
+**Links**
+---
+**Project website link:** easychart-omega.vercel.app
+**Project Report link:**
+**Project video link:**
+
+
+**Folder Structure**
+---
+```bash
+my-project/
+├── README.md
+├── docs/
+│   ├── ai-disclosure/
+│   ├── communication/
+│   ├── design/
+│   └── final/
+├── misc/
+├── src/
+│   ├── backend/
+│   │   ├── app.js
+│   │   ├── server.js
+│   │   ├── deepSeek/
+│   │   ├── quickChart/
+│   │   ├── prompts/
+│   │   ├── uploads/
+│   │   └── __tests__/
+│   └── frontend/
+│       ├── index.html
+│       ├── vite.config.js
+│       ├── project-src/
+│       │   ├── App.jsx
+│       │   ├── components/
+│       │   ├── pages/
+│       │   ├── styles/
+│       │   └── utils/
+│       └── public/
+├── tools/
+├── package.json
+└── package-lock.json
+```
+
+**Steps to Deploy the Site Locally**
+---
+1. Clone the repository onto your local machine, and make sure you have Node.js installed.
+2. In the backend folder (`final-project-5-lakes/src/backend`), create a file called `.env` and paste the OPENROUTER API in this file.
+3. In the frontend folder (`final-project-5-lakes/src/frontend`), create a file called `.env` and paste the base URL for vite in this file.
+4. Open a terminal, and navigate to the `frontend` folder (`final-project-5-lakes/src/frontend`). Then enter `npm install --legacy-peer-deps` and wait for it to install.
+5. Open another terminal, and navigate to the `backend` folder (`final-project-5-lakes/src/backend`). Run `npm install` and wait for it to install. Then enter `node server.js`, it should say the server is running.
+6. Lastly, in the terminal where you are in the frontend (`final-project-5-lakes/src/frontend`), run `npm run dev`. Click on the link that is provided to you (it should look like "http://localhost:5173") and view the website through your browser.

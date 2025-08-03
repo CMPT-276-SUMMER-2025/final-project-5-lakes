@@ -1,11 +1,52 @@
 const path = require('path');
+const fs = require('fs');
 
-//import the parseFile function for unit testing
-const { convertToChartConfig } = require('../deepSeek/DeepSeekFeature1.js');
+const { parseFile } = require('../file-parser.js');
 const deepseek = require('../deepSeek/APIdeepseek.js');
 
-// UNIT TEST
-// Mock DeepSeek call function so the test doesn't actually call.
+const tempUnitDir = path.resolve(__dirname, 'tempUnit');
+const tempCSVPath = path.join(tempUnitDir, 'temp_sample.csv');
+const tempDOCXPath = path.join(tempUnitDir, 'temp_sample.docx');
+const tempPDFPath = path.join(tempUnitDir, 'temp_sample.pdf');
+const tempTXTPath = path.join(tempUnitDir, 'temp_sample.txt');
+const tempXLSXPath = path.join(tempUnitDir, 'temp_sample.xlsx');
+
+// Create dummy dir and file
+beforeAll(async() => {
+    fs.mkdirSync(tempUnitDir);
+
+    fs.writeFileSync(tempCSVPath, ``);
+
+    const { Document, Packer } = require('docx');
+    const docDOCX = new Document({sections: []});
+    const bufferDOCX = await Packer.toBuffer(docDOCX);
+    fs.writeFileSync(tempDOCXPath, bufferDOCX);
+
+    const PDFDocument = require('pdfkit');
+    const docPDF = new PDFDocument();
+    const writeStream = fs.createWriteStream(tempPDFPath);
+    docPDF.pipe(writeStream);
+    docPDF.end();
+    await new Promise((resolve) => writeStream.on('finish', resolve));
+
+    fs.writeFileSync(tempTXTPath, ``);
+
+    const XLSX = require('xlsx');
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet([[]]);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    const buffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+    fs.writeFileSync(tempXLSXPath, buffer);
+});
+
+// Delete dummy dir (files are deleted in the parseFile function)
+afterAll(async () => {
+    if (fs.existsSync(tempUnitDir)) {
+        await fs.promises.rm(tempUnitDir, { recursive: true, force: true });
+    }
+});
+
+
 jest.mock('../deepSeek/APIdeepseek.js', () => ({
   queryDeepSeekV3: jest.fn(() => {
     return Promise.resolve(JSON.stringify([
@@ -16,21 +57,15 @@ jest.mock('../deepSeek/APIdeepseek.js', () => ({
   })
 }));
 
-describe('convertToChartConfig', () => {
+//Test functions of which does not simply call DeepSeek
+describe('Unit test functions', () => {
   test('parses CSV', async () => {
-    // Example test mock file
     const mockFile = {
       mimetype: 'text/csv',
-      path: path.resolve(__dirname, 'files/csv/simple_sample.csv')
+      path: path.resolve(tempCSVPath)
     };
-
-    // Call the real function (convertToChartConfig)
-    const result = await convertToChartConfig(mockFile);
-
-    // Internally, queryDeepSeekV3 will be mocked, so no real API call
+    const result = await parseFile(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
-
-    // Check that the function returned the mocked response value (raw JSON string)
     expect(result).toEqual([
       { "Name": "Alice", "Score": "85" },
       { "Name": "Bob", "Score": "90" },
@@ -41,9 +76,9 @@ describe('convertToChartConfig', () => {
   test('parses XLSX and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      path: path.resolve(__dirname,'files/xlsx/simple_sample.xlsx')
+      path: path.resolve(tempXLSXPath)
     };    
-    const result = await convertToChartConfig(mockFile);
+    const result = await parseFile(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
     expect(result).toEqual([
       { "Name": "Alice", "Score": "85" },
@@ -55,9 +90,9 @@ describe('convertToChartConfig', () => {
   test('parses PDF and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'application/pdf',
-      path: path.resolve(__dirname, 'files/pdf/simple_sample.pdf')
+      path: path.resolve(tempPDFPath)
     };    
-    const result = await convertToChartConfig(mockFile);
+    const result = await parseFile(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
     expect(result).toEqual([
       { "Name": "Alice", "Score": "85" },
@@ -69,9 +104,9 @@ describe('convertToChartConfig', () => {
   test('parses DOCX and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      path: path.resolve(__dirname, 'files/docx/simple_sample.docx')
+      path: path.resolve(tempDOCXPath)
     };    
-    const result = await convertToChartConfig(mockFile);
+    const result = await parseFile(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
     expect(result).toEqual([
       { "Name": "Alice", "Score": "85" },
@@ -83,9 +118,9 @@ describe('convertToChartConfig', () => {
   test('parses TXT and sends to DeepSeek', async () => {
     const mockFile = {
       mimetype: 'text/plain',
-      path: path.resolve(__dirname, 'files/txt/simple_sample.txt')
+      path: path.resolve(tempTXTPath)
     };    
-    const result = await convertToChartConfig(mockFile);
+    const result = await parseFile(mockFile);
     expect(deepseek.queryDeepSeekV3).toHaveBeenCalled();
     expect(result).toEqual([
       { "Name": "Alice", "Score": "85" },
