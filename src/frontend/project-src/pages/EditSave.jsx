@@ -681,7 +681,7 @@ function EditSave() {
                                     src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
                                     alt="Live Chart Preview"
                                     onLoad={() => setIsLoading(false)} 
-                                    className="w-full max-w-md mx-auto rounded-md shadow-md"
+                                    className="w-full max-w-2xl mx-auto rounded-md shadow-md"
                                 />
                                 ) : (
                                 <p className="text-center text-gray-500">No chart available</p>
