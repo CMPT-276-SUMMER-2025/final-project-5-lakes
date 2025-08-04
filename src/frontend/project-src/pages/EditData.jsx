@@ -5,8 +5,7 @@ import LoadingPopUp from "../components/editdata/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
 import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash, Undo, Redo } from "lucide-react";
-import DefaultError from '../components/messages/DefaultError';
-import useDefaultError from '../hooks/DefaultErrorHook';
+import { useRef } from "react";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
@@ -15,10 +14,6 @@ function EditData() {
   const location = useLocation();
   const navigate = useNavigate();
   const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
-  const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
-
-  // const fileName = file?.originalname || "Unknown file";
-  // const fileSize = file?.size || 0;
 
   console.log("file:", file);
   console.log("parsedData:", parsedData);
@@ -32,6 +27,10 @@ function EditData() {
 
   const [selectedCell, setSelectedCell] = useState(null); 
 
+  const [editHistory, setEditHistory] = useState(null);
+
+  const tableRef = useRef(null);
+
   // Initialize confirmedData and originalData from parsedData
   useEffect(() => {
     if (!parsedData || !file) {
@@ -44,64 +43,57 @@ function EditData() {
     setOriginalData(structuredClone(table));
   }, [parsedData, file, navigate]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tableRef.current && !tableRef.current.contains(event.target)) {
+        setSelectedCell(null); // clear selection
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   // Handle form submission
   const handleNext = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const formattedData = convertTableToDeepSeekFormat(confirmedData);
+    try {
+      const formattedData = convertTableToDeepSeekFormat(confirmedData);
 
-    /*if (summary && graphRecommendation && chartsWithURLs) {
-      navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
-      setIsLoading(false);
-      return;
-    }*/
-
-    // Take in data from backend
-    fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        edittedData: formattedData,
-        parsedData: parsedData,
-        file: file
-      }),
-      credentials: "include",
-    })
-    .then(async (response) =>{
-      const data = await response.json();
-      if (!response.ok) {
-        const error = new Error(data.error || 'Something went wrong.');
-        error.code = data.code || '';
-        throw error;
+      if (summary && graphRecommendation && chartsWithURLs) {
+        navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
+        setIsLoading(false);
+        return;
       }
-      return data;
-    })
-    .then((data) => {
-      setIsLoading(false);
+
+      // Take in data from backend
+      const res = await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          edittedData: formattedData,
+          parsedData: parsedData,
+          file: file
+        }),
+        credentials: "include",
+      });
+
+      if (!res.ok) throw new Error("Chart generation failed");
+      const data = await res.json();
       navigate("/visual-select", { state: data });
-    })
-    .catch((error) => {
+    } catch (err) {
+      console.error(err);
+      alert("Chart generation failed. Please try again.");
+    } finally {
       setIsLoading(false);
-      
-      if (error.code === 'INVALID_EDITED_TABLE'){
-        showAlert(
-          'error',
-          'Editing Failed',
-          `Chart generation failed: ${error.message}`,
-          'Okay'
-        );
-      } else {
-        showAlert(
-        'error',
-        'Generation Failed',
-        `Chart generation failed: ${error.message} Please try again later`,
-        'Okay'
-        );
-      }
-    })
+    }
   };
-  
+
   // Functions to add/remove rows and columns
   const addRow = () => {
     const updated = structuredClone(confirmedData);
@@ -207,19 +199,6 @@ function EditData() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
       <LoadingPopUp show={isLoading} />
-
-      {isAlertVisible && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <DefaultError
-            title={alertConfig.title}
-            message={alertConfig.message}
-            buttonText={alertConfig.buttonText}
-            onButtonClick={hideAlert}
-            isVisible={isAlertVisible}
-          />
-        </div>
-      )}
-
       <EditDataStepper />
       <form onSubmit={handleNext}>
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-7xl">
@@ -251,8 +230,8 @@ function EditData() {
                     </button>
                   </div>
 
-                  <div className="overflow-auto border">
-                    <table className="min-w-full border border-gray-300">
+                  <div ref={tableRef} className="overflow-auto border">
+                    <table className="min-w-full border border-gray-300"> 
                       <thead>
                         <tr>
                           {confirmedData.columns.map((col, colIdx) => (
@@ -277,13 +256,37 @@ function EditData() {
                               <td key={colIdx} className="border px-3 py-2">
                                 <input
                                   value={cell}
-                                  onClick={() => setSelectedCell({ row: rowIdx, col: colIdx })}
+                                  onFocus={() => {
+                                    setEditHistory({
+                                      row: rowIdx,
+                                      col: colIdx,
+                                      prevValue: confirmedData.rows[rowIdx].cells[colIdx],
+                                    });
+                                    setSelectedCell({ row: rowIdx, col: colIdx });
+                                  }}
                                   onChange={(e) => {
                                     const updated = structuredClone(confirmedData);
                                     updated.rows[rowIdx].cells[colIdx] = e.target.value;
-                                    updateConfirmedData(updated);
+                                    setConfirmedData(updated); 
                                   }}
-                                  className={`w-full ${selectedCell?.row === rowIdx && selectedCell?.col === colIdx ? "bg-yellow-100" : ""}`}
+                                  onBlur={() => {
+                                    if (
+                                      editHistory &&
+                                      (editHistory.row === rowIdx && editHistory.col === colIdx)
+                                    ) {
+                                      const currentValue = confirmedData.rows[rowIdx].cells[colIdx];
+                                      if (editHistory.prevValue !== currentValue) {
+                                        setUndoStack((prev) => [...prev, structuredClone(originalData)]);
+                                        setRedoStack([]);
+                                      }
+                                      setEditHistory(null);
+                                    }
+                                  }}
+                                  className={`w-full outline-none ${
+                                    selectedCell?.row === rowIdx && selectedCell?.col === colIdx
+                                      ? "bg-blue-200 ring-2 ring-blue-500 rounded"
+                                      : ""
+                                  }`}
                                 />
                               </td>
                             ))}
