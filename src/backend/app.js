@@ -144,7 +144,6 @@ app.post('/edit-data', async (req, res) => {
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
     sessionData.visualSelected = data.id;
-    console.log(data.id);
     //sessionData.selectedOption = sessionData.chartConfig[data.id];
 
     try{
@@ -174,7 +173,6 @@ app.post('/visual-selected', async (req, res) => {
         }
 
         const chartConfig = multipleDatasetsChartGenerator(chartType, labels, sessionData.edittedData, data.id);
-        console.log(chartConfig);
         sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig, labels: labels});
     } catch (error) {
@@ -185,9 +183,12 @@ app.post('/visual-selected', async (req, res) => {
 
 app.post('/edit-selected', async (req, res) => {
     const data = req.body;
-    console.log(data);
     sessionData.chartConfig = data.chartConfig;
-    res.json({ chartConfig: sessionData.chartConfig });
+    res.json({ 
+        summary: sessionData.summary,
+        graphRecommendation: sessionData.graphRecommendation,
+        chartsWithURLs: sessionData.chartOptions 
+    });
 });
 
 
