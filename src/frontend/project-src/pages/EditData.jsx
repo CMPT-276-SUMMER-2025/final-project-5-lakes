@@ -145,7 +145,7 @@ function EditData() {
     const updated = structuredClone(confirmedData);
     updated.rows.splice(index, 1);
     updateConfirmedData(updated);
-    setSelectedCell(null); // clear selection
+    setSelectedCell(null); 
   };
 
   const removeSelectedColumn = (index) => {
@@ -160,8 +160,8 @@ function EditData() {
   // Undo/Redo functionality
   const updateConfirmedData = (newData) => {
     setUndoStack((prev) => [...prev, structuredClone(confirmedData)]);
-    setRedoStack([]); // clear redo on new action
-    setConfirmedData(newData); // ✅ FIXED: use newData instead of 'updated'
+    setRedoStack([]); 
+    setConfirmedData(newData); 
   };
 
   const undo = () => {
@@ -199,7 +199,7 @@ function EditData() {
                     <button
                       type="button"
                       onClick={undo}
-                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
+                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={undoStack.length === 0}
                     >
                       <Undo size={18} />
@@ -207,7 +207,7 @@ function EditData() {
                     <button
                       type="button"
                       onClick={redo}
-                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
+                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={redoStack.length === 0}
                     >
                       <Redo size={18} />
@@ -283,13 +283,6 @@ function EditData() {
                         </button>
                       </div>
                     )}
-                  {/* <div className="flex justify-center mt-4">
-                      <ViewUpload
-                        fileName={fileName}
-                        fileSize={fileSize}
-                        fileContent={parsedData?.base64 || file?.url || "about:blank"}
-                      />
-                  </div> */}
                 </>
               )}
             </div>
@@ -301,7 +294,7 @@ function EditData() {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
           >
             <ChevronLeft size={25} className="mr-2" />
             Go to the last step
@@ -309,7 +302,7 @@ function EditData() {
 
           <button
             type="button"
-            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
             onClick={() => setConfirmedData(structuredClone(originalData))}
           >
             <RotateCw size={20} className="mr-2" />
@@ -318,7 +311,7 @@ function EditData() {
 
           <button
             type="submit"
-            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
           >
             Go to the next step
             <ChevronRight size={25} className="ml-2" />
