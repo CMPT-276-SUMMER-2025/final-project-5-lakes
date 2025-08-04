@@ -228,6 +228,7 @@ function EditSave() {
             console.log("Selected dataset index:", datasetSelected);
             if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
                 updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
+                updated.data.datasets[datasetSelected].borderColor = rgbColor;
             }
         }
         console.log("Updated chart config:", updated);
@@ -517,6 +518,24 @@ function EditSave() {
         
         updateChartConfig(updated);
     };
+
+    const handleGridLines = () => {
+        setChartConfig({
+            ...chartConfig,
+            options: {
+                ...chartConfig.options,
+            }
+        })  
+    }
+
+    const handleLegend = () => {
+        setChartConfig({
+            ...chartConfig,
+            options: {
+                ...chartConfig.options,
+            }
+        })  
+    }
 
     useEffect(() => {
     if (chartConfig) {
