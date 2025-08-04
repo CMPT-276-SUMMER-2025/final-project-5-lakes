@@ -1,9 +1,9 @@
 import { CloudUpload, Paperclip, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 
-function FileUploadArea({setFiles, files, showAlert}) {
+function FileUploadArea({setFiles, files, showAlert, text}) {
   const [isDragOver, setIsDragOver] = useState(false);
-  const [hasUploaded, setHasUploaded] = useState(false);
+  const [hasUploaded, setHasUploaded] = useState(files.length > 0);
 
   const ACCEPTED_FILE_TYPES = [
     'application/pdf', 
@@ -14,6 +14,16 @@ function FileUploadArea({setFiles, files, showAlert}) {
   ];
 
   const handleValidateFiles = (newFiles) => {
+    if (text.trim() !== '') {
+      setIsDragOver(false);
+      showAlert(
+        'error',
+        'Cannot Upload File',
+        'You have already entered text. If you want to upload a file instead, please clear your text input.',
+        'Okay'
+      );
+      return [];
+    }
     const validFiles = [];
     const invalidFileNames = [];
 
@@ -80,9 +90,13 @@ function FileUploadArea({setFiles, files, showAlert}) {
       setHasUploaded(false);
     }
 };
+  const handleRemoveFile = () => {
+    setFiles([]);
+    setHasUploaded(false);
+  };
 
   const dragHandlers = {
-    onDragEnter: handleDragEnter,
+    onDragEnter: text.trim() === '' ? handleDragEnter : (e) => e.preventDefault(),
     onDragLeave: handleDragLeave,
     onDragOver: handleDragOver,
     onDrop: handleDrop,
@@ -96,8 +110,17 @@ function FileUploadArea({setFiles, files, showAlert}) {
       >
         <CheckCircle className="w-12 h-12 text-green-500 mb-4" />
         <p className="text-green-500 text-lg font-semibold mb-4">
-          File uploaded successfully!
+          <span>'{files[0].name}' </span> uploaded successfully!
         </p>
+
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <label htmlFor="hidden-file-input" className="white-base-button">
+            Upload a new file
+          </label>
+          <button onClick={handleRemoveFile} className="white-base-button">
+            Remove current file
+          </button>
+        </div>
 
         <input
           type="file"
@@ -109,9 +132,7 @@ function FileUploadArea({setFiles, files, showAlert}) {
           accept="*/*"
         />
 
-        <label htmlFor="hidden-file-input" className="white-base-button">
-          Upload a different file
-        </label>
+
 
         <p className="text-gray-600 text-lg mb-4 font-sans mb-2">
           Or drag and drop a new one
@@ -135,8 +156,9 @@ function FileUploadArea({setFiles, files, showAlert}) {
     );
   }
 
+  const isDisabled = text.trim() !== '';
  return (
-   <div className="dashed-blue-outline" {...dragHandlers}>
+   <div className={`dashed-blue-outline ${isDisabled ? 'opacity-50' : ''}`} {...dragHandlers}>
 
      <CloudUpload className="w-16 h-16 text-black-600 mb-6" />
 
