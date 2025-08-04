@@ -107,6 +107,13 @@ function EditSave() {
     const [tempXAxisTitle, setTempXAxisTitle] = useState("X-axis");
     const [tempYAxisTitle, setTempYAxisTitle] = useState("Y-axis");
 
+    const [gridLines, setGridLines] = useState(true);
+    const [legend, setLegend] = useState(true);
+
+    if (chartConfig.type === "pie" || chartConfig.type === "doughnut") {
+        setGridLines(!gridLines);
+    }
+
     // Generate the initial chart image URL
     // useEffect(() => {
     //     if (chartConfig) {
@@ -135,7 +142,8 @@ function EditSave() {
             }
             if (!chartConfig.options.plugins.legend) {
                 chartConfig.options.plugins.legend = {
-                    labels: { 
+                    display: legend,
+                    labels: {
                         font: {
                             family: "Noto Sans",
                             size: fontSize
@@ -158,6 +166,9 @@ function EditSave() {
                                 family: "Noto Sans",
                                 size: fontSize
                             }
+                        },
+                        grid: {
+                            display: gridLines
                         }
                     },
                     x: {
@@ -173,6 +184,9 @@ function EditSave() {
                                 family: "Noto Sans",
                                 size: fontSize
                             }
+                        },
+                        grid: {
+                            display: gridLines
                         }
                     }
                 };
@@ -181,6 +195,7 @@ function EditSave() {
                 chartConfig.data.datasets[0].backgroundColor[segmentSelected] = hexToRgb(selectedColor);
             } else {
                 chartConfig.data.datasets[datasetSelected].backgroundColor = hexToRgb(selectedColor);
+                chartConfig.data.datasets[datasetSelected].borderColor = hexToRgb(selectedColor);
             }
         }
     }, [chartConfig]); // Only depend on chartConfig for initial setup
@@ -249,6 +264,7 @@ function EditSave() {
                 console.log("Selected dataset index:", datasetSelected);
                 if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
                     updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
+                    updated.data.datasets[datasetSelected].borderColor = rgbColor;
                 }
             }
             console.log("Updated chart config:", updated);
@@ -619,6 +635,65 @@ function EditSave() {
         updateChartConfig(updated);
     };
 
+    const handleGridLines = () => {
+        setGridLines((prev) => {
+            const newGridState = !prev;
+        
+            const updated = {
+              ...chartConfig,
+              options: {
+                ...chartConfig.options,
+                scales: {
+                  ...chartConfig.options?.scales,
+                  x: {
+                    ...chartConfig.options?.scales?.x,
+                    grid: {
+                      ...chartConfig.options?.scales?.x?.grid,
+                      display: newGridState
+                    }
+                  },
+                  y: {
+                    ...chartConfig.options?.scales?.y,
+                    grid: {
+                      ...chartConfig.options?.scales?.y?.grid,
+                      display: newGridState
+                    }
+                  }
+                }
+              }
+            };
+        
+            updateChartConfig(updated);
+            return newGridState;
+          });
+    }
+
+    const handleLegend = () => {
+        setLegend((prev) => {
+            const newLegendState = !prev;
+        
+            const updated = {
+              ...chartConfig,
+              options: {
+                ...chartConfig.options,
+                plugins: {
+                  ...chartConfig.options?.plugins,
+                  legend: {
+                    ...chartConfig.options?.plugins?.legend,
+                    display: newLegendState,
+                    labels: {
+                      ...chartConfig.options?.plugins?.legend?.labels
+                    }
+                  }
+                }
+              }
+            };
+        
+            updateChartConfig(updated);
+            return newLegendState;
+        });
+    }
+
     useEffect(() => {
     if (chartConfig) {
         setIsLoading(true);
@@ -754,6 +829,28 @@ function EditSave() {
                                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
                                 >
                                     Update
+                                </button>
+                            </div>
+                        </div>
+                        {/* Grid Lines section */}
+                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <p className="text-lg font-semibold text-gray-800">Grid Lines</p>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                                <button onClick={handleGridLines} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                                    {gridLines ? "Disable Grid Lines" : "Enable Grid Lines"}
+                                </button>
+                            </div>
+                        </div>
+                        {/* Legend section */}
+                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <p className="text-lg font-semibold text-gray-800">Legend</p>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                                <button onClick={handleLegend} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                                    {legend ? "Disable Legend" : "Enable Legend"}
                                 </button>
                             </div>
                         </div>
