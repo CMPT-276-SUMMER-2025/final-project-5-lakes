@@ -5,6 +5,8 @@ import LoadingPopUp from "../components/editdata/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
 import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash, Undo, Redo } from "lucide-react";
+import DefaultError from '../components/messages/DefaultError';
+import useDefaultError from '../hooks/DefaultErrorHook';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
@@ -13,6 +15,7 @@ function EditData() {
   const location = useLocation();
   const navigate = useNavigate();
   const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
+  const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
   // const fileName = file?.originalname || "Unknown file";
   // const fileSize = file?.size || 0;
@@ -46,38 +49,59 @@ function EditData() {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const formattedData = convertTableToDeepSeekFormat(confirmedData);
+    const formattedData = convertTableToDeepSeekFormat(confirmedData);
 
-      if (summary && graphRecommendation && chartsWithURLs) {
-        navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
-        setIsLoading(false);
-        return;
-      }
-
-      // Take in data from backend
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          edittedData: formattedData,
-          parsedData: parsedData,
-          file: file
-        }),
-        credentials: "include",
-      });
-
-      if (!res.ok) throw new Error("Chart generation failed");
-      const data = await res.json();
-      navigate("/visual-select", { state: data });
-    } catch (err) {
-      console.error(err);
-      alert("Chart generation failed. Please try again.");
-    } finally {
+    /*if (summary && graphRecommendation && chartsWithURLs) {
+      navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
       setIsLoading(false);
-    }
-  };
+      return;
+    }*/
 
+    // Take in data from backend
+    fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        edittedData: formattedData,
+        parsedData: parsedData,
+        file: file
+      }),
+      credentials: "include",
+    })
+    .then(async (response) =>{
+      const data = await response.json();
+      if (!response.ok) {
+        const error = new Error(data.error || 'Something went wrong.');
+        error.code = data.code || '';
+        throw error;
+      }
+      return data;
+    })
+    .then((data) => {
+      setIsLoading(false);
+      navigate("/visual-select", { state: data });
+    })
+    .catch((error) => {
+      setIsLoading(false);
+      
+      if (error.code === 'INVALID_EDITED_TABLE'){
+        showAlert(
+          'error',
+          'Editing Failed',
+          `Chart generation failed: ${error.message}`,
+          'Okay'
+        );
+      } else {
+        showAlert(
+        'error',
+        'Generation Failed',
+        `Chart generation failed: ${error.message} Please try again later`,
+        'Okay'
+        );
+      }
+    })
+  };
+  
   // Functions to add/remove rows and columns
   const addRow = () => {
     const updated = structuredClone(confirmedData);
@@ -183,6 +207,19 @@ function EditData() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
       <LoadingPopUp show={isLoading} />
+
+      {isAlertVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <DefaultError
+            title={alertConfig.title}
+            message={alertConfig.message}
+            buttonText={alertConfig.buttonText}
+            onButtonClick={hideAlert}
+            isVisible={isAlertVisible}
+          />
+        </div>
+      )}
+
       <EditDataStepper />
       <form onSubmit={handleNext}>
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-7xl">

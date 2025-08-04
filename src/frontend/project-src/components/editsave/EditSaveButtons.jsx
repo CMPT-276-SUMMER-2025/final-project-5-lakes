@@ -35,9 +35,17 @@ function EditSaveButtons() {
             headers: {
                 "Content-Type": "application/json"
             }
-        }).then(response => response.json())
+        })
+        .then(async (response) => {
+            const data = await response.json();
+            if (!response.ok) {
+                const error = new Error(data.error || 'Something went wrong.')
+                error.code = data.code || '';
+                throw error;
+            }
+            return data;
+        })
         .then(data => {
-            console.log(data);
             navigate("/visual-select", { state: data });
         })
         .catch(error => {
