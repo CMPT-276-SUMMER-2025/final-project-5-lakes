@@ -5,7 +5,8 @@ import LoadingPopUp from "../components/editdata/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
 import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash, Undo, Redo } from "lucide-react";
-import { useRef } from "react";
+import DefaultError from '../components/messages/DefaultError';
+import useDefaultError from '../hooks/DefaultErrorHook';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
@@ -14,6 +15,10 @@ function EditData() {
   const location = useLocation();
   const navigate = useNavigate();
   const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
+  const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
+
+  // const fileName = file?.originalname || "Unknown file";
+  // const fileSize = file?.size || 0;
 
   console.log("file:", file);
   console.log("parsedData:", parsedData);
@@ -27,10 +32,6 @@ function EditData() {
 
   const [selectedCell, setSelectedCell] = useState(null); 
 
-  const [editHistory, setEditHistory] = useState(null);
-
-  const tableRef = useRef(null);
-
   // Initialize confirmedData and originalData from parsedData
   useEffect(() => {
     if (!parsedData || !file) {
@@ -43,57 +44,64 @@ function EditData() {
     setOriginalData(structuredClone(table));
   }, [parsedData, file, navigate]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (tableRef.current && !tableRef.current.contains(event.target)) {
-        setSelectedCell(null); // clear selection
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   // Handle form submission
   const handleNext = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const formattedData = convertTableToDeepSeekFormat(confirmedData);
+    const formattedData = convertTableToDeepSeekFormat(confirmedData);
 
-      if (summary && graphRecommendation && chartsWithURLs) {
-        navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
-        setIsLoading(false);
-        return;
-      }
-
-      // Take in data from backend
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          edittedData: formattedData,
-          parsedData: parsedData,
-          file: file
-        }),
-        credentials: "include",
-      });
-
-      if (!res.ok) throw new Error("Chart generation failed");
-      const data = await res.json();
-      navigate("/visual-select", { state: data });
-    } catch (err) {
-      console.error(err);
-      alert("Chart generation failed. Please try again.");
-    } finally {
+    /*if (summary && graphRecommendation && chartsWithURLs) {
+      navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
       setIsLoading(false);
-    }
-  };
+      return;
+    }*/
 
+    // Take in data from backend
+    fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        edittedData: formattedData,
+        parsedData: parsedData,
+        file: file
+      }),
+      credentials: "include",
+    })
+    .then(async (response) =>{
+      const data = await response.json();
+      if (!response.ok) {
+        const error = new Error(data.error || 'Something went wrong.');
+        error.code = data.code || '';
+        throw error;
+      }
+      return data;
+    })
+    .then((data) => {
+      setIsLoading(false);
+      navigate("/visual-select", { state: data });
+    })
+    .catch((error) => {
+      setIsLoading(false);
+      
+      if (error.code === 'INVALID_EDITED_TABLE'){
+        showAlert(
+          'error',
+          'Editing Failed',
+          `Chart generation failed: ${error.message}`,
+          'Okay'
+        );
+      } else {
+        showAlert(
+        'error',
+        'Generation Failed',
+        `Chart generation failed: ${error.message} Please try again later`,
+        'Okay'
+        );
+      }
+    })
+  };
+  
   // Functions to add/remove rows and columns
   const addRow = () => {
     const updated = structuredClone(confirmedData);
@@ -161,7 +169,7 @@ function EditData() {
     const updated = structuredClone(confirmedData);
     updated.rows.splice(index, 1);
     updateConfirmedData(updated);
-    setSelectedCell(null); 
+    setSelectedCell(null); // clear selection
   };
 
   const removeSelectedColumn = (index) => {
@@ -176,8 +184,8 @@ function EditData() {
   // Undo/Redo functionality
   const updateConfirmedData = (newData) => {
     setUndoStack((prev) => [...prev, structuredClone(confirmedData)]);
-    setRedoStack([]); 
-    setConfirmedData(newData); 
+    setRedoStack([]); // clear redo on new action
+    setConfirmedData(newData); // ✅ FIXED: use newData instead of 'updated'
   };
 
   const undo = () => {
@@ -199,6 +207,19 @@ function EditData() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
       <LoadingPopUp show={isLoading} />
+
+      {isAlertVisible && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <DefaultError
+            title={alertConfig.title}
+            message={alertConfig.message}
+            buttonText={alertConfig.buttonText}
+            onButtonClick={hideAlert}
+            isVisible={isAlertVisible}
+          />
+        </div>
+      )}
+
       <EditDataStepper />
       <form onSubmit={handleNext}>
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-7xl">
@@ -215,7 +236,7 @@ function EditData() {
                     <button
                       type="button"
                       onClick={undo}
-                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
                       disabled={undoStack.length === 0}
                     >
                       <Undo size={18} />
@@ -223,15 +244,15 @@ function EditData() {
                     <button
                       type="button"
                       onClick={redo}
-                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
                       disabled={redoStack.length === 0}
                     >
                       <Redo size={18} />
                     </button>
                   </div>
 
-                  <div ref={tableRef} className="overflow-auto border">
-                    <table className="min-w-full border border-gray-300"> 
+                  <div className="overflow-auto border">
+                    <table className="min-w-full border border-gray-300">
                       <thead>
                         <tr>
                           {confirmedData.columns.map((col, colIdx) => (
@@ -256,37 +277,13 @@ function EditData() {
                               <td key={colIdx} className="border px-3 py-2">
                                 <input
                                   value={cell}
-                                  onFocus={() => {
-                                    setEditHistory({
-                                      row: rowIdx,
-                                      col: colIdx,
-                                      prevValue: confirmedData.rows[rowIdx].cells[colIdx],
-                                    });
-                                    setSelectedCell({ row: rowIdx, col: colIdx });
-                                  }}
+                                  onClick={() => setSelectedCell({ row: rowIdx, col: colIdx })}
                                   onChange={(e) => {
                                     const updated = structuredClone(confirmedData);
                                     updated.rows[rowIdx].cells[colIdx] = e.target.value;
-                                    setConfirmedData(updated); 
+                                    updateConfirmedData(updated);
                                   }}
-                                  onBlur={() => {
-                                    if (
-                                      editHistory &&
-                                      (editHistory.row === rowIdx && editHistory.col === colIdx)
-                                    ) {
-                                      const currentValue = confirmedData.rows[rowIdx].cells[colIdx];
-                                      if (editHistory.prevValue !== currentValue) {
-                                        setUndoStack((prev) => [...prev, structuredClone(originalData)]);
-                                        setRedoStack([]);
-                                      }
-                                      setEditHistory(null);
-                                    }
-                                  }}
-                                  className={`w-full outline-none ${
-                                    selectedCell?.row === rowIdx && selectedCell?.col === colIdx
-                                      ? "bg-blue-200 ring-2 ring-blue-500 rounded"
-                                      : ""
-                                  }`}
+                                  className={`w-full ${selectedCell?.row === rowIdx && selectedCell?.col === colIdx ? "bg-yellow-100" : ""}`}
                                 />
                               </td>
                             ))}
@@ -323,6 +320,13 @@ function EditData() {
                         </button>
                       </div>
                     )}
+                  {/* <div className="flex justify-center mt-4">
+                      <ViewUpload
+                        fileName={fileName}
+                        fileSize={fileSize}
+                        fileContent={parsedData?.base64 || file?.url || "about:blank"}
+                      />
+                  </div> */}
                 </>
               )}
             </div>
@@ -334,7 +338,7 @@ function EditData() {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
           >
             <ChevronLeft size={25} className="mr-2" />
             Go to the last step
@@ -342,7 +346,7 @@ function EditData() {
 
           <button
             type="button"
-            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
             onClick={() => setConfirmedData(structuredClone(originalData))}
           >
             <RotateCw size={20} className="mr-2" />
@@ -351,7 +355,7 @@ function EditData() {
 
           <button
             type="submit"
-            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
           >
             Go to the next step
             <ChevronRight size={25} className="ml-2" />
