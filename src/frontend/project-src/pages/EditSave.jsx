@@ -1,12 +1,11 @@
 import EditSaveStepper from "../components/editsave/EditSaveStepper";
 import EditSaveButtons from "../components/editsave/EditSaveButtons";
-// import { Download } from 'lucide-react';
 import { SketchPicker } from 'react-color';
 import { useLocation } from "react-router-dom";
 import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
-import DownloadOptions from '../components/editchart/DownloadOptions';
+import DownloadOptions from '../components/editsave/DownloadOptions';
 import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
@@ -24,8 +23,6 @@ const notoFonts = [
     { name: "Noto Sans TC", value: "Noto Sans TC" },
     { name: "Noto Color Emoji", value: "Noto Color Emoji" }
 ];
-
-
 
 // Utility function to convert hex to RGB
 const hexToRgb = (hex) => {
@@ -163,8 +160,11 @@ function EditSave() {
                     }
                 };
             }
-            console.log(datasetSelected);
-            chartConfig.data.datasets[datasetSelected].backgroundColor = hexToRgb(selectedColor);
+            if (chartConfig.type === "pie" || chartConfig.type === "doughnut") {
+                chartConfig.data.datasets[0].backgroundColor[segmentSelected] = hexToRgb(selectedColor);
+            } else {
+                chartConfig.data.datasets[datasetSelected].backgroundColor = hexToRgb(selectedColor);
+            }
         }
     }, [chartConfig]); // Only depend on chartConfig for initial setup
 
@@ -185,14 +185,10 @@ function EditSave() {
         }
     }, [chartConfig, datasetSelected, segmentSelected]);
 
-
-
-    
     // Handle color change from the color picker
     const handleColorChange = (color) => {
         setSelectedColor(color.hex);        
 
-        
         // Convert hex to RGB for QuickChart API
         const rgbColor = hexToRgb(color.hex);
         
@@ -236,7 +232,6 @@ function EditSave() {
             if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
                 updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
             }
-
         }
         console.log("Updated chart config:", updated);
         updateChartConfig(updated);
@@ -818,7 +813,7 @@ function EditSave() {
                         {/* downloading button, downloading thing is a component */}
                         <div className="w-full">
                         <button
-                            className="w-full bg-blue-600 hover:bg-gray-300 text-white font-semibold py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer"
+                            className="w-full bg-blue-600 hover:bg-gray-300 text-white py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer"
                             onClick={() => setIsDownloadModalOpen(true)}
                         >
                             <Download size={18} strokeWidth={4}/>

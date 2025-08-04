@@ -5,8 +5,8 @@ const DefaultWarning = ({
   message,
   buttonText = 'Okay',
   onButtonClick,
-  onCancel,            // new prop
-  cancelText = 'Cancel', // optional text for cancel button
+  onCancel,            
+  cancelText = 'Cancel', 
   isVisible = true,
 }) => {
   if (!isVisible) return null;

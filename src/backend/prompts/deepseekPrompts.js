@@ -229,16 +229,20 @@ const multipleDataSetsPrompt = `
         Date,Sales,Product
         1/1/2023,1000,Widget A
         ,,,
+        ---
         Day,Temp
         Mon,72
+        ,,,
 
         Example Output:
         {
         "salesData": [
-        {"Date": "1/1/2023", "Sales": "1000", "Product": "Widget A"}
+        {"Date": "1/1/2023", "Sales": "1000", "Product": "Widget A"},
+        ...
         ],
         "temperatureData": [
-        {"Day": "Mon", "Temp": "72"}
+        {"Day": "Mon", "Temp": "72"},
+        ...
         ]
         }
 
@@ -263,6 +267,11 @@ const prompts = {
         labelsSeparatorPrompt: (query, data) =>
         `
         ${promptPrefix}${labelsSeparatorPrompt}${query}\n\nHere is the data:\n${data}
+        `,
+
+        multipleDataSetsPrompt: (query, data) =>
+        `
+        ${promptPrefix}${multipleDataSetsPrompt}${query}\n\nHere is the data:\n${data}
         `,
 };
 
