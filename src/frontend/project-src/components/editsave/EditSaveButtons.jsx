@@ -1,13 +1,24 @@
 import { ChevronLeft, CirclePlus } from 'lucide-react';
+import useWarningAlert from '../../hooks/useWarningAlert';
+import DefaultWarning from '../messages/DefaultWarning';
 import { useLocation, useNavigate } from "react-router-dom";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-selected`;
 
 function EditSaveButtons() {
+
+  const navigate = useNavigate();
+  const {
+  isWarningVisible,
+  warningConfig,
+  showWarning,
+  hideWarning,
+} = useWarningAlert();
+
     const location = useLocation();
-    const navigate = useNavigate();
     const { chartConfig } = location.state || {};
     console.log(chartConfig);
+
 
     const editConfig = {
         chartLabel: chartConfig.chartLabel,
@@ -27,7 +38,7 @@ function EditSaveButtons() {
         }).then(response => response.json())
         .then(data => {
             console.log(data);
-            navigate("/export", { state: data });
+            navigate("/visual-select", { state: data });
         })
         .catch(error => {
             console.error("Error editing chart:", error);   
@@ -59,15 +70,42 @@ function EditSaveButtons() {
                 Go to the last step
             </button>
 
-            <button
-                onClick={goBackHomepage}
-                className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-            >
-                <CirclePlus size={25} className="mr-3" />
-                Create another chart
-            </button>
+      <button
+        onClick={() => {
+            showWarning(
+              'Did you download your chart?',
+              'Your progress will not be saved if you start creating a new chart. Please make sure you downloaded your chart if needed.',
+              'Make a New Chart'
+            );
+          }}
+        className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+      >
+        <CirclePlus size={25} className="mr-3" />
+        Create another chart
+      </button>
+
+      {isWarningVisible && (
+        <div className="fixed inset-0  bg-opacity-40 z-50 flex items-center justify-center">
+          <DefaultWarning
+            isVisible={isWarningVisible}
+            title={warningConfig.title}
+            message={warningConfig.message}
+            buttonText={warningConfig.buttonText}
+            onButtonClick={() => {
+              hideWarning();
+              goBackHomepage();
+            }}
+            onCancel={() => {
+              hideWarning(); 
+            }}
+            cancelText="Cancel"
+          />
         </div>
-    );
+      )}
+
+    </div>
+  );
+
 }
 
 export default EditSaveButtons;
