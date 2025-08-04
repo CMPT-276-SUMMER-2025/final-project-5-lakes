@@ -1,4 +1,5 @@
 const { quickChartURL } = require('./QCURL.js');  
+const dummyChart = require('./dummyData/dummyChartConfig.js');
 
 function generateDummyChart(type, description) {
     const chart = dummyChart.find(c => c.title === type);

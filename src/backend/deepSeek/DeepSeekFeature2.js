@@ -5,22 +5,25 @@ async function getGraphRecommendation(data){
     const prompt = prompts.feature2("", data);
     try {
         const rawResult = await queryDeepSeekV3(prompt);
-        
+
+        let result;
         try {
-            const result = JSON.parse(rawResult);
-            
-            if (!result.types || !Array.isArray(result.types)) {
-                const error = new Error ('Unexpected API response.');
-                error.code = '';
-                error.status = 500;
-                throw error;
-            }
-            
-            return result;
-        } catch (error) {
+            result = JSON.parse(rawResult);
+        } catch (jsonError) {
+            const error = new Error('Unexpected API response.');
+            error.code = '';
+            error.status = 500;
             throw error;
         }
-        
+
+        if (!result.types) {
+            const error = new Error ('Unexpected API response.');
+            error.code = '';
+            error.status = 500;
+            throw error;
+        }
+            
+        return result;
     } catch (error) {
         throw error;
     }

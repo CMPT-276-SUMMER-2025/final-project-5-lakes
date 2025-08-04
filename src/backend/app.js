@@ -67,7 +67,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             if (error.code === 'NO_DATA_EXTRACTED') {
                 return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
             } else {
-                return res.status(error.status).json({ error: error.message, code: error.code });
+                return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
             }
         }
     }
@@ -83,7 +83,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         if (error.code === 'NO_DATA_EXTRACTED') {
             return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
         } else {
-            return res.status(error.status).json({ error: error.message, code: error.code });
+            return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
         }
     }
 });
@@ -102,7 +102,7 @@ app.post('/edit-data', async (req, res) => {
             if(error.code === 'INVALID_EDITED_TABLE'){
                 return res.status(error.status).json({ error: error.message, code: error.code });
             } else {
-                return res.status(error.status).json({ error: error.message, code: error.code });
+                return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
             }
         }
 
@@ -127,7 +127,7 @@ app.post('/edit-data', async (req, res) => {
                 // labels: labels,
             });
         } catch (error) {
-            return res.status(error.status).json({ error: error.message, code: error.code });
+            return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
         }
 
         /*const labels = await separateLabels(JSON.stringify(data.parsedData));
@@ -137,7 +137,7 @@ app.post('/edit-data', async (req, res) => {
         sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
 
     } catch (error) {
-        return res.status(error.status).json({ error: error.message, code: error.code });
+        return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
     }
 });
 
