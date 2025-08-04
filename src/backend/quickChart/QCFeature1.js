@@ -90,6 +90,7 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
                 label: label,
                 data: getYValues(label, datasets),
                 backgroundColor: colors[index % colors.length],
+                borderColor: colors[index % colors.length],
             }))
         },
         options: {

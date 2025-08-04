@@ -669,26 +669,29 @@ function EditSave() {
     }
 
     const handleLegend = () => {
-        setLegend(!legend);
-
-        const updated = {
-            ...chartConfig,
-            options: {
+        setLegend((prev) => {
+            const newLegendState = !prev;
+        
+            const updated = {
+              ...chartConfig,
+              options: {
                 ...chartConfig.options,
                 plugins: {
-                    ...chartConfig.options?.plugins
-                },
-                legend: {
+                  ...chartConfig.options?.plugins,
+                  legend: {
                     ...chartConfig.options?.plugins?.legend,
-                    display: legend,
+                    display: newLegendState,
                     labels: {
-                        ...chartConfig.options?.plugins?.legend?.labels,
+                      ...chartConfig.options?.plugins?.legend?.labels
                     }
+                  }
                 }
-            }
-        };
-
-        updateChartConfig(updated);
+              }
+            };
+        
+            updateChartConfig(updated);
+            return newLegendState;
+        });
     }
 
     useEffect(() => {
