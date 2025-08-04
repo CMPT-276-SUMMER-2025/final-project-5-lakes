@@ -28,23 +28,25 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
         "Content-Type": "application/json"
       }
     })
-    .then(response => response.json())
+    .then(async (response) => {
+      const data = await response.json();
+      if (!response.ok) {
+        const error = new Error(data.error || 'Something went wrong.')
+        error.code = data.code || '';
+        throw error;
+      }
+      return data;
+    })
     .then(data => {
-      console.log(data);
       navigate("/edit-save", { state: data });
     })
     .catch(error => {
-      console.error("Error selecting option:", error);
+      //PLEASE HELP
     });
   }
 
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden">
-    
-      {/* <div
-        className="h-48 bg-gray-100 bg-cover bg-center"
-        // style={{ backgroundImage: `url(${chartImageUrl || 'https://via.placeholder.com/400x250?text=Chart+Visual'})` }}
-      /> */}
 
       <img className="h-48 bg-cover bg-center w-full" src={chartImageUrl} alt={title} />
       <div className="p-5 flex flex-col flex-grow justify-between">

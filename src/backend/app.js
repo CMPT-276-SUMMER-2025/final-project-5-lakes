@@ -7,7 +7,7 @@ const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
 const { separateLabels } = require('./labelSeparation.js');
 const { generateDummyChart } = require('./quickChart/QCFeature1.js');
-const { generateChart, multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
+const { multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -45,7 +45,6 @@ app.get('/get-session-data', async (req, res) => {
     res.json(sessionData);
 });
 
-// File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
     console.log('Incoming /file-submit request from:', req.headers.origin);
     const files = req.files;
@@ -58,7 +57,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         }
         
         try {
-            // Process text input
             const textData = text.split('\n').filter(line => line.trim() !== '');
             const result = await convertToChartConfig("", textData);
             sessionData.parsedData = result;
@@ -88,7 +86,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     }
 });
 
-// Information edit confirm
 app.post('/edit-data', async (req, res) => {
     const data = req.body;
     
@@ -124,17 +121,10 @@ app.post('/edit-data', async (req, res) => {
                 summary: summary,
                 graphRecommendation: graphRecommendation,
                 chartsWithURLs: chartsWithURLs,
-                // labels: labels,
             });
         } catch (error) {
             return res.status(error.status).json({ error: error.message, code: error.code });
         }
-
-        /*const labels = await separateLabels(JSON.stringify(data.parsedData));
-        console.log(labels);
-        // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
-        sessionData.summary = JSON.parse(summary);
-        sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
 
     } catch (error) {
         return res.status(error.status).json({ error: error.message, code: error.code });
@@ -144,40 +134,20 @@ app.post('/edit-data', async (req, res) => {
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
     sessionData.visualSelected = data.id;
-    //sessionData.selectedOption = sessionData.chartConfig[data.id];
 
     try{
-        // Check if theres data
-        if (!sessionData.edittedData){
-            return res.status(400).json({ error: 'No parsed data avaiable.' });
-        }
-
         const labels = await separateLabels(JSON.stringify(sessionData.edittedData));
-        console.log(labels);
-
-        // Attach chartImageURL using QuickChart
-        /*const chartsWithURLs = chartConfigs.map(chart => ({
-            //id: chart.id,
-            //title: chart.title,
-            //description: chart.description,
-            id: 1,
-            title: "Bar Chart",
-            description: "Displays values as bars.",
-            imageURL: generateDummyChart()
-        }));*/
         let chartType = null;
         for (let i = 0; i < sessionData.chartOptions.length; i++) {
             if (sessionData.chartOptions[i].id === sessionData.visualSelected) {
                 chartType = sessionData.chartOptions[i].type;
             }
         }
-
         const chartConfig = multipleDatasetsChartGenerator(chartType, labels, sessionData.edittedData, data.id);
         sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig, labels: labels});
     } catch (error) {
-        console.error('Error generating chart URLs:', error);
-        res.status(500).json({ error: 'Failed to generate visualization options' });
+        return res.status(error.status).json({ error: error.message, code: error.code });
     }
 });
 
