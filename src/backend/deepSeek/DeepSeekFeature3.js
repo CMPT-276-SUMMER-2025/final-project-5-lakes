@@ -1,5 +1,5 @@
 const { queryDeepSeekV3 } = require('./APIdeepseek.js');
-const prompts = require('../prompts/deepseekPrompts.js');
+const prompts = require('./prompts/deepseekPrompts.js');
 
 async function getSummary(data){
     const prompt = prompts.feature3("", data);

@@ -298,12 +298,7 @@ const prompts = {
         labelsSeparatorPrompt: (query, data) =>
         `
         ${promptPrefix}${labelsSeparatorPrompt}${query}\n\nHere is the data:\n${data}
-        `,
-
-        multipleDataSetsPrompt: (query, data) =>
         `
-        ${promptPrefix}${multipleDataSetsPrompt}${query}\n\nHere is the data:\n${data}
-        `,
 };
 
 module.exports = prompts;

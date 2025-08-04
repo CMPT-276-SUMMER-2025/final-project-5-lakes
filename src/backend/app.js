@@ -4,10 +4,10 @@ const cors = require('cors');
 const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1.js');
 const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
 const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
-const { parseFile } = require('./file-parser.js');
-const { separateLabels } = require('./labelSeparation.js');
+const { parseFile } = require('./deepSeek/file-parser.js');
+const { separateLabels } = require('./deepSeek/labelSeparation.js');
 const { generateDummyChart } = require('./quickChart/QCFeature1.js');
-const { generateChart, multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
+const { multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
