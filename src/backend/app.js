@@ -89,7 +89,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 });
 
 // Information edit confirm
-app.post('/data-confirm', async (req, res) => {
+app.post('/edit-data', async (req, res) => {
     const data = req.body;
     
     try {

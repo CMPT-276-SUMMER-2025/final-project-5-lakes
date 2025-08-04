@@ -10,7 +10,7 @@ function EditSaveStepper() {
             </button>
             <button className="stepper-button-1 mb-4 mr-5">
                 <Check size={20} className="mr-2" />
-                Confirm Data
+                Edit Data
                 <ChevronRight size={25} className="ml-2" />
             </button>
             <button className="stepper-button-1 mb-4 mr-5">
