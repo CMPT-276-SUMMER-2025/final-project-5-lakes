@@ -67,8 +67,8 @@ function DataConfirm() {
     .then(async (response) =>{
       const data = await response.json();
       if (!response.ok) {
-        const error = new Error(data.error || 'error sending info');
-        error.code = data.code || "UNKNOWN";
+        const error = new Error(data.error || 'Something went wrong.');
+        error.code = data.code || '';
         throw error;
       }
       return data;
@@ -78,26 +78,20 @@ function DataConfirm() {
       navigate("/visual-select", { state: data });
     })
     .catch((error) => {
-      console.error("Caught error in DataConfirm:", error);
       setIsLoading(false);
-      
-      // Log more details to help debug
-      console.log("Error code:", error.code);
-      console.log("Error message:", error.message);
-      console.log("Full error object:", error);
       
       if (error.code === 'INVALID_EDITED_TABLE'){
         showAlert(
           'error',
           'Editing Failed',
-          `${error.message}`,
+          `Chart generation failed: ${error.message}`,
           'Okay'
         );
       } else {
         showAlert(
         'error',
         'Generation Failed',
-        `Chart generation failed: ${error.message || 'Unknown error'}`,
+        `Chart generation failed: ${error.message} Please try again later`,
         'Okay'
         );
       }

@@ -54,7 +54,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     // Handle text input if no files are uploaded
     if (!files || files.length === 0) {
         if (!text || text.trim() === '') {
-            return res.status(400).send('No file or text provided.');
+            return res.status(400).json({ error: 'No file or text provided.', code: '' });
         }
         
         try {
@@ -65,10 +65,9 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             return res.json(result);
         } catch (error) {
             if (error.code === 'NO_DATA_EXTRACTED') {
-                return res.status(400).json({ error: 'No meaningful data could be extracted from the file.' });
+                return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
             } else {
-                console.error('Error processing text:', error);
-                return res.status(500).send('Error processing the text.');
+                return res.status(error.status).json({ error: error.message, code: error.code });
             }
         }
     }
@@ -82,9 +81,9 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         return res.json(result);
     } catch (error) {
         if (error.code === 'NO_DATA_EXTRACTED') {
-            return res.status(400).json({ error: 'No meaningful data could be extracted from the file.' });
+            return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
         } else {
-            return res.status(500).send('Failed to process file.');
+            return res.status(error.status).json({ error: error.message, code: error.code });
         }
     }
 });
@@ -92,32 +91,24 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 // Information edit confirm
 app.post('/data-confirm', async (req, res) => {
     const data = req.body;
-    console.log(`DATA FROM DATACONFIRM ${JSON.stringify(data.edittedData)}`);
-    // Validate that data exists and has chartConfig property
-    // console.log(data);
-    if (!data) {
-        return res.status(400).json({ error: 'No data provided in request body' });
-    }
     
     try {
         sessionData.edittedData = data.edittedData;
-
         let summary;
         try {
             summary = await getSummary(JSON.stringify(data.edittedData));
             sessionData.summary = summary
         } catch (error) {
             if(error.code === 'INVALID_EDITED_TABLE'){
-                return res.status(400).json({ error: error.message, code: error.code });
+                return res.status(error.status).json({ error: error.message, code: error.code });
             } else {
-                return res.status(500).send('Failed to process data.');
+                return res.status(error.status).json({ error: error.message, code: error.code });
             }
         }
 
         let graphRecommendation;
         try{
             graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
-
             const chartsWithURLs = [];
         
             for (let i = 0; i < graphRecommendation.types.length; i++) {
@@ -136,7 +127,7 @@ app.post('/data-confirm', async (req, res) => {
                 // labels: labels,
             });
         } catch (error) {
-            return res.status(500).send('Failed to get graph recommendation or generate charts.');
+            return res.status(error.status).json({ error: error.message, code: error.code });
         }
 
         /*const labels = await separateLabels(JSON.stringify(data.parsedData));
@@ -146,7 +137,7 @@ app.post('/data-confirm', async (req, res) => {
         sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
 
     } catch (error) {
-        return res.status(500).send('Failed to process data.');
+        return res.status(error.status).json({ error: error.message, code: error.code });
     }
 });
 

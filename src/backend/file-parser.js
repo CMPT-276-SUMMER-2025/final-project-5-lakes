@@ -33,7 +33,6 @@ async function parseFile(file){
             case 'application/pdf': {
                 const pdfContent = fs.readFileSync(file.path);
                 const pdfText = await pdfParse(pdfContent);
-                console.log(`DATA FOR CICD: ${pdfText}`);
                 data = pdfText.text.split('\n');
                 break;
             }
@@ -55,7 +54,10 @@ async function parseFile(file){
 
             //if non-matched
             default:
-                throw new Error('Unsupported file type.');
+                const error = new Error('Unsupported file type.');
+                error.code = '';
+                error.status = 400;
+                throw error;
         }
         const result = await convertToChartConfig('', data);
         return result;
@@ -64,7 +66,6 @@ async function parseFile(file){
             throw error;
         }
         else {
-            console.error('Error processing file:', error);
             throw error;
         }
     } finally {

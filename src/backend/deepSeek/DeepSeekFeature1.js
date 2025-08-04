@@ -9,24 +9,22 @@ async function convertToChartConfig(query, data) {
         if(rawResult === 'Error: No data was extracted.'){
             const error = new Error('No data was extracted from the file.');
             error.code = 'NO_DATA_EXTRACTED';
+            error.status = 400;
             throw error;
         }
 
-        // Try to parse as JSON
         let result;
         try {
             result = JSON.parse(rawResult);
         } catch (jsonError) {
-            console.error('Failed to parse JSON response:', rawResult);
-            console.error('JSON parse error:', jsonError.message);
-            const error = new Error('Invalid JSON response from API');
-            error.code = 'INVALID_JSON_RESPONSE';
+            const error = new Error('Unexpected API response.');
+            error.code = '';
+            error.status = 500;
             throw error;
         }
 
         return result;
     } catch (error) {
-        console.error('Error converting to chart config:', error);
         throw error;
     }
 }

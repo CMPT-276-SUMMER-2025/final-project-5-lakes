@@ -63,7 +63,9 @@ function HomePage() {
      .then(async (response) => { //// to go to the next page if successful
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || 'error sending info');
+        const error = new Error(data.error || 'Something went wrong.')
+        error.code = data.code || '';
+        throw error;
       }
       return data;
     })
@@ -73,11 +75,11 @@ function HomePage() {
     })
     .catch((error) => {
       setIsLoading(false);
-      if (error.message === 'No meaningful data could be extracted from the file.') {
+      if (error.code === 'NO_DATA_EXTRACTED') {
         showAlert(
           'error',
           'Extraction Failed',
-          'No meaningful data could be extracted from the file. Please try a different file or check the contents.',
+          `File parsing failed: ${error.message}`,
           'Okay',
           () => navigate('/')
         )
@@ -85,7 +87,7 @@ function HomePage() {
         showAlert(
           'error',
           'Submission Error',
-          'An unexpected error occurred while submitting your information. Please try again later.',
+          `File parsing failed: ${error.message} Please try again later.`,
           'Okay',
           () => navigate('/')
         )

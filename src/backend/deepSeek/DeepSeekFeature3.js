@@ -4,16 +4,26 @@ const prompts = require('../prompts/deepseekPrompts.js');
 async function getSummary(data){
     const prompt = prompts.feature3("", data);
     try {
-        const result = JSON.parse(await queryDeepSeekV3(prompt));
+        const rawResult = await queryDeepSeekV3(prompt);
+        
+        let result;
+        try {
+            result = JSON.parse(rawResult);
+        } catch (jsonError) {
+            const error = new Error('Unexpected API response.');
+            error.code = '';
+            error.status = 500;
+            throw error;
+        }
+
         if(result.errorTrigger === "TableInvalid"){
             const error = new Error(result.issue);
-            console.log(result.issue);
             error.code = 'INVALID_EDITED_TABLE';
+            error.status = 400;
             throw error;
         }
         return result;
     } catch (error) {
-        console.error('Error getting summary:', error);
         throw error;
     }
 }
