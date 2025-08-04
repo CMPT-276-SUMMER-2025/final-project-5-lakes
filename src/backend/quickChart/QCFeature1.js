@@ -97,14 +97,69 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
                 title: {
                     display: true,
                     text: "Chart Title",
+                    color: "#000",
                     font: {
                         family: "Noto Sans",
-                        size: 24
+                        size: 22
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: "X-axis",
+                        font: {
+                            size: 18
+                        }
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: "Y-axis",
+                        font: {
+                            size: 18
+                        }
                     }
                 }
             }
         }
     };
+
+    if (type === "pie" || type === "doughnut") {
+        // For pie/doughnut charts, map background colors to the number of data points
+        const dataLength = chartConfig.data.datasets[0].data.length;
+        chartConfig.data.datasets[0].backgroundColor = colors.slice(0, dataLength);
+        
+        // Disable grid lines and axes for pie/doughnut charts
+        chartConfig.options.scales = {
+            x: {
+                display: false
+            },
+            y: {
+                display: false
+            }
+        };
+        
+        // Disable grid lines
+        chartConfig.options.elements = {
+            ...chartConfig.options.elements,
+            point: {
+                radius: 0
+            }
+        };
+
+        chartConfig.options.plugins.datalabels = {
+            display: true,
+            backgroundColor: "#ccc",
+            color: "#000",
+            font: {
+                family: "Noto Sans",
+                size: 18
+            }
+        }
+    }
 
     if (chart?.config) {
         // Merge top-level fields like options, parsing

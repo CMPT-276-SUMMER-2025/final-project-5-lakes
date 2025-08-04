@@ -60,17 +60,38 @@ function HomePage() {
       body: formData,
       credentials: 'include'
     })
-
-    // to go to the next page if successful
-     .then((response) => {
+     .then(async (response) => { //// to go to the next page if successful
+      const data = await response.json();
       if (!response.ok) {
-        throw new Error('error sending info');
+        const error = new Error(data.error || 'Something went wrong.')
+        error.code = data.code || '';
+        throw error;
       }
-      return response.json();
+      return data;
     })
     .then((data) => {
       setIsLoading(false);
       navigate('/edit-data', { state: data });
+    })
+    .catch((error) => {
+      setIsLoading(false);
+      if (error.code === 'NO_DATA_EXTRACTED') {
+        showAlert(
+          'error',
+          'Extraction Failed',
+          `File parsing failed: ${error.message}`,
+          'Okay',
+          () => navigate('/')
+        )
+      } else {
+        showAlert(
+          'error',
+          'Submission Error',
+          `File parsing failed: ${error.message} Please try again later.`,
+          'Okay',
+          () => navigate('/')
+        )
+      }
     })
   };
 

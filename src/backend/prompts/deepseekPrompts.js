@@ -135,20 +135,51 @@ const graphRecommendationLogic =
         - All chart types must be from the approved list and must be graphable for the dataset.
         `;
 
+//(e.g., lacking numeric axes or having ambiguous categories)
 const summaryPrompt = 
         `
-        You are given an array of datasets extracted from a file. 
+        IMPORTANT: You MUST respond with exactly ONE of the following:
+
+        - If the data is INVALID 
+        (
+                Additional instructions for what counts as INVALID:
+                Data should be considered INVALID if any of the following apply:
+                - The table is missing or not present.
+                - The table contains empty or missing values.
+                - Column headers (labels) are missing or unclear.
+                - A column contains mixed data types (e.g., numbers and text).
+                - The table has inconsistent row lengths or structure.
+                - Values in one column do not match its intended meaning (e.g., "apple" in a "Time" column, or "123" in a "Fruit" column).
+                - The structure makes it impossible to graph using common tools like QuickChart or Chart.js.
+        ), output EXACTLY the following with a reason as a **JSON object with 2 keys**:
+        {
+                "errorTrigger": "TableInvalid", 
+                "issue": "specific reason here"
+        }
+
+        Important rules:
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+
+        - If the data is VALID, follow the instructions below.
+
+        Do NOT include any other text, explanations, or formatting (no backticks, no quotes, no lists).
+
+        ---
+
+        You are given an editted array of datasets extracted from a file. 
         Your task is to:
         For each of the datasets, give me a summary or key insights of the data in bullet point form
         of maximum 4 bullet points as an array of strings.
-        return it in the following JSON format in the same order as the datasets:
+        return it the following **JSON array of strings** in the same order as the datasets:
 
         [
                 "Summary 1",
                 "Summary 2",
                 ...
         ]
-         Important rules:
+
+        Important rules:
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
@@ -229,16 +260,20 @@ const multipleDataSetsPrompt = `
         Date,Sales,Product
         1/1/2023,1000,Widget A
         ,,,
+        ---
         Day,Temp
         Mon,72
+        ,,,
 
         Example Output:
         {
         "salesData": [
-        {"Date": "1/1/2023", "Sales": "1000", "Product": "Widget A"}
+        {"Date": "1/1/2023", "Sales": "1000", "Product": "Widget A"},
+        ...
         ],
         "temperatureData": [
-        {"Day": "Mon", "Temp": "72"}
+        {"Day": "Mon", "Temp": "72"},
+        ...
         ]
         }
 
@@ -263,6 +298,11 @@ const prompts = {
         labelsSeparatorPrompt: (query, data) =>
         `
         ${promptPrefix}${labelsSeparatorPrompt}${query}\n\nHere is the data:\n${data}
+        `,
+
+        multipleDataSetsPrompt: (query, data) =>
+        `
+        ${promptPrefix}${multipleDataSetsPrompt}${query}\n\nHere is the data:\n${data}
         `,
 };
 

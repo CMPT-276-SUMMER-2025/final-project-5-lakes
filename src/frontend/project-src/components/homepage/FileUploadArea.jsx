@@ -6,8 +6,7 @@ function FileUploadArea({setFiles, files, showAlert}) {
   const [hasUploaded, setHasUploaded] = useState(false);
 
   const ACCEPTED_FILE_TYPES = [
-    'application/pdf',
-    'application/vnd.ms-excel', 
+    'application/pdf', 
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
     'text/csv',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
@@ -30,7 +29,7 @@ function FileUploadArea({setFiles, files, showAlert}) {
       showAlert(
         'error',
         'Unsupported File Type',
-        `Your file could not be uploaded because its file type is not supported. Please upload PDF, XLS, XLSX, DOCX, CSV, or TXT files.`,
+        `Your file could not be uploaded because its file type is not supported. Please upload PDF, XLSX, DOCX, CSV, or TXT files.`,
         'Okay'
       );
     }
@@ -160,7 +159,7 @@ function FileUploadArea({setFiles, files, showAlert}) {
     </p>
 
      <p className="text-sm text-gray-400">
-       Accepted formats: PDF, XLS, XLSX, DOCX, CSV, TXT
+       Accepted formats: PDF, XLSX, DOCX, CSV, TXT
      </p>
 
 

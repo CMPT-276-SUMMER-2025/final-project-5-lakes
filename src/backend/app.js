@@ -54,17 +54,21 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     // Handle text input if no files are uploaded
     if (!files || files.length === 0) {
         if (!text || text.trim() === '') {
-            return res.status(400).send('No file or text provided.');
+            return res.status(400).json({ error: 'No file or text provided.', code: '' });
         }
         
         try {
             // Process text input
             const textData = text.split('\n').filter(line => line.trim() !== '');
             const result = await convertToChartConfig("", textData);
+            sessionData.parsedData = result;
             return res.json(result);
         } catch (error) {
-            console.error('Error processing text:', error);
-            return res.status(500).send('Error processing the text.');
+            if (error.code === 'NO_DATA_EXTRACTED') {
+                return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
+            } else {
+                return res.status(error.status).json({ error: error.message, code: error.code });
+            }
         }
     }
 
@@ -76,42 +80,55 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         sessionData.parsedData = result.parsedData;
         return res.json(result);
     } catch (error) {
-        return res.status(500).send('Failed to process file.');
+        if (error.code === 'NO_DATA_EXTRACTED') {
+            return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
+        } else {
+            return res.status(error.status).json({ error: error.message, code: error.code });
+        }
     }
 });
 
 // Information edit confirm
 app.post('/edit-data', async (req, res) => {
     const data = req.body;
-    console.log(`DATA FROM EDITDATA ${JSON.stringify(data.edittedData)}`);
-    // Validate that data exists and has chartConfig property
-    // console.log(data);
-    if (!data) {
-        return res.status(400).json({ error: 'No data provided in request body' });
-    }
     
     try {
         sessionData.edittedData = data.edittedData;
-
-        // const prompt = prompts.feature1("",JSON.stringify(data.edittedData));
-        const summary = await getSummary(JSON.stringify(data.edittedData));
-        const graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
-
-        console.log(`LOOK THIS: ${JSON.stringify(graphRecommendation)}`);
-
-        const chartsWithURLs = [];
-        
-        for (let i = 0; i < graphRecommendation.types.length; i++) {
-            const chartType = graphRecommendation.types[i];
-            const reasoning = graphRecommendation.explanations?.[i] || "No explanation provided.";
-            chartsWithURLs.push(generateDummyChart(chartType, reasoning));
+        let summary;
+        try {
+            summary = await getSummary(JSON.stringify(data.edittedData));
+            sessionData.summary = summary
+        } catch (error) {
+            if(error.code === 'INVALID_EDITED_TABLE'){
+                return res.status(error.status).json({ error: error.message, code: error.code });
+            } else {
+                return res.status(error.status).json({ error: error.message, code: error.code });
+            }
         }
 
-        sessionData.summary = summary;
-        sessionData.graphRecommendation = graphRecommendation;
-        sessionData.chartOptions = chartsWithURLs;
+        let graphRecommendation;
+        try{
+            graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
+            const chartsWithURLs = [];
+        
+            for (let i = 0; i < graphRecommendation.types.length; i++) {
+                const chartType = graphRecommendation.types[i];
+                const reasoning = graphRecommendation.explanations?.[i] || "No explanation provided.";
+                chartsWithURLs.push(generateDummyChart(chartType, reasoning));
+            }
 
-        console.log(sessionData.chartOptions);
+            sessionData.graphRecommendation = graphRecommendation;
+            sessionData.chartOptions = chartsWithURLs;
+
+            res.json({ 
+                summary: summary,
+                graphRecommendation: graphRecommendation,
+                chartsWithURLs: chartsWithURLs,
+                // labels: labels,
+            });
+        } catch (error) {
+            return res.status(error.status).json({ error: error.message, code: error.code });
+        }
 
         /*const labels = await separateLabels(JSON.stringify(data.parsedData));
         console.log(labels);
@@ -119,22 +136,14 @@ app.post('/edit-data', async (req, res) => {
         sessionData.summary = JSON.parse(summary);
         sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
 
-        res.json({ 
-            summary: JSON.parse(summary),
-            graphRecommendation: graphRecommendation,
-            chartsWithURLs: chartsWithURLs,
-            // labels: labels,
-        });
     } catch (error) {
-        console.log(error);
-        res.status(500).send('Failed to process data.');
+        return res.status(error.status).json({ error: error.message, code: error.code });
     }
 });
 
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
     sessionData.visualSelected = data.id;
-    console.log(data.id);
     //sessionData.selectedOption = sessionData.chartConfig[data.id];
 
     try{
@@ -164,7 +173,6 @@ app.post('/visual-selected', async (req, res) => {
         }
 
         const chartConfig = multipleDatasetsChartGenerator(chartType, labels, sessionData.edittedData, data.id);
-        console.log(chartConfig);
         sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig, labels: labels});
     } catch (error) {
@@ -175,9 +183,12 @@ app.post('/visual-selected', async (req, res) => {
 
 app.post('/edit-selected', async (req, res) => {
     const data = req.body;
-    console.log(data);
     sessionData.chartConfig = data.chartConfig;
-    res.json({ chartConfig: sessionData.chartConfig });
+    res.json({ 
+        summary: sessionData.summary,
+        graphRecommendation: sessionData.graphRecommendation,
+        chartsWithURLs: sessionData.chartOptions 
+    });
 });
 
 

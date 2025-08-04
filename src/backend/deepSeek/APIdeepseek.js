@@ -25,23 +25,25 @@ async function queryDeepSeekV3(prompt) {
 
     //get/check API returns
     if (!response.ok) {
-      console.error("API request failed with status:", response.status, response.statusText);
-      return null;
+      const error = new Error (`${response.statusText}.`);
+      error.code = '';
+      error.status = response.status;
+      throw error;
     }
 
     const data = await response.json();
     if(data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content){
-      console.log("Raw API response data: ", data.choices[0].message.content);
       return data.choices[0].message.content;
     }
     else{
-      console.error("Unexpected/empty response structure: ", data);
-      return null; // Return null instead of fallback string
+      const error = new Error ("Unexpected API response.");
+      error.code = '';
+      error.status = 500;
+      throw error;
     }
 
-  } catch (err) {
-    console.error("Error calling API: ", err);
-    return null; // Return null instead of undefined
+  } catch (error) {
+    throw error;
   }
 };
 

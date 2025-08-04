@@ -17,8 +17,6 @@ function VisualSelect() {
   console.log(location.state);
   const { summary, graphRecommendation, chartsWithURLs } = location.state || {}; 
 
-  console.log(chartsWithURLs);
-
   const [selectedChart, setSelectedChart] = useState(null);
 
   // Function to get session data and navigate back to edit-data
