@@ -126,7 +126,7 @@ function VisualSelect() {
         </div> */}
         <div className="w-full max-w-6xl mt-6 mb-6 text-left">
           <button onClick={goPreviousPage}
-            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
+            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
             <ChevronLeft size={18} className="mr-1" />
             Edit my data
           </button>

@@ -145,7 +145,7 @@ function HomePage() {
           <div className="col-span-full flex justify-center mt-4">
             <button
               type="submit"
-              className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+              className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
             >
               Go to the next step
               <ChevronRight size={25} className="ml-2" />
