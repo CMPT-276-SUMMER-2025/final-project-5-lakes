@@ -3,8 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import ChartSelectionCard from '../components/visualselect/ChartSelectionCard';
 import { ChevronLeft, ClipboardList } from 'lucide-react';
 import VisualSelectStepper from '../components/visualselect/VisualSelectStepper';
-import DefaultError from '../components/messages/DefaultError';
-import useDefaultError from '../hooks/DefaultErrorHook';
 
 // not connected with backend yet
 // may need to change the inputs
@@ -20,13 +18,6 @@ function VisualSelect() {
   const { summary, graphRecommendation, chartsWithURLs } = location.state || {}; 
 
   const [selectedChart, setSelectedChart] = useState(null);
-
-  const {
-    isAlertVisible,
-    alertConfig,
-    showAlert,
-    hideAlert
-  } = useDefaultError();
 
   // Function to get session data and navigate back to edit-data
   const getSessionDataAndNavigateBack = async () => {
@@ -80,26 +71,12 @@ function VisualSelect() {
     await getSessionDataAndNavigateBack();
   }
 
-  console.log(summary);
-  console.log(graphRecommendation);
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start p-6 sm:p-10 font-inter">
       
       <div>
         <VisualSelectStepper />
       </div>
-
-      {isAlertVisible && (
-        <DefaultError
-          type={alertConfig.type}
-          title={alertConfig.title}
-          message={alertConfig.message}
-          buttonText={alertConfig.buttonText}
-          onClose={hideAlert}
-        />
-      )}
-
       
       <div className="w-full max-w-6xl bg-blue-50 shadow-md rounded-xl p-6 sm:p-8">
         
@@ -113,7 +90,6 @@ function VisualSelect() {
               chartImageUrl={chart.imageUrl}
               buttonText="Select"
               onSelect={() => navigate("/edit-save", { state: { selectedChart: chart } })}
-              showAlert={showAlert}
             />
           ))}
         </div>
