@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/visual-selected`;
 
-const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText = "Select Option" }) => {
+const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText = "Select Option", showAlert }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { chartConfig } = location.state || {};
@@ -35,6 +35,14 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
     })
     .catch(error => {
       console.error("Error selecting option:", error);
+      if (showAlert) {
+      showAlert(
+        'error',
+        'Chart Selection Failed',
+        'We could not load this chart. Please try again or select another one.',
+        'Okay'
+      );
+    }
     });
   }
 
