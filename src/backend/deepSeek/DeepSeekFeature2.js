@@ -10,14 +10,14 @@ async function getGraphRecommendation(data){
         try {
             result = JSON.parse(rawResult);
         } catch (jsonError) {
-            const error = new Error('Unexpected API response.');
+            const error = new Error('Unexpected API response');
             error.code = '';
             error.status = 500;
             throw error;
         }
 
         if (!result.types) {
-            const error = new Error ('Unexpected API response.');
+            const error = new Error ('Unexpected API response');
             error.code = '';
             error.status = 500;
             throw error;

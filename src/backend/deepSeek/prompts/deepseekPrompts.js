@@ -29,20 +29,25 @@ const promptExtractStructuredData =
         You are given a parsed file containing multiple sets of data.
         
         Your task:
-        1. Extract all data, identifying each data element as a key-value pair.
-        2. Identify important keys based on the estimated usage of the data. You can give appropriate names to these keys. Add a (#number) to the end of each key indicating the table the data came from.
-        3. Extract all data from all tables, identifying each data element as a key-value pair.
+        1. Extract all structured and semi-structured data from the file, including both formal tables and natural-language quantitative statements (e.g., “60% take the bus, 20% drive…”).
+        2. For each dataset or inferred dataset:
+                - Identify the most meaningful column names based on semantic context.
+                - If a dataset is found in natural language form, you are allowed to infer logical column headers (e.g., “Commute Method”, “Percentage”).
+        3. If a column's data uses symbols (like '$' or '%'), REMOVE the symbol from the data values, but APPEND the symbol in the column name **in parentheses**. For example:
+                - 'Price' for '$1.20' → 'Price($): ["1.20"]'
+                - 'Percentage' for '60%' → '"Percentage(%)": ["60"]'
         4. Merge all tables row-wise into a single JSON array:
                 - The first row from each table combines into the first object, the second rows combine into the second object, etc.
                 - If some tables have fewer rows, omit missing fields for those rows.
+                - Append a (#number) suffix to each column name to indicate which group/table the data came from.
         5. Keep in mind that this data will be used to generate a CSV file.
         6. Only output the JSON array, without explanations or extra formatting.
 
         Example:
         [
-                { "Product (1)": ["Apple"], "Price (1)": ["1.00"],  "Week (2)": ["2"], "Apples Sold (2)": ["100"], "Bananas Sold (2)": ["120"] },
-                { "Product (1)": ["Banana"], "Price (1)": ["0.80"], "Week (2)": ["2"], "Apples Sold (2)": ["90"], "Bananas Sold (2)": ["150"] },
-                { "Product (1)": ["Orange"], "Price (1)": ["1.20"] }
+                { "Product (1)": ["Apple"], "Price($) (1)": ["1.00"],  "Week (2)": ["2"], "Apples Sold (2)": ["100"], "Bananas Sold (2)": ["120"] },
+                { "Product (1)": ["Banana"], "Price($) (1)": ["0.80"], "Week (2)": ["2"], "Apples Sold (2)": ["90"], "Bananas Sold (2)": ["150"] },
+                { "Product (1)": ["Orange"], "Price($) (1)": ["1.20"] }
         ]
         
         Important rules:
@@ -167,7 +172,7 @@ const labelsSeparatorPrompt = `
         ), output EXACTLY the following with a reason as a **JSON object with 2 keys**:
         {
                 "errorTrigger": "TableInvalid", 
-                "issue": "specific reason here"
+                "issue": "specific reason here (do not include a period)"
         }
 
         Important rules:
@@ -195,12 +200,13 @@ const labelsSeparatorPrompt = `
         }
         
         4. Strict requirements:
-           - Return ONLY valid JSON with no wrapping text
-           - Never include actual data values
-           - Never include explanations
-           - If unsure whether a column is x or y, prefer x
-           - Maintain original column name casing
-           - Include ALL columns exactly once
+           - Return ONLY valid JSON with no wrapping text.
+           - Do NOT wrap the output in triple backticks (\`\`\`).
+           - Never include actual data values.
+           - Never include explanations.
+           - If unsure whether a column is x or y, prefer x.
+           - Maintain original column name casing.
+           - Include ALL columns exactly once.
         
         5. Example output for reference:
         {
