@@ -172,7 +172,7 @@ const labelsSeparatorPrompt = `
         ), output EXACTLY the following with a reason as a **JSON object with 2 keys**:
         {
                 "errorTrigger": "TableInvalid", 
-                "issue": "specific reason here (no period)"
+                "issue": "specific reason here (do not include a period)"
         }
 
         Important rules:
