@@ -49,7 +49,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     console.log('Incoming /file-submit request from:', req.headers.origin);
     const files = req.files;
     const text = req.body.text;
-
     // Handle text input if no files are uploaded
     if (!files || files.length === 0) {
         if (!text || text.trim() === '') {
@@ -60,7 +59,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             const textData = text.split('\n').filter(line => line.trim() !== '');
             const result = await convertToChartConfig("", textData);
             sessionData.parsedData = result;
-            return res.json(result);
+            return res.json({ parsedData: result, text: text });
         } catch (error) {
             if (error.code === 'NO_DATA_EXTRACTED') {
                 return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });

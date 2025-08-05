@@ -15,13 +15,9 @@ function EditData() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
+  const { parsedData, summary, graphRecommendation, chartsWithURLs } = location.state || {};
   const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
-  // const fileName = file?.originalname || "Unknown file";
-  // const fileSize = file?.size || 0;
-
-  console.log("file:", file);
   console.log("parsedData:", parsedData);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +38,7 @@ function EditData() {
 
   // Initialize confirmedData and originalData from parsedData
   useEffect(() => {
-    if (!parsedData || !file) {
+    if (!parsedData) {
       navigate("/");
       return;
     }
@@ -50,7 +46,7 @@ function EditData() {
     const { table } = convertDeepSeekToTable(parsedData);
     setConfirmedData(structuredClone(table));
     setOriginalData(structuredClone(table));
-  }, [parsedData, file, navigate]);
+  }, [parsedData, navigate]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
