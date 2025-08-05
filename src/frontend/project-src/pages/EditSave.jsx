@@ -6,6 +6,23 @@ import { useState, useEffect } from "react";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
 import DownloadOptions from '../components/editsave/DownloadOptions';
 import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw, Check, MousePointerClick, TextCursorInput, Columns3Cog } from 'lucide-react';
+import {
+    getTitleFontSize,
+    getBaseFontSize,
+    hexToRgb,
+    rgbToHex,
+    handleColorChange,
+    handleTitleChange,
+    handleAxisTitleChange,
+    handleTextColorChange,
+    handleFontSizeChange,
+    handleUndo,
+    handleRedo,
+    handleReset,
+    handleFontChange,
+    handleGridLines,
+    handleLegend
+} from '../utils/EditSaveUtils';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
 
@@ -16,58 +33,6 @@ const notoFonts = [
     { name: "Noto Sans Display", value: "Noto Sans Display" },
     { name: "Noto Color Emoji", value: "Noto Color Emoji" }
 ];
-
-// Title font size ratio - title will be 1.5x larger than base font size
-const TITLE_FONT_SIZE_RATIO = 1.5;
-
-// Utility function to calculate title font size based on base font size
-const getTitleFontSize = (baseFontSize) => {
-    return Math.round(baseFontSize * TITLE_FONT_SIZE_RATIO);
-};
-
-// Utility function to calculate base font size from title font size
-const getBaseFontSize = (titleFontSize) => {
-    return Math.round(titleFontSize / TITLE_FONT_SIZE_RATIO);
-};
-
-// Utility function to convert hex to RGB
-const hexToRgb = (hex) => {
-    // Remove the hash if it exists
-    hex = hex.replace('#', '');
-    
-    // Parse the hex values
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    
-    return `rgb(${r}, ${g}, ${b})`;
-};
-
-// Utility function to convert RGB string back to hex
-const rgbToHex = (rgb) => {
-    if (!rgb || typeof rgb !== 'string') return '#36A2EB';
-    
-    // If it's already a hex color, return it
-    if (rgb.startsWith('#')) return rgb;
-    
-    // Extract RGB values from rgb(r, g, b) or rgba(r, g, b, a) format
-    const rgbMatch = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (!rgbMatch) return '#36A2EB';
-    
-    const r = parseInt(rgbMatch[1], 10);
-    const g = parseInt(rgbMatch[2], 10);
-    const b = parseInt(rgbMatch[3], 10);
-    
-    // Convert to hex
-    const toHex = (n) => {
-        const hex = n.toString(16);
-        return hex.length === 1 ? '0' + hex : hex;
-    };
-    
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-};
-
-
 
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -111,14 +76,6 @@ function EditSave() {
     const [legend, setLegend] = useState(true);
 
     const [activePicker, setActivePicker] = useState(null); // 'background' | 'text' | null for color pickers
-
-    // Generate the initial chart image URL
-    // useEffect(() => {
-    //     if (chartConfig) {
-    //     const Url = `${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`;
-    //     setChartImageUrl(Url);
-    //     }
-    // }, [chartConfig]);
 
     useEffect(() => {
         if (chartConfig?.type === "pie" || chartConfig?.type === "doughnut") {
@@ -223,266 +180,26 @@ function EditSave() {
     }, [chartConfig, datasetSelected, segmentSelected]);
 
     // Handle color change from the color picker
-    const handleColorChange = (color) => {
-        if (color.hex != selectedColor) {
-            setSelectedColor(color.hex);        
-    
-            // Convert hex to RGB for QuickChart API
-            const rgbColor = hexToRgb(color.hex);
-            
-            // Create a copy of chartConfig with RGB colors
-            const updated = {
-                ...chartConfig,
-                chartStyle: {
-                    ...chartConfig.chartStyle,
-                    backgroundColor: color.hex // Keep hex for internal state
-                }
-            };
-            
-            // Apply RGB colors to chart configuration for API
-            if (updated.options) {
-                if (updated.options.elements) {
-                    updated.options.elements.backgroundColor = rgbColor;
-                }
-            }
-            
-            // Check if it's a pie chart
-            const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
-            
-            if (isPieChart) {
-                // For pie charts, update the specific segment color
-                console.log("Selected segment index:", segmentSelected);
-                if (updated.data && updated.data.datasets && updated.data.datasets[0]) {
-                    const dataset = updated.data.datasets[0];
-                    if (Array.isArray(dataset.backgroundColor)) {
-                        // Update specific segment
-                        dataset.backgroundColor[segmentSelected] = rgbColor;
-                    } else {
-                        // Convert single color to array and update specific segment
-                        const dataLength = dataset.data ? dataset.data.length : 1;
-                        dataset.backgroundColor = new Array(dataLength).fill(dataset.backgroundColor || rgbColor);
-                        dataset.backgroundColor[segmentSelected] = rgbColor;
-                    }
-                }
-            } else {
-                // For other charts, update the selected dataset
-                console.log("Selected dataset index:", datasetSelected);
-                if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
-                    updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
-                    updated.data.datasets[datasetSelected].borderColor = rgbColor;
-                }
-            }
-            console.log("Updated chart config:", updated);
-            updateChartConfig(updated);
-
-        }
+    const handleColorChangeLocal = (color) => {
+        handleColorChange(color, selectedColor, chartConfig, datasetSelected, segmentSelected, setSelectedColor, updateChartConfig);
     };
 
     // Handle chart title change
-    const handleTitleChange = () => {
-        if (tempTitle != chartTitle) {
-            setChartTitle(tempTitle);
-            
-            const updated = {
-                ...chartConfig,
-                options: {
-                    ...chartConfig.options,
-                    plugins: {
-                        ...chartConfig.options?.plugins,
-                        title: {
-                            ...chartConfig.options?.plugins?.title,
-                            display: true,
-                            text: tempTitle,
-                            font: {
-                                ...chartConfig.options?.plugins?.title?.font,
-                                family: activeFontFamily,
-                                size: getTitleFontSize(fontSize) // Use helper function
-                            }
-                        }
-                    }
-                }
-            };
-            
-            updateChartConfig(updated);
-        }
+    const handleTitleChangeLocal = () => {
+        handleTitleChange(tempTitle, chartTitle, chartConfig, activeFontFamily, fontSize, setChartTitle, updateChartConfig);
     };
 
-    const handleAxisTitleChange = (axis, title) => {
-        const currentXAxisTitle = chartConfig.options?.scales?.x?.title?.text || "X-axis";
-        const currentYAxisTitle = chartConfig.options?.scales?.y?.title?.text || "";
-
-        // Only proceed if the new title is different from the current one
-        if ((axis === "x" && title !== currentXAxisTitle) || 
-            (axis === "y" && title !== currentYAxisTitle)) {
-
-            if (axis === "x") {
-                setTempXAxisTitle(title);
-            } else {
-                setTempYAxisTitle(title);
-            }
-
-            const updated = {
-                ...chartConfig,
-                options: {
-                    ...chartConfig.options,
-                    scales: {
-                        ...chartConfig.options?.scales,
-                        x: {
-                            ...chartConfig.options?.scales?.x,
-                            title: {
-                                ...chartConfig.options?.scales?.x?.title,
-                                text: axis === "x" ? title : currentXAxisTitle
-                            }
-                        },
-                        y: {
-                            ...chartConfig.options?.scales?.y,
-                            title: {
-                                ...chartConfig.options?.scales?.y?.title,
-                                text: axis === "y" ? title : currentYAxisTitle
-                            }
-                        }
-                    }
-                }
-            };
-
-            updateChartConfig(updated);
-        }
-    }
+    const handleAxisTitleChangeLocal = (axis, title) => {
+        handleAxisTitleChange(axis, title, chartConfig, setTempXAxisTitle, setTempYAxisTitle, updateChartConfig);
+    };
 
     // Handle text color change
-    const handleTextColorChange = (color) => {
-        if (color.hex != textColor) {   
-            setTextColor(color.hex);
-            console.log("Confirmed text hex:", color.hex);
-            
-            // Create a copy of chartConfig with hex text colors (like background color)
-            const updated = {
-                ...chartConfig,
-                chartStyle: {
-                    ...chartConfig.chartStyle,
-                    textColor: color.hex // Keep hex for internal state
-                },
-                options: {
-                    ...chartConfig.options,
-                    plugins: {
-                        ...chartConfig.options?.plugins,
-                        title: {
-                            ...chartConfig.options?.plugins?.title,
-                            color: color.hex // Update chart title color
-                        },
-                        legend: {
-                            ...chartConfig.options?.plugins?.legend,
-                            labels: {
-                                ...chartConfig.options?.plugins?.legend?.labels,
-                                color: color.hex // Use hex for API (like background)
-                            }
-                        }
-                    },
-                    scales: {
-                        ...chartConfig.options?.scales,
-                        x: {
-                            ...chartConfig.options?.scales?.x,
-                            ticks: { 
-                                ...chartConfig.options?.scales?.x?.ticks,
-                                color: color.hex // Use hex for API (like background)
-                            },
-                            title: {
-                                ...chartConfig.options?.scales?.x?.title,
-                                color: color.hex // Update x-axis title color
-                            }
-                        },
-                        y: {
-                            ...chartConfig.options?.scales?.y,
-                            ticks: { 
-                                ...chartConfig.options?.scales?.y?.ticks,
-                                color: color.hex // Use hex for API (like background)
-                            },
-                            title: {
-                                ...chartConfig.options?.scales?.y?.title,
-                                color: color.hex // Update y-axis title color
-                            }
-                        }
-                    }
-                }
-            };
-            
-            updateChartConfig(updated); 
-
-        }
+    const handleTextColorChangeLocal = (color) => {
+        handleTextColorChange(color, textColor, chartConfig, setTextColor, updateChartConfig);
     };
 
-    const handleFontSizeChange = (e) => {
-        const newSize = parseInt(e.target.value, 10);
-        if (newSize != fontSize) {
-            setFontSize(newSize);
-
-            const updated = {
-                ...chartConfig,
-                options: {
-                    ...chartConfig.options,
-                    plugins: {
-                        ...chartConfig.options?.plugins,
-                        title: {
-                            ...chartConfig.options?.plugins?.title,
-                            font: {
-                                ...chartConfig.options?.plugins?.title?.font,
-                                family: activeFontFamily,
-                                size: getTitleFontSize(newSize) // Use helper function
-                            }
-                        },
-                        legend: {
-                            ...chartConfig.options?.plugins?.legend,
-                            labels: {
-                                ...chartConfig.options?.plugins?.legend?.labels,
-                                font: {
-                                    family: activeFontFamily,
-                                    size: newSize
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        ...chartConfig.options?.scales,
-                        x: {
-                            ...chartConfig.options?.scales?.x,
-                            ticks: {
-                                ...chartConfig.options?.scales?.x?.ticks,
-                                font: {
-                                    family: activeFontFamily,
-                                    size: newSize
-                                }
-                            },
-                            title: {
-                                ...chartConfig.options?.scales?.x?.title,
-                                font: {
-                                    family: activeFontFamily,
-                                    size: newSize
-                                }
-                            }
-                        },
-                        y: {
-                            ...chartConfig.options?.scales?.y,
-                            ticks: {
-                                ...chartConfig.options?.scales?.y?.ticks,
-                                font: {
-                                    family: activeFontFamily,
-                                    size: newSize
-                                }
-                            },
-                            title: {
-                                ...chartConfig.options?.scales?.y?.title,
-                                font: {
-                                    family: activeFontFamily,
-                                    size: newSize
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            updateChartConfig(updated);
-        }
+    const handleFontSizeChangeLocal = (e) => {
+        handleFontSizeChange(e, fontSize, chartConfig, activeFontFamily, setFontSize, updateChartConfig);
     };
 
     // helper function to update chart config and maintain history
@@ -502,204 +219,30 @@ function EditSave() {
     };
 
     // Handle undo and redo actions
-    const handleUndo = () => {
-        if (historyIndex > 0) {
-            const prevIndex = historyIndex - 1;
-            const prevSelection = selectionHistory[prevIndex];
-            // Restore the previous dataset/segment selection
-            setDatasetSelected(prevSelection.dataset);
-            setSegmentSelected(prevSelection.segment);
-            setChartConfig(history[prevIndex]);
-            setHistoryIndex(prevIndex);
-            setSelectedColor(history[prevIndex].chartStyle?.backgroundColor || "#36A2EB");
-            setTextColor(history[prevIndex].chartStyle?.textColor || "#000000");
-            const prevTitle = history[prevIndex].options?.plugins?.title?.text || "Chart Title";
-            setChartTitle(prevTitle);
-            setTempTitle(prevTitle);
-            const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Noto Sans";
-            const prevTitleFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 21; // Default title size (14 * 1.5)
-            const prevFontSize = getBaseFontSize(prevTitleFontSize);
-            setActiveFontFamily(prevFontFamily);
-            setFontSize(prevFontSize);
-            
-
-        }
+    const handleUndoLocal = () => {
+        handleUndo(historyIndex, history, selectionHistory, setDatasetSelected, setSegmentSelected, setChartConfig, setHistoryIndex, setSelectedColor, setTextColor, setChartTitle, setTempTitle, setActiveFontFamily, setFontSize, setChartImageUrl);
     };
 
-    const handleRedo = () => {
-        if (historyIndex < history.length - 1) {
-            const nextIndex = historyIndex + 1;
-            const nextSelection = selectionHistory[nextIndex];
-            // Restore the next dataset/segment selection
-            setDatasetSelected(nextSelection.dataset);
-            setSegmentSelected(nextSelection.segment);
-            setChartConfig(history[nextIndex]);
-            setHistoryIndex(nextIndex);
-            setSelectedColor(history[nextIndex].chartStyle?.backgroundColor || "#36A2EB");
-            setTextColor(history[nextIndex].chartStyle?.textColor || "#000000");
-            const nextTitle = history[nextIndex].options?.plugins?.title?.text || "Chart Title";
-            setChartTitle(nextTitle);
-            setTempTitle(nextTitle);
-            const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Noto Sans";
-            const nextTitleFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 21; // Default title size (14 * 1.5)
-            const nextFontSize = getBaseFontSize(nextTitleFontSize);
-            setActiveFontFamily(nextFontFamily);
-            setFontSize(nextFontSize);
-            
-
-        }
+    const handleRedoLocal = () => {
+        handleRedo(historyIndex, history, selectionHistory, setDatasetSelected, setSegmentSelected, setChartConfig, setHistoryIndex, setSelectedColor, setTextColor, setChartTitle, setTempTitle, setActiveFontFamily, setFontSize, setChartImageUrl);
     };
 
-    const handleReset = () => {
-        setChartConfig(initialConfig);
-        setSelectedColor(initialConfig.chartStyle?.backgroundColor || "#4F46E5");
-        setTextColor(initialConfig.chartStyle?.textColor || "#000000");
-        const initialTitle = initialConfig.options?.plugins?.title?.text || "Chart Title";
-        setChartTitle(initialTitle);
-        setTempTitle(initialTitle);
-        const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Noto Sans";
-        const initialTitleFontSize = initialConfig.options?.plugins?.title?.font?.size || 21; // Default title size (14 * 1.5)
-        const initialFontSize = getBaseFontSize(initialTitleFontSize);
-        setActiveFontFamily(initialFontFamily);
-        setFontSize(initialFontSize);
-        setDatasetSelected(0); // Reset to first dataset
-        setSegmentSelected(0); // Reset to first segment
-        setHistory([initialConfig]);
-        setHistoryIndex(0);
-        setSelectionHistory([{ dataset: 0, segment: 0 }]); // Reset selection history
+    const handleResetLocal = () => {
+        handleReset(initialConfig, setChartConfig, setSelectedColor, setTextColor, setChartTitle, setTempTitle, setActiveFontFamily, setFontSize, setDatasetSelected, setSegmentSelected, setHistory, setHistoryIndex, setSelectionHistory, setChartImageUrl);
     };
 
     // Handle font change
-    const handleFontChange = (e) => {
-        const newFontFamily = e.target.value;
-        setActiveFontFamily(newFontFamily);
-
-        const updated = {
-            ...chartConfig,
-            options: {
-                ...chartConfig.options,
-                plugins: {
-                    ...chartConfig.options?.plugins,
-                    title: {
-                        ...chartConfig.options?.plugins?.title,
-                        font: {
-                            ...chartConfig.options?.plugins?.title?.font,
-                            family: newFontFamily,
-                            size: getTitleFontSize(fontSize) // Use helper function
-                        }
-                    },
-                    legend: {
-                        ...chartConfig.options?.plugins?.legend,
-                        labels: {
-                            ...chartConfig.options?.plugins?.legend?.labels,
-                            font: {
-                                family: newFontFamily,
-                                size: fontSize
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    ...chartConfig.options?.scales,
-                    x: {
-                        ...chartConfig.options?.scales?.x,
-                        ticks: {
-                            ...chartConfig.options?.scales?.x?.ticks,
-                            font: {
-                                family: newFontFamily,
-                                size: fontSize
-                            }
-                        },
-                        title: {
-                            ...chartConfig.options?.scales?.x?.title,
-                            font: {
-                                family: newFontFamily,
-                                size: fontSize
-                            }
-                        }
-                    },
-                    y: {
-                        ...chartConfig.options?.scales?.y,
-                        ticks: {
-                            ...chartConfig.options?.scales?.y?.ticks,
-                            font: {
-                                family: newFontFamily,
-                                size: fontSize
-                            }
-                        },
-                        title: {
-                            ...chartConfig.options?.scales?.y?.title,
-                            font: {
-                                family: newFontFamily,
-                                size: fontSize
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        
-        updateChartConfig(updated);
+    const handleFontChangeLocal = (e) => {
+        handleFontChange(e, chartConfig, activeFontFamily, fontSize, setActiveFontFamily, updateChartConfig);
     };
 
-    const handleGridLines = () => {
-        setGridLines((prev) => {
-            const newGridState = !prev;
-        
-            const updated = {
-              ...chartConfig,
-              options: {
-                ...chartConfig.options,
-                scales: {
-                  ...chartConfig.options?.scales,
-                  x: {
-                    ...chartConfig.options?.scales?.x,
-                    grid: {
-                      ...chartConfig.options?.scales?.x?.grid,
-                      display: newGridState
-                    }
-                  },
-                  y: {
-                    ...chartConfig.options?.scales?.y,
-                    grid: {
-                      ...chartConfig.options?.scales?.y?.grid,
-                      display: newGridState
-                    }
-                  }
-                }
-              }
-            };
-        
-            updateChartConfig(updated);
-            return newGridState;
-          });
-    }
+    const handleGridLinesLocal = () => {
+        handleGridLines(gridLines, chartConfig, setGridLines, updateChartConfig);
+    };
 
-    const handleLegend = () => {
-        setLegend((prev) => {
-            const newLegendState = !prev;
-        
-            const updated = {
-              ...chartConfig,
-              options: {
-                ...chartConfig.options,
-                plugins: {
-                  ...chartConfig.options?.plugins,
-                  legend: {
-                    ...chartConfig.options?.plugins?.legend,
-                    display: newLegendState,
-                    labels: {
-                      ...chartConfig.options?.plugins?.legend?.labels
-                    }
-                  }
-                }
-              }
-            };
-        
-            updateChartConfig(updated);
-            return newLegendState;
-        });
-    }
+    const handleLegendLocal = () => {
+        handleLegend(legend, chartConfig, setLegend, updateChartConfig);
+    };
 
     useEffect(() => {
     if (chartConfig) {
@@ -724,7 +267,7 @@ function EditSave() {
 
                             <div className="flex ml-6 space-x-3">
                                 <button
-                                onClick={handleUndo}
+                                onClick={handleUndoLocal}
                                 disabled={historyIndex === 0}
                                 className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Undo"
@@ -733,7 +276,7 @@ function EditSave() {
                                 </button>
 
                                 <button
-                                onClick={handleRedo}
+                                onClick={handleRedoLocal}
                                 disabled={historyIndex === history.length - 1}
                                 className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Redo"
@@ -742,7 +285,7 @@ function EditSave() {
                                 </button>
 
                                 <button
-                                onClick={handleReset}
+                                onClick={handleResetLocal}
                                 className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100"
                                 title="Reset"
                                 >
@@ -788,7 +331,7 @@ function EditSave() {
                                         <select
                                             id="fontFamilyDropdown"
                                             value={activeFontFamily}
-                                            onChange={handleFontChange}
+                                            onChange={handleFontChangeLocal}
                                             className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                                             style={{ fontFamily: activeFontFamily }}
                                         >
@@ -803,7 +346,7 @@ function EditSave() {
                                         <select
                                             id="fontSizeDropdown"
                                             value={fontSize}
-                                            onChange={handleFontSizeChange}
+                                            onChange={handleFontSizeChangeLocal}
                                             className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                                         >
                                             {[6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32].map((size) => (
@@ -831,7 +374,7 @@ function EditSave() {
                                         className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                                     />
                                     <button
-                                        onClick={handleTitleChange}
+                                        onClick={handleTitleChangeLocal}
                                         className="primary-button"
                                     >
                                         Update
@@ -854,7 +397,7 @@ function EditSave() {
                                         className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                                     />
                                     <button
-                                        onClick={() => handleAxisTitleChange("x", tempXAxisTitle)}
+                                        onClick={() => handleAxisTitleChangeLocal("x", tempXAxisTitle)}
                                         className="primary-button"
                                     >
                                         Update
@@ -873,7 +416,7 @@ function EditSave() {
                                         className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                                     />
                                     <button
-                                        onClick={() => handleAxisTitleChange("y", tempYAxisTitle)}
+                                        onClick={() => handleAxisTitleChangeLocal("y", tempYAxisTitle)}
                                         className="primary-button"
                                     >
                                         Update
@@ -1016,10 +559,10 @@ function EditSave() {
                                         onClick={() => {
                                             if (activePicker === "background") {
                                             setSelectedColor(tempBackgroundColor);
-                                            handleColorChange({ hex: tempBackgroundColor });
+                                            handleColorChangeLocal({ hex: tempBackgroundColor });
                                             } else {
                                             setTextColor(tempTextColor);
-                                            handleTextColorChange({ hex: tempTextColor });
+                                            handleTextColorChangeLocal({ hex: tempTextColor });
                                             }
                                             setActivePicker(null);
                                         }}
@@ -1050,14 +593,14 @@ function EditSave() {
 
                                 <div className="flex gap-4">
                                     <button 
-                                    onClick={handleGridLines} 
+                                    onClick={handleGridLinesLocal} 
                                     className="w-1/2 primary-button text-center cursor-pointer justify-center"
                                     >
                                     {gridLines ? "Disable Grid Lines" : "Enable Grid Lines"}
                                     </button>
 
                                     <button 
-                                    onClick={handleLegend} 
+                                    onClick={handleLegendLocal} 
                                     className="w-1/2 primary-button text-center cursor-pointer justify-center"
                                     >
                                     {legend ? "Disable Legend" : "Enable Legend"}
