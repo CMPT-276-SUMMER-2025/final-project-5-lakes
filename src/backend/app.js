@@ -4,9 +4,9 @@ const cors = require('cors');
 const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1.js');
 const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
 const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
-const { parseFile } = require('./file-parser.js');
-const { separateLabels } = require('./labelSeparation.js');
-const { generateDummyChart } = require('./quickChart/QCFeature1.js');
+const { parseFile } = require('./deepSeek/DeepSeekFileParser.js');
+const { separateLabels } = require('./deepSeek/DeepSeekLabelSeparation.js');
+const { generateDummyChart } = require('./quickChart/QCGenerateDummyChart.js');
 const { multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 
 const app = express();
@@ -64,7 +64,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             if (error.code === 'NO_DATA_EXTRACTED') {
                 return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
             } else {
-                return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
+                return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || ''|| ''});
             }
         }
     }
@@ -80,7 +80,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         if (error.code === 'NO_DATA_EXTRACTED') {
             return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
         } else {
-            return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
+            return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || ''|| ''});
         }
     }
 });

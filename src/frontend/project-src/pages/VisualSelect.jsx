@@ -86,7 +86,7 @@ function VisualSelect() {
               key={chart.id}
               id={chart.id}
               title={chart.title}
-              description={`${chart.description} (The above chart is generated using dummy data)`}
+              description={`${chart.description} (This chart is generated using dummy data)`}
               chartImageUrl={chart.imageUrl}
               buttonText="Select"
               onSelect={() => navigate("/edit-save", { state: { selectedChart: chart } })}
