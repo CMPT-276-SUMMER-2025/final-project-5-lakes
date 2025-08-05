@@ -5,6 +5,7 @@
 // import the fixed parameters and create graph with data
 const { getXValues } = require('./QCAdditionalFunctions.js');
 const { getYValues } = require('./QCAdditionalFunctions.js');
+const { getScatterValues } = require('./QCAdditionalFunctions.js');
 const dummyChart = require('./dummyData/dummyChartConfig.js');
 
 function multipleDatasetsChartGenerator(type, labels, datasets, id) {
@@ -66,6 +67,11 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
             }
         }
     };
+
+
+    if (type == "scatter") {
+        chartConfig.data.datasets[0].data = getScatterValues(labels, datasets);
+    }
 
     if (type === "pie" || type === "doughnut") {
         // For pie/doughnut charts, map background colors to the number of data points
