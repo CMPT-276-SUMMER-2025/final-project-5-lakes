@@ -17,6 +17,19 @@ const notoFonts = [
     { name: "Noto Color Emoji", value: "Noto Color Emoji" }
 ];
 
+// Title font size ratio - title will be 1.5x larger than base font size
+const TITLE_FONT_SIZE_RATIO = 1.5;
+
+// Utility function to calculate title font size based on base font size
+const getTitleFontSize = (baseFontSize) => {
+    return Math.round(baseFontSize * TITLE_FONT_SIZE_RATIO);
+};
+
+// Utility function to calculate base font size from title font size
+const getBaseFontSize = (titleFontSize) => {
+    return Math.round(titleFontSize / TITLE_FONT_SIZE_RATIO);
+};
+
 // Utility function to convert hex to RGB
 const hexToRgb = (hex) => {
     // Remove the hash if it exists
@@ -128,7 +141,7 @@ function EditSave() {
                     text: chartTitle || "Chart Title",
                     font: {
                         family: "Noto Sans",
-                        size: fontSize
+                        size: getTitleFontSize(fontSize) // Use helper function
                     }
                 };
             }
@@ -283,7 +296,7 @@ function EditSave() {
                             font: {
                                 ...chartConfig.options?.plugins?.title?.font,
                                 family: activeFontFamily,
-                                size: fontSize
+                                size: getTitleFontSize(fontSize) // Use helper function
                             }
                         }
                     }
@@ -414,7 +427,7 @@ function EditSave() {
                             font: {
                                 ...chartConfig.options?.plugins?.title?.font,
                                 family: activeFontFamily,
-                                size: newSize
+                                size: getTitleFontSize(newSize) // Use helper function
                             }
                         },
                         legend: {
@@ -504,7 +517,8 @@ function EditSave() {
             setChartTitle(prevTitle);
             setTempTitle(prevTitle);
             const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Noto Sans";
-            const prevFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 14;
+            const prevTitleFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 21; // Default title size (14 * 1.5)
+            const prevFontSize = getBaseFontSize(prevTitleFontSize);
             setActiveFontFamily(prevFontFamily);
             setFontSize(prevFontSize);
             
@@ -527,7 +541,8 @@ function EditSave() {
             setChartTitle(nextTitle);
             setTempTitle(nextTitle);
             const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Noto Sans";
-            const nextFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 14;
+            const nextTitleFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 21; // Default title size (14 * 1.5)
+            const nextFontSize = getBaseFontSize(nextTitleFontSize);
             setActiveFontFamily(nextFontFamily);
             setFontSize(nextFontSize);
             
@@ -543,7 +558,8 @@ function EditSave() {
         setChartTitle(initialTitle);
         setTempTitle(initialTitle);
         const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Noto Sans";
-        const initialFontSize = initialConfig.options?.plugins?.title?.font?.size || 14;
+        const initialTitleFontSize = initialConfig.options?.plugins?.title?.font?.size || 21; // Default title size (14 * 1.5)
+        const initialFontSize = getBaseFontSize(initialTitleFontSize);
         setActiveFontFamily(initialFontFamily);
         setFontSize(initialFontSize);
         setDatasetSelected(0); // Reset to first dataset
@@ -569,7 +585,7 @@ function EditSave() {
                         font: {
                             ...chartConfig.options?.plugins?.title?.font,
                             family: newFontFamily,
-                            size: fontSize
+                            size: getTitleFontSize(fontSize) // Use helper function
                         }
                     },
                     legend: {
