@@ -43,6 +43,16 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
                         family: "Noto Sans",
                         size: 22
                     }
+                },
+                legend: {
+                    display: true,
+                    labels: {
+                        color: "#000",
+                        font: {
+                            family: "Noto Sans",
+                            size: 14
+                        }
+                    }
                 }
             },
             scales: {
@@ -50,8 +60,17 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
                     title: {
                         display: true,
                         text: "X-axis",
+                        color: "#000",
                         font: {
+                            family: "Noto Sans",
                             size: 18
+                        }
+                    },
+                    ticks: {
+                        color: "#000",
+                        font: {
+                            family: "Noto Sans",
+                            size: 14
                         }
                     }
                 },
@@ -59,8 +78,17 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
                     title: {
                         display: true,
                         text: "Y-axis",
+                        color: "#000",
                         font: {
+                            family: "Noto Sans",
                             size: 18
+                        }
+                    },
+                    ticks: {
+                        color: "#000",
+                        font: {
+                            family: "Noto Sans",
+                            size: 14
                         }
                     }
                 }
