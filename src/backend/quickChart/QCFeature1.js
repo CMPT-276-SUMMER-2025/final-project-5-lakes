@@ -7,11 +7,18 @@ const {quickChartURL} = require('./QCParameters.js');
 const dummyChart = require('./dummyData/dummyChartConfig.js');
 
 function generateDummyChart(type, description) {
-    const chart = dummyChart.find(c => c.title === type);
-
-    if (!chart) {
-        console.warn(`No dummy chart found for type: ${type}`);
-        return null;
+    let chart;
+    try{
+        chart = dummyChart.find(c => c.title === type);
+        
+        if (!chart) {
+            const error = new Error (`Internal Server Error: No dummy chart found for type: ${type}`);
+            error.code = '';
+            error.status = 500;
+            throw error;
+        }
+    } catch (error) {
+        throw error;
     }
 
     const encoded = encodeURIComponent(JSON.stringify(dummyChart[chart.id-1].config));
@@ -72,7 +79,6 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
 
     // Use the first dataset to generate X labels (assuming all datasets share same X structure)
     const xLabels = getXValues(labels.x, datasets);
-
     const colors = [
         'rgb(54, 162, 235)',   // Blue
         'rgb(255, 99, 132)',   // Red

@@ -63,7 +63,7 @@ function HomePage() {
      .then(async (response) => { //// to go to the next page if successful
       const data = await response.json();
       if (!response.ok) {
-        const error = new Error(data.error || 'Something went wrong.')
+        const error = new Error(data.error || 'Something went wrong')
         error.code = data.code || '';
         throw error;
       }
@@ -79,7 +79,7 @@ function HomePage() {
         showAlert(
           'error',
           'Extraction Failed',
-          `File parsing failed: ${error.message}`,
+          `We could not parse the file: ${error.message}.`,
           'Okay',
           () => navigate('/')
         )
@@ -87,7 +87,7 @@ function HomePage() {
         showAlert(
           'error',
           'Submission Error',
-          `File parsing failed: ${error.message} Please try again later.`,
+          `We could not parse the file: ${error.message}. Please try again later.`,
           'Okay',
           () => navigate('/')
         )

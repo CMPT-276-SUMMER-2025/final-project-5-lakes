@@ -39,7 +39,7 @@ function EditSaveButtons() {
         .then(async (response) => {
             const data = await response.json();
             if (!response.ok) {
-                const error = new Error(data.error || 'Something went wrong.')
+                const error = new Error(data.error || 'Something went wrong')
                 error.code = data.code || '';
                 throw error;
             }

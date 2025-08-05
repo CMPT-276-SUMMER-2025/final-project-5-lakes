@@ -89,7 +89,7 @@ function EditData() {
     const data = await response.json();
 
     if (!response.ok) {
-      const error = new Error(data.error || "Something went wrong.");
+      const error = new Error(data.error || "Something went wrong");
       error.code = data.code || "";
       throw error;
     }
@@ -104,34 +104,52 @@ function EditData() {
       showAlert(
         "error",
         "Editing Failed",
-        `Chart generation failed: ${error.message}`,
+        `We could not generate the chart: ${error.message}.`,
         "Okay"
       );
     } else {
       showAlert(
         "error",
         "Generation Failed",
-        `Chart generation failed: ${error.message}. Please try again later.`,
+        `We could not generate the chart: ${error.message}.. Please try again later.`,
         "Okay"
       );
     }
   }
 };
   
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (tableRef.current && !tableRef.current.contains(event.target)) {
-        setSelectedCell(null); // clear selection
-      }
-    };
+  // Functions to add/remove rows and columns
+  const addRow = () => {
+    const updated = structuredClone(confirmedData);
+    updated.rows.push({
+      header: `Row ${updated.rows.length + 1}`,
+      cells: new Array(updated.columns.length).fill(""),
+    });
+    updateConfirmedData(updated);
+  };
 
-    document.addEventListener("mousedown", handleClickOutside);
+  const removeRow = () => {
+    if (confirmedData.rows.length === 0) return;
+    const updated = structuredClone(confirmedData);
+    updated.rows.pop();
+    updateConfirmedData(updated);
+  };
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-  
+  const addColumn = () => {
+    const updated = structuredClone(confirmedData);
+    updated.columns.push(`Column ${updated.columns.length + 1}`);
+    updated.rows.forEach((row) => row.cells.push(""));
+    updateConfirmedData(updated);
+  };
+
+  const removeColumn = () => {
+    if (confirmedData.columns.length === 0) return;
+    const updated = structuredClone(confirmedData);
+    updated.columns.pop();
+    updated.rows.forEach((row) => row.cells.pop());
+    updateConfirmedData(updated);
+  };
+
   const insertRowAbove = (index) => {
     const updated = structuredClone(confirmedData);
     updated.rows.splice(index, 0, {
