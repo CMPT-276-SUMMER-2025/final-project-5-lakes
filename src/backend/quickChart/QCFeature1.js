@@ -12,7 +12,6 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
 
     // Use the first dataset to generate X labels (assuming all datasets share same X structure)
     const xLabels = getXValues(labels.x, datasets);
-
     const colors = [
         'rgb(54, 162, 235)',   // Blue
         'rgb(255, 99, 132)',   // Red
@@ -72,6 +71,7 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
         // For pie/doughnut charts, map background colors to the number of data points
         const dataLength = chartConfig.data.datasets[0].data.length;
         chartConfig.data.datasets[0].backgroundColor = colors.slice(0, dataLength);
+        chartConfig.data.datasets[0].borderColor = "rgb(255, 255, 255)";
         
         // Disable grid lines and axes for pie/doughnut charts
         chartConfig.options.scales = {

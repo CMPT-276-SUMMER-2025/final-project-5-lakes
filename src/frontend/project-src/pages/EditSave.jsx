@@ -13,13 +13,7 @@ const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=wh
 const notoFonts = [
     { name: "Noto Sans", value: "Noto Sans" },
     { name: "Noto Serif", value: "Noto Serif" },
-    { name: "Noto Sans Mono", value: "Noto Sans Mono" },
     { name: "Noto Sans Display", value: "Noto Sans Display" },
-    { name: "Noto Serif Display", value: "Noto Serif Display" },
-    { name: "Noto Sans JP", value: "Noto Sans JP" },
-    { name: "Noto Sans KR", value: "Noto Sans KR" },
-    { name: "Noto Sans SC", value: "Noto Sans SC" },
-    { name: "Noto Sans TC", value: "Noto Sans TC" },
     { name: "Noto Color Emoji", value: "Noto Color Emoji" }
 ];
 
@@ -85,12 +79,6 @@ function EditSave() {
     const [activeFontFamily, setActiveFontFamily] = useState("Noto Sans");
     const [fontSize, setFontSize] = useState(14); 
 
-    const [fontStyle, setFontStyle] = useState({
-        bold: false,
-        italic: false,
-        underline: false
-    });
-
     const [history, setHistory] = useState([initialConfig]);
     const [historyIndex, setHistoryIndex] = useState(0);
     
@@ -109,10 +97,6 @@ function EditSave() {
     const [gridLines, setGridLines] = useState(true);
     const [legend, setLegend] = useState(true);
 
-    if (chartConfig.type === "pie" || chartConfig.type === "doughnut") {
-        setGridLines(!gridLines);
-    }
-
     // Generate the initial chart image URL
     // useEffect(() => {
     //     if (chartConfig) {
@@ -120,6 +104,13 @@ function EditSave() {
     //     setChartImageUrl(Url);
     //     }
     // }, [chartConfig]);
+
+    useEffect(() => {
+        if (chartConfig?.type === "pie" || chartConfig?.type === "doughnut") {
+          setGridLines(false);
+        }
+    }, [chartConfig?.type]);
+      
 
     useEffect(() => {
         console.log("Creating chartConfig");
@@ -268,7 +259,6 @@ function EditSave() {
             }
             console.log("Updated chart config:", updated);
             updateChartConfig(updated);
-
 
         }
     };
@@ -869,7 +859,7 @@ function EditSave() {
                                         style={{ fontFamily: activeFontFamily }}
                                     >
                                         {notoFonts.map((font) => (
-                                            <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
+                                            <option key={font.value} value={font.value} style={{ fontamily: font.value }}>
                                                 {font.name}
                                             </option>
                                         ))}

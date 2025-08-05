@@ -7,7 +7,7 @@ async function convertToChartConfig(query, data) {
         const rawResult = await queryDeepSeekV3(prompt);
         
         if(rawResult === 'Error: No data was extracted.'){
-            const error = new Error('No data was extracted from the file.');
+            const error = new Error('No data was extracted from the file');
             error.code = 'NO_DATA_EXTRACTED';
             error.status = 400;
             throw error;
@@ -17,7 +17,7 @@ async function convertToChartConfig(query, data) {
         try {
             result = JSON.parse(rawResult);
         } catch (jsonError) {
-            const error = new Error('Unexpected API response.');
+            const error = new Error('Unexpected API response');
             error.code = '';
             error.status = 500;
             throw error;

@@ -10,16 +10,9 @@ async function getSummary(data){
         try {
             result = JSON.parse(rawResult);
         } catch (jsonError) {
-            const error = new Error('Unexpected API response.');
+            const error = new Error('Unexpected API response');
             error.code = '';
             error.status = 500;
-            throw error;
-        }
-
-        if(result.errorTrigger === "TableInvalid"){
-            const error = new Error(result.issue);
-            error.code = 'INVALID_EDITED_TABLE';
-            error.status = 400;
             throw error;
         }
         return result;

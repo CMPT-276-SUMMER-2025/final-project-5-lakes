@@ -25,7 +25,7 @@ async function queryDeepSeekV3(prompt) {
 
     //get/check API returns
     if (!response.ok) {
-      const error = new Error (`${response.statusText}.`);
+      const error = new Error (`${response.statusText}`);
       error.code = '';
       error.status = response.status;
       throw error;
@@ -36,7 +36,7 @@ async function queryDeepSeekV3(prompt) {
       return data.choices[0].message.content;
     }
     else{
-      const error = new Error ("Unexpected API response.");
+      const error = new Error ("Unexpected API response");
       error.code = '';
       error.status = 500;
       throw error;
