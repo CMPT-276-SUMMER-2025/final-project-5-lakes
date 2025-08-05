@@ -17,7 +17,7 @@ function VisualSelect() {
   console.log(location.state);
   const { summary, graphRecommendation, chartsWithURLs } = location.state || {}; 
 
-  const [selectedChart, setSelectedChart] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Function to get session data and navigate back to edit-data
   const getSessionDataAndNavigateBack = async () => {
@@ -76,7 +76,7 @@ function VisualSelect() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start p-6 sm:p-10 font-inter">
-      
+      {isLoading && <LoadingPopUp show={true} />}
       <div>
         <VisualSelectStepper />
       </div>
@@ -126,7 +126,7 @@ function VisualSelect() {
         </div> */}
         <div className="w-full max-w-6xl mt-6 mb-6 text-left">
           <button onClick={goPreviousPage}
-            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
+            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
             <ChevronLeft size={18} className="mr-1" />
             Edit my data
           </button>

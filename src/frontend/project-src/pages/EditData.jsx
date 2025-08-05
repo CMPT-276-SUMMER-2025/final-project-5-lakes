@@ -7,6 +7,7 @@ import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
 import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash, Undo, Redo } from "lucide-react";
 import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
+import { useRef } from "react";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
@@ -32,6 +33,13 @@ function EditData() {
 
   const [selectedCell, setSelectedCell] = useState(null); 
 
+  const [editHistory, setEditHistory] = useState([null]);
+  const [colEditHistory, setColEditHistory] = useState([null]);
+
+  const [hoveredAction, setHoveredAction] = useState(null);
+
+  const tableRef = useRef(null);
+
   // Initialize confirmedData and originalData from parsedData
   useEffect(() => {
     if (!parsedData || !file) {
@@ -44,102 +52,100 @@ function EditData() {
     setOriginalData(structuredClone(table));
   }, [parsedData, file, navigate]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tableRef.current && !tableRef.current.contains(event.target)) {
+        setSelectedCell(null); // clear selection
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
   // Handle form submission
   const handleNext = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
+  setIsLoading(true);
 
-    const formattedData = convertTableToDeepSeekFormat(confirmedData);
+  const formattedData = convertTableToDeepSeekFormat(confirmedData);
 
-    /*if (summary && graphRecommendation && chartsWithURLs) {
-      navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
-      setIsLoading(false);
-      return;
-    }*/
-
-    // Take in data from backend
-    fetch(apiUrl, {
+  try {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         edittedData: formattedData,
         parsedData: parsedData,
-        file: file
+        file: file,
       }),
       credentials: "include",
-    })
-    .then(async (response) =>{
-      const data = await response.json();
-      if (!response.ok) {
-        const error = new Error(data.error || 'Something went wrong.');
-        error.code = data.code || '';
-        throw error;
-      }
-      return data;
-    })
-    .then((data) => {
-      setIsLoading(false);
-      navigate("/visual-select", { state: data });
-    })
-    .catch((error) => {
-      setIsLoading(false);
-      
-      if (error.code === 'INVALID_EDITED_TABLE'){
-        showAlert(
-          'error',
-          'Editing Failed',
-          `Chart generation failed: ${error.message}`,
-          'Okay'
-        );
-      } else {
-        showAlert(
-        'error',
-        'Generation Failed',
-        `Chart generation failed: ${error.message} Please try again later`,
-        'Okay'
-        );
-      }
-    })
-  };
-  
-  // Functions to add/remove rows and columns
-  const addRow = () => {
-    const updated = structuredClone(confirmedData);
-    updated.rows.push({
-      header: `Row ${updated.rows.length + 1}`,
-      cells: new Array(updated.columns.length).fill(""),
     });
-    updateConfirmedData(updated);
-  };
 
-  const removeRow = () => {
-    if (confirmedData.rows.length === 0) return;
-    const updated = structuredClone(confirmedData);
-    updated.rows.pop();
-    updateConfirmedData(updated);
-  };
+    const data = await response.json();
 
-  const addColumn = () => {
-    const updated = structuredClone(confirmedData);
-    updated.columns.push(`Column ${updated.columns.length + 1}`);
-    updated.rows.forEach((row) => row.cells.push(""));
-    updateConfirmedData(updated);
-  };
+    if (!response.ok) {
+      const error = new Error(data.error || "Something went wrong.");
+      error.code = data.code || "";
+      throw error;
+    }
 
-  const removeColumn = () => {
-    if (confirmedData.columns.length === 0) return;
-    const updated = structuredClone(confirmedData);
-    updated.columns.pop();
-    updated.rows.forEach((row) => row.cells.pop());
-    updateConfirmedData(updated);
-  };
+    setIsLoading(false);
+    navigate("/visual-select", { state: data });
 
+  } catch (error) {
+    setIsLoading(false);
+
+    if (error.code === "INVALID_EDITED_TABLE") {
+      showAlert(
+        "error",
+        "Editing Failed",
+        `Chart generation failed: ${error.message}`,
+        "Okay"
+      );
+    } else {
+      showAlert(
+        "error",
+        "Generation Failed",
+        `Chart generation failed: ${error.message}. Please try again later.`,
+        "Okay"
+      );
+    }
+  }
+};
+  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tableRef.current && !tableRef.current.contains(event.target)) {
+        setSelectedCell(null); // clear selection
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  
   const insertRowAbove = (index) => {
     const updated = structuredClone(confirmedData);
     updated.rows.splice(index, 0, {
       cells: new Array(updated.columns.length).fill(""),
     });
+
     updateConfirmedData(updated);
+
+    setTimeout(() => {
+      setSelectedCell({
+        row: index + 1 < updated.rows.length ? index + 1 : updated.rows.length - 1,
+        col: selectedCell.col < updated.columns.length ? selectedCell.col : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
   const insertRowBelow = (index) => {
@@ -147,45 +153,85 @@ function EditData() {
     updated.rows.splice(index + 1, 0, {
       cells: new Array(updated.columns.length).fill(""),
     });
+
     updateConfirmedData(updated);
+
+    setTimeout(() => {
+      setSelectedCell({
+        row: index < updated.rows.length ? index : updated.rows.length - 1,
+        col: selectedCell.col < updated.columns.length ? selectedCell.col : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
   const insertColumnLeft = (index) => {
     const updated = structuredClone(confirmedData);
     updated.columns.splice(index, 0, `Column ${updated.columns.length + 1}`);
     updated.rows.forEach((row) => row.cells.splice(index, 0, ""));
+
     updateConfirmedData(updated);
+
+    setTimeout(() => {
+      setSelectedCell({
+        row: selectedCell.row < updated.rows.length ? selectedCell.row : updated.rows.length - 1,
+        col: index + 1 < updated.columns.length ? index + 1 : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
   const insertColumnRight = (index) => {
     const updated = structuredClone(confirmedData);
     updated.columns.splice(index + 1, 0, `Column ${updated.columns.length + 1}`);
     updated.rows.forEach((row) => row.cells.splice(index + 1, 0, ""));
+
     updateConfirmedData(updated);
+
+    setTimeout(() => {
+      setSelectedCell({
+        row: selectedCell.row < updated.rows.length ? selectedCell.row : updated.rows.length - 1,
+        col: index < updated.columns.length ? index : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
   const removeSelectedRow = (index) => {
     if (confirmedData.rows.length <= 1) return;
+
     const updated = structuredClone(confirmedData);
     updated.rows.splice(index, 1);
+
     updateConfirmedData(updated);
-    setSelectedCell(null); // clear selection
+
+    setTimeout(() => {
+      const newRow = index > 0 ? index - 1 : 0;
+      setSelectedCell({
+        row: newRow < updated.rows.length ? newRow : updated.rows.length - 1,
+        col: selectedCell.col < updated.columns.length ? selectedCell.col : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
   const removeSelectedColumn = (index) => {
     if (confirmedData.columns.length <= 1) return;
+
     const updated = structuredClone(confirmedData);
     updated.columns.splice(index, 1);
     updated.rows.forEach((row) => row.cells.splice(index, 1));
+
     updateConfirmedData(updated);
-    setSelectedCell(null);
+
+    setTimeout(() => {
+      const newCol = index > 0 ? index - 1 : 0;
+      setSelectedCell({
+        row: selectedCell.row < updated.rows.length ? selectedCell.row : updated.rows.length - 1,
+        col: newCol < updated.columns.length ? newCol : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
   // Undo/Redo functionality
   const updateConfirmedData = (newData) => {
-    setUndoStack((prev) => [...prev, structuredClone(confirmedData)]);
-    setRedoStack([]); // clear redo on new action
-    setConfirmedData(newData); // ✅ FIXED: use newData instead of 'updated'
+    setConfirmedData(newData);
   };
 
   const undo = () => {
@@ -227,7 +273,7 @@ function EditData() {
             <div className="w-full bg-white rounded-xl p-4 sm:p-6 shadow-lg">
               <h2 className="font-semibold text-center">Edit Data</h2>
               <p className="text-md text-gray-600 text-center mb-4">
-                Modify values, add/remove rows or columns as needed.
+                Click on a cell to modify its value, add/remove rows or columns as needed.
               </p>
 
               {confirmedData && (
@@ -236,7 +282,7 @@ function EditData() {
                     <button
                       type="button"
                       onClick={undo}
-                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
+                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={undoStack.length === 0}
                     >
                       <Undo size={18} />
@@ -244,14 +290,14 @@ function EditData() {
                     <button
                       type="button"
                       onClick={redo}
-                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
+                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={redoStack.length === 0}
                     >
                       <Redo size={18} />
                     </button>
                   </div>
 
-                  <div className="overflow-auto border">
+                  <div ref={tableRef} className="overflow-auto border">
                     <table className="min-w-full border border-gray-300">
                       <thead>
                         <tr>
@@ -259,10 +305,28 @@ function EditData() {
                             <th key={colIdx} className="border px-3 py-2 bg-gray-100">
                               <input
                                 value={col}
+                                onFocus={() => {
+                                  setColEditHistory({
+                                    index: colIdx,
+                                    prevValue: confirmedData.columns[colIdx],
+                                    snapshot: structuredClone(confirmedData),
+                                  });
+                                }}
                                 onChange={(e) => {
                                   const updated = structuredClone(confirmedData);
                                   updated.columns[colIdx] = e.target.value;
                                   updateConfirmedData(updated);
+                                }}
+                                onBlur={() => {
+                                  if (
+                                    colEditHistory &&
+                                    colEditHistory.index === colIdx &&
+                                    colEditHistory.prevValue !== confirmedData.columns[colIdx]
+                                  ) {
+                                    setUndoStack((prev) => [...prev, colEditHistory.snapshot]);
+                                    setRedoStack([]);
+                                  }
+                                  setColEditHistory(null);
                                 }}
                                 className="w-full font-semibold"
                               />
@@ -274,16 +338,61 @@ function EditData() {
                         {confirmedData.rows.map((row, rowIdx) => (
                           <tr key={rowIdx}>
                             {row.cells.map((cell, colIdx) => (
-                              <td key={colIdx} className="border px-3 py-2">
+                              <td
+                                key={colIdx}
+                                className={`border px-3 py-2 ${
+                                  (() => {
+                                    if (!selectedCell) return "";
+                                    const isRow = rowIdx === selectedCell.row;
+                                    const isCol = colIdx === selectedCell.col;
+
+                                    if (hoveredAction === "rowAbove" || hoveredAction === "rowBelow" || hoveredAction === "removeRow") {
+                                      return isRow ? "bg-blue-100" : "";
+                                    }
+                                    if (hoveredAction === "colLeft" || hoveredAction === "colRight" || hoveredAction === "removeCol") {
+                                      return isCol ? "bg-blue-100" : "";
+                                    }
+
+                                    return "";
+                                  })()
+                                }`}
+                              >
                                 <input
                                   value={cell}
                                   onClick={() => setSelectedCell({ row: rowIdx, col: colIdx })}
+                                  onFocus={() => {
+                                    setEditHistory({
+                                      row: rowIdx,
+                                      col: colIdx,
+                                      prevValue: confirmedData.rows[rowIdx].cells[colIdx],
+                                      snapshot: structuredClone(confirmedData) // save full table before editing
+                                    });
+                                    setSelectedCell({ row: rowIdx, col: colIdx });
+                                  }}
                                   onChange={(e) => {
                                     const updated = structuredClone(confirmedData);
                                     updated.rows[rowIdx].cells[colIdx] = e.target.value;
-                                    updateConfirmedData(updated);
+                                    updateConfirmedData(updated); // Don't push to undo yet
                                   }}
-                                  className={`w-full ${selectedCell?.row === rowIdx && selectedCell?.col === colIdx ? "bg-yellow-100" : ""}`}
+                                  onBlur={() => {
+                                    if (
+                                      editHistory &&
+                                      editHistory.row === rowIdx &&
+                                      editHistory.col === colIdx
+                                    ) {
+                                      const currentValue = confirmedData.rows[rowIdx].cells[colIdx];
+                                      if (editHistory.prevValue !== currentValue) {
+                                        setUndoStack((prev) => [...prev, editHistory.snapshot]);
+                                        setRedoStack([]);
+                                      }
+                                      setEditHistory(null);
+                                    }
+                                  }}
+                                  className={`w-full outline-none ${
+                                    selectedCell?.row === rowIdx && selectedCell?.col === colIdx
+                                      ? "bg-blue-200 ring-2 ring-blue-500 rounded"
+                                      : ""
+                                  }`}
                                 />
                               </td>
                             ))}
@@ -292,41 +401,91 @@ function EditData() {
                       </tbody>
                     </table>
                   </div>
-                  {selectedCell && (
-                      <div className="flex flex-wrap justify-center gap-4 mt-4 mb-4 mr-4 ml-4">
-                        <button type="button" onClick={() => insertRowAbove(selectedCell.row)} className="btn-icon">
-                          <Plus size={10} className="mr-1" />
-                          Row Above
-                        </button>
-                        <button type="button" onClick={() => insertRowBelow(selectedCell.row)} className="btn-icon">
-                          <Plus size={10} className="mr-1" />
-                          Row Below
-                        </button>
-                        <button type="button" onClick={() => insertColumnLeft(selectedCell.col)} className="btn-icon">
-                          <Plus size={10} className="mr-1" />
-                          Col Left
-                        </button>
-                        <button type="button" onClick={() => insertColumnRight(selectedCell.col)} className="btn-icon">
-                          <Plus size={10} className="mr-1" />
-                          Col Right
-                        </button>
-                        <button type="button" onClick={() => removeSelectedRow(selectedCell.row)} className="btn-icon">
-                          <Trash size={10} className="mr-1" />
-                          Row
-                        </button>
-                        <button type="button" onClick={() => removeSelectedColumn(selectedCell.col)} className="btn-icon">
-                          <Trash size={10} className="mr-1" />
-                          Col
-                        </button>
-                      </div>
-                    )}
-                  {/* <div className="flex justify-center mt-4">
-                      <ViewUpload
-                        fileName={fileName}
-                        fileSize={fileSize}
-                        fileContent={parsedData?.base64 || file?.url || "about:blank"}
-                      />
-                  </div> */}
+                  <div className="flex flex-wrap justify-center gap-4 mt-4 mb-4 mr-4 ml-4">
+                    <button
+                      type="button"
+                      onMouseEnter={() => setHoveredAction("rowAbove")}
+                      onMouseLeave={() => setHoveredAction(null)}
+                      onMouseDown={() => {
+                        if (selectedCell) insertRowAbove(selectedCell.row);
+                      }}
+                      disabled={!selectedCell}
+                      className={`btn-icon`}
+                    >
+                      <Plus size={10} className="mr-1" />
+                      Row Above
+                    </button>
+
+                    <button
+                      type="button"
+                      onMouseEnter={() => setHoveredAction("rowBelow")}
+                      onMouseLeave={() => setHoveredAction(null)}
+                      onMouseDown={() => {
+                        if (selectedCell) insertRowBelow(selectedCell.row);
+                      }}
+                      disabled={!selectedCell}
+                      className={`btn-icon`}
+                    >
+                      <Plus size={10} className="mr-1" />
+                      Row Below
+                    </button>
+
+                    <button
+                      type="button"
+                      onMouseEnter={() => setHoveredAction("colLeft")}
+                      onMouseLeave={() => setHoveredAction(null)}
+                      onMouseDown={() => {
+                        if (selectedCell) insertColumnLeft(selectedCell.col);
+                      }}
+                      disabled={!selectedCell}
+                      className={`btn-icon`}
+                    >
+                      <Plus size={10} className="mr-1" />
+                      Col Left
+                    </button>
+
+                    <button
+                      type="button"
+                      onMouseEnter={() => setHoveredAction("colRight")}
+                      onMouseLeave={() => setHoveredAction(null)}
+                      onMouseDown={() => {
+                        if (selectedCell) insertColumnRight(selectedCell.col);
+                      }}
+                      disabled={!selectedCell}
+                      className={`btn-icon`}
+                    >
+                      <Plus size={10} className="mr-1" />
+                      Col Right
+                    </button>
+
+                    <button
+                      type="button"
+                      onMouseEnter={() => setHoveredAction("rowBelow")}
+                      onMouseLeave={() => setHoveredAction(null)}
+                      onMouseDown={() => {
+                        if (selectedCell) removeSelectedRow(selectedCell.row);
+                      }}
+                      disabled={!selectedCell}
+                      className={`btn-icon`}
+                    >
+                      <Trash size={10} className="mr-1" />
+                      Row
+                    </button>
+
+                    <button
+                      type="button"
+                      onMouseEnter={() => setHoveredAction("removeCol")}
+                      onMouseLeave={() => setHoveredAction(null)}
+                      onMouseDown={() => {
+                        if (selectedCell) removeSelectedColumn(selectedCell.col);
+                      }}
+                      disabled={!selectedCell}
+                      className={`btn-icon`}
+                    >
+                      <Trash size={10} className="mr-1" />
+                      Col
+                    </button>
+                  </div>
                 </>
               )}
             </div>
@@ -338,7 +497,7 @@ function EditData() {
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
           >
             <ChevronLeft size={25} className="mr-2" />
             Go to the last step
@@ -346,7 +505,7 @@ function EditData() {
 
           <button
             type="button"
-            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
             onClick={() => setConfirmedData(structuredClone(originalData))}
           >
             <RotateCw size={20} className="mr-2" />
@@ -355,7 +514,7 @@ function EditData() {
 
           <button
             type="submit"
-            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
           >
             Go to the next step
             <ChevronRight size={25} className="ml-2" />
