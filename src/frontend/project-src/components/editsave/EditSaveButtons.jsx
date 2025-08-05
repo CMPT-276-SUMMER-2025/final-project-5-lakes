@@ -1,12 +1,15 @@
-import { ChevronLeft, CirclePlus } from 'lucide-react';
+import { ChevronLeft, CirclePlus, Download } from 'lucide-react';
 import useWarningAlert from '../../hooks/useWarningAlert';
 import DefaultWarning from '../messages/DefaultWarning';
 import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import DownloadOptions from '../editsave/DownloadOptions';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-selected`;
 
-function EditSaveButtons() {
+function EditSaveButtons({ chartImageUrl }) {
 
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const navigate = useNavigate();
   const {
   isWarningVisible,
@@ -92,6 +95,14 @@ function EditSaveButtons() {
         Create another chart
       </button>
 
+      <button
+        className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+        onClick={() => setIsDownloadModalOpen(true)}
+      >
+        <Download size={18} strokeWidth={4} className="mr-2" />
+        Download
+      </button>
+
       {isWarningVisible && (
         <div className="fixed inset-0  bg-opacity-40 z-50 flex items-center justify-center">
           <DefaultWarning
@@ -111,6 +122,12 @@ function EditSaveButtons() {
         </div>
       )}
 
+      {isDownloadModalOpen && (
+        <DownloadOptions
+          onClose={() => setIsDownloadModalOpen(false)}
+          chartImageUrl={chartImageUrl}
+        />
+      )}
     </div>
   );
 

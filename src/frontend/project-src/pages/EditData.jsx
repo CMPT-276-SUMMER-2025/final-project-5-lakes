@@ -77,7 +77,6 @@ function EditData() {
       body: JSON.stringify({
         edittedData: formattedData,
         parsedData: parsedData,
-        file: file,
       }),
       credentials: "include",
     });

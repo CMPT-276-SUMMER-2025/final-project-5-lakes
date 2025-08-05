@@ -5,7 +5,7 @@ import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
 import DownloadOptions from '../components/editsave/DownloadOptions';
-import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw, Check } from 'lucide-react';
+import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw, Check, MousePointerClick, TextCursorInput, Columns3Cog } from 'lucide-react';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
 
@@ -700,7 +700,7 @@ function EditSave() {
             <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
                 <div className="flex flex-col md:flex-row gap-6 w-full">
                     {/* Display the chart image */}
-                    <div className="w-full md:w-[50%] bg-white rounded-xl p-4 sm:p-6 shadow-lg relative">
+                    <div className="w-full md:w-[55%] bg-white rounded-xl p-4 sm:p-6 shadow-lg relative">
                         <div>
                             <h2 className="font-semibold flex items-center justify-center gap-4 mb-2">
                             {/* <Edit3 size={30} />
@@ -757,7 +757,7 @@ function EditSave() {
                     </div>
 
                     {/* Controls section, RIGHT SIDE OF PAGE */}
-                    <div className="w-full md:w-[50%] grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="w-full md:w-[45%] grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Text editing section */}
                         <div className="space-y-6">
 
@@ -806,13 +806,13 @@ function EditSave() {
                                     <Text size={18} className="text-black" strokeWidth={2.5} />
                                     <p className="text-lg font-semibold text-gray-800">Chart Title</p>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex flex-col sm:flex-row gap-2">
                                     <input
                                         type="text"
                                         value={tempTitle}
                                         onChange={(e) => setTempTitle(e.target.value)}
                                         placeholder="Enter chart title"
-                                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                                     />
                                     <button
                                         onClick={handleTitleChange}
@@ -826,7 +826,7 @@ function EditSave() {
                             {/* X/Y Axis title label*/}
                             <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
                                 <div className="flex items-center gap-2 mb-2">
-                                    {/* <Edit3 size={18} className="text-black" strokeWidth={2.5} /> */}
+                                    <TextCursorInput size={18} className="text-black" strokeWidth={2.5} />
                                     <p className="text-lg font-semibold text-gray-800">Edit X Axis Title</p>
                                 </div>
                                 <div className="flex gap-2">
@@ -845,7 +845,7 @@ function EditSave() {
                                     </button>
                                 </div>
                                 <div className="flex items-center gap-2 mb-2">
-                                    {/* <Edit3 size={18} className="text-black" strokeWidth={2.5} /> */}
+                                    <TextCursorInput size={18} className="text-black" strokeWidth={2.5} />
                                     <p className="text-lg font-semibold text-gray-800">Edit Y Axis Title</p>
                                 </div>
                                 <div className="flex gap-2">
@@ -880,9 +880,12 @@ function EditSave() {
 
                                 return (
                                     <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                                        <p className="text-lg font-semibold text-gray-800 mb-2">
-                                            {isPieChart ? 'Select Segment' : 'Select Dataset'}
-                                        </p>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <MousePointerClick size={18} className="text-black" strokeWidth={2.5} />
+                                            <p className="text-lg font-semibold text-gray-800">
+                                                {isPieChart ? 'Select Segment' : 'Select Dataset'}
+                                            </p>
+                                        </div>
                                         <div className="flex flex-wrap gap-2">
                                             {isPieChart ? (
                                                 // Pie chart segments
@@ -1025,27 +1028,28 @@ function EditSave() {
                             {/* Grid Lines & Legend section */}
                             <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <p className="text-lg font-semibold text-gray-800">Customize Grid Lines & Legend Options</p>
+                                    <Columns3Cog size={18} className="text-black" strokeWidth={2.5} />
+                                    <p className="text-lg font-semibold text-gray-800">Customize Grid Lines & Legend</p>
                                 </div>
 
                                 <div className="flex gap-4">
                                     <button 
                                     onClick={handleGridLines} 
-                                    className="w-1/2 primary-button text-center cursor-pointer"
+                                    className="w-1/2 primary-button text-center cursor-pointer justify-center"
                                     >
                                     {gridLines ? "Disable Grid Lines" : "Enable Grid Lines"}
                                     </button>
 
                                     <button 
                                     onClick={handleLegend} 
-                                    className="primary-button text-center cursor-pointer"
+                                    className="w-1/2 primary-button text-center cursor-pointer justify-center"
                                     >
                                     {legend ? "Disable Legend" : "Enable Legend"}
                                     </button>
                                 </div>
                             </div>
 
-                            {isDownloadModalOpen && (
+                            {/* {isDownloadModalOpen && (
                                 <DownloadOptions
                                 onClose={() => setIsDownloadModalOpen(false)}
                                 chartImageUrl={chartImageUrl}
@@ -1053,7 +1057,7 @@ function EditSave() {
                             )}
 
                             {/* downloading button, downloading thing is a component */}
-                            <div className="w-full">
+                            {/* <div className="w-full">
                                 <button
                                     className="w-full primary-button flex items-center justify-center gap-2"
                                     onClick={() => setIsDownloadModalOpen(true)}
@@ -1061,12 +1065,12 @@ function EditSave() {
                                     <Download size={18} strokeWidth={4}/>
                                     Download
                                 </button>
-                            </div>
+                            </div>  */}
                         </div> 
                     </div>
                 </div>
             </div>
-            <EditSaveButtons />
+            <EditSaveButtons chartImageUrl={chartImageUrl} />
         </div>
     );
 }
