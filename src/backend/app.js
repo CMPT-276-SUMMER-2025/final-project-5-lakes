@@ -62,7 +62,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             return res.json({ parsedData: result, text: text });
         } catch (error) {
             if (error.code === 'NO_DATA_EXTRACTED') {
-                return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file', code: error.code });
+                return res.status(error.status).json({ error: 'No meaningful data could be extracted from the text', code: error.code });
             } else {
                 return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || ''|| ''});
             }
