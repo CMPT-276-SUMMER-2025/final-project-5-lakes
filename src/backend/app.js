@@ -7,7 +7,7 @@ const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
 const { separateLabels } = require('./labelSeparation.js');
 const { generateDummyChart } = require('./quickChart/QCFeature1.js');
-const { generateChart, multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
+const { multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -45,7 +45,6 @@ app.get('/get-session-data', async (req, res) => {
     res.json(sessionData);
 });
 
-// File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
     console.log('Incoming /file-submit request from:', req.headers.origin);
     const files = req.files;
@@ -58,7 +57,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         }
         
         try {
-            // Process text input
             const textData = text.split('\n').filter(line => line.trim() !== '');
             const result = await convertToChartConfig("", textData);
             sessionData.parsedData = result;
@@ -88,7 +86,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     }
 });
 
-// Information edit confirm
 app.post('/edit-data', async (req, res) => {
     const data = req.body;
     
@@ -152,12 +149,11 @@ app.post('/visual-selected', async (req, res) => {
                 chartType = sessionData.chartOptions[i].type;
             }
         }
-
         const chartConfig = multipleDatasetsChartGenerator(chartType, sessionData.labels, sessionData.edittedData, data.id);
         sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig, labels: sessionData.labels});
     } catch (error) {
-        res.status(500).json({ error: 'Failed to generate the selected chart', code: error.code || '' });
+        return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
     }
 });
 

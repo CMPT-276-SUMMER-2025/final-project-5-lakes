@@ -71,9 +71,6 @@ function VisualSelect() {
     await getSessionDataAndNavigateBack();
   }
 
-  console.log(summary);
-  console.log(graphRecommendation);
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start p-6 sm:p-10 font-inter">
       
