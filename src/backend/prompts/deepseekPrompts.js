@@ -138,31 +138,6 @@ const graphRecommendationLogic =
 //(e.g., lacking numeric axes or having ambiguous categories)
 const summaryPrompt = 
         `
-        IMPORTANT: You MUST respond with exactly ONE of the following:
-
-        - If the data is INVALID 
-        (
-                Additional instructions for what counts as INVALID:
-                Data should be considered INVALID if any of the following apply:
-                - The table is missing or not present.
-                - The table contains empty or missing values.
-                - Column headers (labels) are missing or unclear.
-                - A column contains mixed data types (e.g., numbers and text).
-                - The table has inconsistent row lengths or structure.
-                - Values in one column do not match its intended meaning (e.g., "apple" in a "Time" column, or "123" in a "Fruit" column).
-                - The structure makes it impossible to graph using common tools like QuickChart or Chart.js.
-        ), output EXACTLY the following with a reason as a **JSON object with 2 keys**:
-        {
-                "errorTrigger": "TableInvalid", 
-                "issue": "specific reason here"
-        }
-
-        Important rules:
-        - Do NOT wrap the output in triple backticks (\`\`\`).
-        - Only return clean, valid JSON.
-
-        - If the data is VALID, follow the instructions below.
-
         Do NOT include any other text, explanations, or formatting (no backticks, no quotes, no lists).
 
         ---
@@ -186,6 +161,29 @@ const summaryPrompt =
         `
 
 const labelsSeparatorPrompt = `
+        IMPORTANT: You MUST respond with exactly ONE of the following:
+
+        - If the data is INVALID 
+        (
+                Additional instructions for what counts as INVALID:
+                Data should be considered INVALID if any of the following apply:
+                - The table is missing or not present.
+                - The table contains empty or missing values.
+                - Column headers (labels) are missing or unclear.
+                - The table has inconsistent row lengths or structure.
+                - Values in one column do not match its intended meaning (e.g., "apple" in a "Time" column, or "123" in a "Fruit" column).
+                - The structure makes it impossible to graph using common tools like QuickChart or Chart.js.
+        ), output EXACTLY the following with a reason as a **JSON object with 2 keys**:
+        {
+                "errorTrigger": "TableInvalid", 
+                "issue": "specific reason here"
+        }
+
+        Important rules:
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+
+        - If the data is VALID, follow the instructions below.
         Analyze the provided dataset and return ONLY a JSON object with x and y axis labels following these strict rules:
         
         1. x: Array of all column labels that are:

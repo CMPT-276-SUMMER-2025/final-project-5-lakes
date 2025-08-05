@@ -7,7 +7,7 @@ const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./file-parser.js');
 const { separateLabels } = require('./labelSeparation.js');
 const { generateDummyChart } = require('./quickChart/QCFeature1.js');
-const { generateChart, multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
+const { multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 
 const app = express();
 
@@ -22,13 +22,13 @@ let sessionData = {
     parsedData: null,
     edittedData: null,
     chartConfig: null,
+    labels: null,
     summary: null,
     graphRecommendation: null,
     styleConfig: null,
     chartOptions: null,
     visualSelected: null,
     selectedOption: null,
-    labels: null,
 };
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
@@ -45,7 +45,6 @@ app.get('/get-session-data', async (req, res) => {
     res.json(sessionData);
 });
 
-// File upload endpoint
 app.post('/file-submit', upload.array('files'), async (req, res) => {
     console.log('Incoming /file-submit request from:', req.headers.origin);
     const files = req.files;
@@ -58,7 +57,6 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         }
         
         try {
-            // Process text input
             const textData = text.split('\n').filter(line => line.trim() !== '');
             const result = await convertToChartConfig("", textData);
             sessionData.parsedData = result;
@@ -67,7 +65,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             if (error.code === 'NO_DATA_EXTRACTED') {
                 return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
             } else {
-                return res.status(error.status).json({ error: error.message, code: error.code });
+                return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
             }
         }
     }
@@ -83,101 +81,92 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         if (error.code === 'NO_DATA_EXTRACTED') {
             return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
         } else {
-            return res.status(error.status).json({ error: error.message, code: error.code });
+            return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
         }
     }
 });
 
-// Information edit confirm
 app.post('/edit-data', async (req, res) => {
     const data = req.body;
     
     try {
-        sessionData.edittedData = data.edittedData;
-        let summary;
-        try {
-            summary = await getSummary(JSON.stringify(data.edittedData));
-            sessionData.summary = summary
-        } catch (error) {
-            if(error.code === 'INVALID_EDITED_TABLE'){
-                return res.status(error.status).json({ error: error.message, code: error.code });
-            } else {
-                return res.status(error.status).json({ error: error.message, code: error.code });
+        if(!sessionData.labels || 
+            JSON.stringify(sessionData.edittedData) !== JSON.stringify(data.edittedData)
+        ){
+            let label;
+            try {
+                label = await separateLabels(JSON.stringify(data.edittedData));
+                sessionData.labels = label;
+            } catch (error) {
+                if(error.code === 'INVALID_EDITED_TABLE'){
+                    return res.status(error.status).json({ error: error.message, code: error.code });
+                } else {
+                    return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
+                }
             }
         }
 
-        let graphRecommendation;
-        try{
-            graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
+        if(!sessionData.summary ||
+            JSON.stringify(sessionData.edittedData) !== JSON.stringify(data.edittedData)
+        ){
+            let summary;
+            try {
+                summary = await getSummary(JSON.stringify(data.edittedData));
+                sessionData.summary = summary
+            } catch (error) {
+                return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
+            }
+        }
+
+        if(!sessionData.graphRecommendation || !sessionData.chartOptions ||
+            JSON.stringify(sessionData.edittedData) !== JSON.stringify(data.edittedData)
+        ){
+            let graphRecommendation;
             const chartsWithURLs = [];
-        
-            for (let i = 0; i < graphRecommendation.types.length; i++) {
-                const chartType = graphRecommendation.types[i];
-                const reasoning = graphRecommendation.explanations?.[i] || "No explanation provided.";
-                chartsWithURLs.push(generateDummyChart(chartType, reasoning));
+            try{
+                graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
+            
+                for (let i = 0; i < graphRecommendation.types.length; i++) {
+                    const chartType = graphRecommendation.types[i];
+                    const reasoning = graphRecommendation.explanations?.[i] || "No explanation provided.";
+                    chartsWithURLs.push(generateDummyChart(chartType, reasoning));
+                }
+
+                sessionData.graphRecommendation = graphRecommendation;
+                sessionData.chartOptions = chartsWithURLs;
+            } catch (error) {
+                return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
             }
-
-            sessionData.graphRecommendation = graphRecommendation;
-            sessionData.chartOptions = chartsWithURLs;
-
-            res.json({ 
-                summary: summary,
-                graphRecommendation: graphRecommendation,
-                chartsWithURLs: chartsWithURLs,
-                // labels: labels,
-            });
-        } catch (error) {
-            return res.status(error.status).json({ error: error.message, code: error.code });
         }
+        
+        sessionData.edittedData = data.edittedData;
 
-        /*const labels = await separateLabels(JSON.stringify(data.parsedData));
-        console.log(labels);
-        // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
-        sessionData.summary = JSON.parse(summary);
-        sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
-
+        res.json({ 
+            summary: summary,
+            graphRecommendation: graphRecommendation,
+            chartsWithURLs: chartsWithURLs
+        });
     } catch (error) {
-        return res.status(error.status).json({ error: error.message, code: error.code });
+        return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
     }
 });
 
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
     sessionData.visualSelected = data.id;
-    //sessionData.selectedOption = sessionData.chartConfig[data.id];
 
     try{
-        // Check if theres data
-        if (!sessionData.edittedData){
-            return res.status(400).json({ error: 'No parsed data avaiable.' });
-        }
-
-        const labels = await separateLabels(JSON.stringify(sessionData.edittedData));
-        console.log(labels);
-
-        // Attach chartImageURL using QuickChart
-        /*const chartsWithURLs = chartConfigs.map(chart => ({
-            //id: chart.id,
-            //title: chart.title,
-            //description: chart.description,
-            id: 1,
-            title: "Bar Chart",
-            description: "Displays values as bars.",
-            imageURL: generateDummyChart()
-        }));*/
         let chartType = null;
         for (let i = 0; i < sessionData.chartOptions.length; i++) {
             if (sessionData.chartOptions[i].id === sessionData.visualSelected) {
                 chartType = sessionData.chartOptions[i].type;
             }
         }
-
-        const chartConfig = multipleDatasetsChartGenerator(chartType, labels, sessionData.edittedData, data.id);
+        const chartConfig = multipleDatasetsChartGenerator(chartType, sessionData.labels, sessionData.edittedData, data.id);
         sessionData.chartConfig = chartConfig;
-        res.json({chartConfig: chartConfig, labels: labels});
+        res.json({chartConfig: chartConfig, labels: sessionData.labels});
     } catch (error) {
-        console.error('Error generating chart URLs:', error);
-        res.status(500).json({ error: 'Failed to generate visualization options' });
+        return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
     }
 });
 
@@ -198,13 +187,13 @@ app.delete('/reset-session', async (req, res) => {
         parsedData: null,
         edittedData: null,
         chartConfig: null,
+        labels: null,
         summary: null,
         graphRecommendation: null,
         styleConfig: null,
         chartOptions: null,
         visualSelected: null,
         selectedOption: null,
-        labels: null
     };
     console.log('Session reset successfully');
     res.status(200).send('Session reset successfully');

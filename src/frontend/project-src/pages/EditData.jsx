@@ -71,7 +71,7 @@ function EditData() {
     .then(async (response) =>{
       const data = await response.json();
       if (!response.ok) {
-        const error = new Error(data.error || 'Something went wrong.');
+        const error = new Error(data.error || 'Something went wrong');
         error.code = data.code || '';
         throw error;
       }
@@ -88,14 +88,14 @@ function EditData() {
         showAlert(
           'error',
           'Editing Failed',
-          `Chart generation failed: ${error.message}`,
+          `We could not generate the chart: ${error.message}.`,
           'Okay'
         );
       } else {
         showAlert(
         'error',
         'Generation Failed',
-        `Chart generation failed: ${error.message} Please try again later`,
+        `We could not generate the chart: ${error.message}. Please try again later`,
         'Okay'
         );
       }

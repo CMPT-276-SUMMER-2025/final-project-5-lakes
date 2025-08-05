@@ -6,21 +6,20 @@ async function getGraphRecommendation(data){
     try {
         const rawResult = await queryDeepSeekV3(prompt);
         
+        let result;
         try {
-            const result = JSON.parse(rawResult);
+            result = JSON.parse(rawResult);
             
             if (!result.types || !Array.isArray(result.types)) {
-                const error = new Error ('Unexpected API response.');
+                const error = new Error ('Unexpected API response');
                 error.code = '';
                 error.status = 500;
                 throw error;
             }
-            
-            return result;
         } catch (error) {
             throw error;
         }
-        
+        return result;
     } catch (error) {
         throw error;
     }
