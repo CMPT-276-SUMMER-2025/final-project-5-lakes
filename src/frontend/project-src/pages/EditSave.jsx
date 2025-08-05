@@ -1,10 +1,10 @@
-import EditSaveStepper from "../components/editsave/EditSaveStepper";
 import EditSaveButtons from "../components/editsave/EditSaveButtons";
 import { SketchPicker } from 'react-color';
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import ProgressStepper from "../components/layout/ProgressStepper";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
-import DownloadOptions from '../components/editsave/DownloadOptions';
+// import DownloadOptions from '../components/editsave/DownloadOptions';
 import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw, Check, MousePointerClick, TextCursorInput, Columns3Cog } from 'lucide-react';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
@@ -712,7 +712,7 @@ function EditSave() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter">
-            <EditSaveStepper />
+            <ProgressStepper currentStep="Edit & Save" />
             <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
                 <div className="flex flex-col md:flex-row gap-6 w-full">
                     {/* Display the chart image */}

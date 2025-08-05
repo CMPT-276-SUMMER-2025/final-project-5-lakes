@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import EditDataStepper from "../components/editdata/EditDataStepper";
 import LoadingPopUp from "../components/editdata/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
@@ -9,6 +8,7 @@ import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
 import { useRef } from "react";
 import InfoPopUp from '../components/messages/InfoPopUp';
+import ProgressStepper from "../components/layout/ProgressStepper";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
@@ -297,7 +297,7 @@ function EditData() {
         </div>
       )}
 
-      <EditDataStepper />
+      <ProgressStepper currentStep="Edit Data" />
       <form onSubmit={handleNext}>
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-7xl">
           <div className="flex flex-col md:flex-row items-center gap-1 w-full">
