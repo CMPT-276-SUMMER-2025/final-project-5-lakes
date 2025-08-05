@@ -76,7 +76,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             if (error.code === 'NO_DATA_EXTRACTED') {
                 return res.status(error.status).json({ error: 'No meaningful data could be extracted from the text', code: error.code });
             } else {
-                return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || ''|| ''});
+                return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || '' });
             }
         }
     }
@@ -92,7 +92,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         if (error.code === 'NO_DATA_EXTRACTED') {
             return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file', code: error.code });
         } else {
-            return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || ''|| ''});
+            return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || '' });
         }
     }
 });
@@ -112,7 +112,7 @@ app.post('/edit-data', async (req, res) => {
                 if(error.code === 'INVALID_EDITED_TABLE'){
                     return res.status(error.status).json({ error: error.message, code: error.code });
                 } else {
-                    return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
+                    return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
                 }
             }
         }
@@ -146,7 +146,7 @@ app.post('/edit-data', async (req, res) => {
                 sessionData.graphRecommendation = graphRecommendation;
                 sessionData.chartOptions = chartsWithURLs;
             } catch (error) {
-                return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
+                return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
             }
         }
         
@@ -158,7 +158,7 @@ app.post('/edit-data', async (req, res) => {
             chartsWithURLs: sessionData.chartOptions
         });
     } catch (error) {
-        return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
+        return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
     }
 });
 
@@ -177,7 +177,7 @@ app.post('/visual-selected', async (req, res) => {
         sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig, labels: sessionData.labels});
     } catch (error) {
-        return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
+        return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
     }
 });
 

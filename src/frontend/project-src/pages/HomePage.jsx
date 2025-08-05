@@ -63,7 +63,7 @@ function HomePage() {
      .then(async (response) => { //// to go to the next page if successful
       const data = await response.json();
       if (!response.ok) {
-        const error = new Error(data.error || 'Something went wrong')
+        const error = new Error(data.error || 'Something went wrong');
         error.code = data.code || '';
         throw error;
       }
@@ -73,7 +73,9 @@ function HomePage() {
       if (data && data.parsedData && data.file) {
         navigate('/edit-data', { state: data, replace: true });
       } else {
-        throw new Error("Missing required data. Navigation aborted.");
+        const error = new Error(data.error || 'Something went wrong');
+        error.code = data.code || '';
+        throw error;
       }
     })
     .catch((error) => {
