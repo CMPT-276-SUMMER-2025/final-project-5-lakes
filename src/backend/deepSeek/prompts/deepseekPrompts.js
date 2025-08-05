@@ -75,23 +75,15 @@ const graphRecommendationLogic =
         - "Grouped Horizontal Bar"
         - "Stacked Bar"
         - "Stacked Bar With Groups"
-        - "Floating Bars"
         - "Line"
         - "Stepped Line"
         - "Multi Axis Line"
         - "Line (Multiple Series)"
-        - "Stacked Bar/Line"
         - "Scatter"
-        - "Scatter - Multi Axis"
-        - "Bubble"
         - "Pie"
         - "Labelled Pie"
         - "Doughnut"
         - "Labelled Doughnut"
-        - "Polar Area"
-        - "Polar Area Centered Point Labels"
-        - "Multi Series Pie"
-        - "Combo Bar/Line"
 
         ### Use the following as general **guidelines**, not strict rules:
 
