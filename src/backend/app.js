@@ -1,13 +1,14 @@
 const express = require('express');
 const multer = require('multer');
 const cors = require('cors');
-const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1.js');
 const { getGraphRecommendation } = require('./deepSeek/DeepSeekFeature2.js');
 const { getSummary } = require('./deepSeek/DeepSeekFeature3.js');
 const { parseFile } = require('./deepSeek/DeepSeekFileParser.js');
 const { separateLabels } = require('./deepSeek/DeepSeekLabelSeparation.js');
 const { generateDummyChart } = require('./quickChart/QCGenerateDummyChart.js');
 const { multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
 
@@ -56,10 +57,21 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         }
         
         try {
-            const textData = text.split('\n').filter(line => line.trim() !== '');
-            const result = await convertToChartConfig("", textData);
-            sessionData.parsedData = result;
-            return res.json({ parsedData: result, text: text });
+            const txtFilePath = path.join(__dirname, 'temp_sample.txt');
+            fs.writeFileSync(txtFilePath, text, 'utf8');
+
+            const file = {
+                path: txtFilePath,
+                originalname: 'temp_sample.txt',
+                mimetype: 'text/plain',
+                size: fs.statSync(txtFilePath).size,
+                buffer: fs.readFileSync(txtFilePath)
+            };
+
+            let result = { parsedData: await parseFile(file), file: file };
+            sessionData.uploadedFile = file;
+            sessionData.parsedData = result.parsedData;
+            return res.json(result);
         } catch (error) {
             if (error.code === 'NO_DATA_EXTRACTED') {
                 return res.status(error.status).json({ error: 'No meaningful data could be extracted from the text', code: error.code });
