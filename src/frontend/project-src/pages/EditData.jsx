@@ -315,8 +315,8 @@ function EditData() {
                     </button>
                   </div>
 
-                  <div ref={tableRef} className="overflow-auto border">
-                    <table className="min-w-full border border-gray-300">
+                  <div ref={tableRef} className="overflow-auto border max-w-full max-h-[400px]">
+                    <table className="w-full min-w-max border border-gray-300">
                       <thead>
                         <tr>
                           {confirmedData.columns.map((col, colIdx) => (
@@ -364,11 +364,17 @@ function EditData() {
                                     const isRow = rowIdx === selectedCell.row;
                                     const isCol = colIdx === selectedCell.col;
 
-                                    if (hoveredAction === "rowAbove" || hoveredAction === "rowBelow" || hoveredAction === "removeRow") {
+                                    if (hoveredAction === "rowAbove" || hoveredAction === "rowBelow") {
                                       return isRow ? "bg-blue-100" : "";
                                     }
-                                    if (hoveredAction === "colLeft" || hoveredAction === "colRight" || hoveredAction === "removeCol") {
+                                    if (hoveredAction === "removeRow") {
+                                      return isRow ? "bg-red-100" : "";
+                                    }
+                                    if (hoveredAction === "colLeft" || hoveredAction === "colRight") {
                                       return isCol ? "bg-blue-100" : "";
+                                    }
+                                    if (hoveredAction === "removeCol") {
+                                      return isCol ? "bg-red-100" : "";
                                     }
 
                                     return "";
@@ -478,7 +484,7 @@ function EditData() {
 
                     <button
                       type="button"
-                      onMouseEnter={() => setHoveredAction("rowBelow")}
+                      onMouseEnter={() => setHoveredAction("removeRow")}
                       onMouseLeave={() => setHoveredAction(null)}
                       onMouseDown={() => {
                         if (selectedCell) removeSelectedRow(selectedCell.row);
