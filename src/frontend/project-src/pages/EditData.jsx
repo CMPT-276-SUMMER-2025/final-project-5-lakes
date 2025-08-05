@@ -386,19 +386,12 @@ function EditData() {
                                     const isRow = rowIdx === selectedCell.row;
                                     const isCol = colIdx === selectedCell.col;
 
-                                    if (hoveredAction === "rowAbove" || hoveredAction === "rowBelow") {
-                                      return isRow ? "bg-blue-100" : "";
-                                    }
                                     if (hoveredAction === "removeRow") {
                                       return isRow ? "bg-red-100" : "";
-                                    }
-                                    if (hoveredAction === "colLeft" || hoveredAction === "colRight") {
-                                      return isCol ? "bg-blue-100" : "";
-                                    }
+                                    } 
                                     if (hoveredAction === "removeCol") {
                                       return isCol ? "bg-red-100" : "";
                                     }
-
                                     return "";
                                   })()
                                 }`}
@@ -450,8 +443,6 @@ function EditData() {
                   <div className="flex flex-wrap justify-center gap-4 mt-4 mb-4 mr-4 ml-4">
                     <button
                       type="button"
-                      onMouseEnter={() => setHoveredAction("rowAbove")}
-                      onMouseLeave={() => setHoveredAction(null)}
                       onMouseDown={() => {
                         if (selectedCell) insertRowAbove(selectedCell.row);
                       }}
@@ -464,8 +455,6 @@ function EditData() {
 
                     <button
                       type="button"
-                      onMouseEnter={() => setHoveredAction("rowBelow")}
-                      onMouseLeave={() => setHoveredAction(null)}
                       onMouseDown={() => {
                         if (selectedCell) insertRowBelow(selectedCell.row);
                       }}
@@ -478,8 +467,6 @@ function EditData() {
 
                     <button
                       type="button"
-                      onMouseEnter={() => setHoveredAction("colLeft")}
-                      onMouseLeave={() => setHoveredAction(null)}
                       onMouseDown={() => {
                         if (selectedCell) insertColumnLeft(selectedCell.col);
                       }}
@@ -492,8 +479,6 @@ function EditData() {
 
                     <button
                       type="button"
-                      onMouseEnter={() => setHoveredAction("colRight")}
-                      onMouseLeave={() => setHoveredAction(null)}
                       onMouseDown={() => {
                         if (selectedCell) insertColumnRight(selectedCell.col);
                       }}
