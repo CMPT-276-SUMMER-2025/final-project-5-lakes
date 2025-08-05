@@ -200,12 +200,13 @@ const labelsSeparatorPrompt = `
         }
         
         4. Strict requirements:
-           - Return ONLY valid JSON with no wrapping text
-           - Never include actual data values
-           - Never include explanations
-           - If unsure whether a column is x or y, prefer x
-           - Maintain original column name casing
-           - Include ALL columns exactly once
+           - Return ONLY valid JSON with no wrapping text.
+           - Do NOT wrap the output in triple backticks (\`\`\`).
+           - Never include actual data values.
+           - Never include explanations.
+           - If unsure whether a column is x or y, prefer x.
+           - Maintain original column name casing.
+           - Include ALL columns exactly once.
         
         5. Example output for reference:
         {
