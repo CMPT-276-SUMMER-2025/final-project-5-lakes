@@ -110,10 +110,6 @@ function EditSave() {
     const [gridLines, setGridLines] = useState(true);
     const [legend, setLegend] = useState(true);
 
-    if (chartConfig.type === "pie" || chartConfig.type === "doughnut") {
-        setGridLines(!gridLines);
-    }
-
     // Generate the initial chart image URL
     // useEffect(() => {
     //     if (chartConfig) {
@@ -121,6 +117,13 @@ function EditSave() {
     //     setChartImageUrl(Url);
     //     }
     // }, [chartConfig]);
+
+    useEffect(() => {
+        if (chartConfig?.type === "pie" || chartConfig?.type === "doughnut") {
+          setGridLines(false);
+        }
+    }, [chartConfig?.type]);
+      
 
     useEffect(() => {
         console.log("Creating chartConfig");
