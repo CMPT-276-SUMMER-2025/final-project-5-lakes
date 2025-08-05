@@ -139,8 +139,8 @@ function HomePage() {
           encType="multipart/form-data"
           className="w-full max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-12"
         >
-          <FileUploadArea files={files} setFiles={setFiles} showAlert={showAlert} />
-          <TextInputArea text={text} setText={setText} />
+          <FileUploadArea files={files} setFiles={setFiles} showAlert={showAlert} text={text}/>
+          <TextInputArea text={text} setText={setText} files={files} showAlert={showAlert}/>
           
           <div className="col-span-full flex justify-center mt-4">
             <button
