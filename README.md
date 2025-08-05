@@ -17,8 +17,8 @@ In milestone 0, our team mentioned to use the OpenAI API for chart analysis, NLQ
 # Links
 **Project website link:** easychart-omega.vercel.app  
 **Project Report link:**  
-**Project video link:**  
-
+**Project  M1 video link:** [M1 Group 5 Video](https://www.google.com/url?q=https://drive.google.com/file/d/1T4y1QCeSbcONjlZ-4wep66cwlItRHwUW/view&sa=D&source=editors&ust=1754398172556768&usg=AOvVaw3dkA3paY9PeDAzT2hVgkcb)
+**Project  M2 video link:**
 
 # Folder Structure
 This project is organized into directories for documentation, source code, and tools:
