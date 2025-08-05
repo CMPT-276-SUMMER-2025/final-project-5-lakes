@@ -104,6 +104,16 @@ function EditSave() {
     // Track selection history for undo/redo
     const [selectionHistory, setSelectionHistory] = useState([{ dataset: 0, segment: 0 }]);
 
+    const [tempXAxisTitle, setTempXAxisTitle] = useState("X-axis");
+    const [tempYAxisTitle, setTempYAxisTitle] = useState("Y-axis");
+
+    const [gridLines, setGridLines] = useState(true);
+    const [legend, setLegend] = useState(true);
+
+    if (chartConfig.type === "pie" || chartConfig.type === "doughnut") {
+        setGridLines(!gridLines);
+    }
+
     // Generate the initial chart image URL
     // useEffect(() => {
     //     if (chartConfig) {
@@ -132,7 +142,8 @@ function EditSave() {
             }
             if (!chartConfig.options.plugins.legend) {
                 chartConfig.options.plugins.legend = {
-                    labels: { 
+                    display: legend,
+                    labels: {
                         font: {
                             family: "Noto Sans",
                             size: fontSize
@@ -148,6 +159,16 @@ function EditSave() {
                                 family: "Noto Sans",
                                 size: fontSize
                             }
+                        },
+                        title: {
+                            text: tempYAxisTitle,
+                            font: {
+                                family: "Noto Sans",
+                                size: fontSize
+                            }
+                        },
+                        grid: {
+                            display: gridLines
                         }
                     },
                     x: {
@@ -156,6 +177,16 @@ function EditSave() {
                                 family: "Noto Sans",
                                 size: fontSize
                             }
+                        },
+                        title: {
+                            text: tempXAxisTitle,
+                            font: {
+                                family: "Noto Sans",
+                                size: fontSize
+                            }
+                        },
+                        grid: {
+                            display: gridLines
                         }
                     }
                 };
@@ -164,6 +195,7 @@ function EditSave() {
                 chartConfig.data.datasets[0].backgroundColor[segmentSelected] = hexToRgb(selectedColor);
             } else {
                 chartConfig.data.datasets[datasetSelected].backgroundColor = hexToRgb(selectedColor);
+                chartConfig.data.datasets[datasetSelected].borderColor = hexToRgb(selectedColor);
             }
         }
     }, [chartConfig]); // Only depend on chartConfig for initial setup
@@ -187,198 +219,266 @@ function EditSave() {
 
     // Handle color change from the color picker
     const handleColorChange = (color) => {
-        setSelectedColor(color.hex);        
-
-        // Convert hex to RGB for QuickChart API
-        const rgbColor = hexToRgb(color.hex);
-        
-        // Create a copy of chartConfig with RGB colors
-        const updated = {
-            ...chartConfig,
-            chartStyle: {
-                ...chartConfig.chartStyle,
-                backgroundColor: color.hex // Keep hex for internal state
-            }
-        };
-        
-        // Apply RGB colors to chart configuration for API
-        if (updated.options) {
-            if (updated.options.elements) {
-                updated.options.elements.backgroundColor = rgbColor;
-            }
-        }
-        
-        // Check if it's a pie chart
-        const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
-        
-        if (isPieChart) {
-            // For pie charts, update the specific segment color
-            console.log("Selected segment index:", segmentSelected);
-            if (updated.data && updated.data.datasets && updated.data.datasets[0]) {
-                const dataset = updated.data.datasets[0];
-                if (Array.isArray(dataset.backgroundColor)) {
-                    // Update specific segment
-                    dataset.backgroundColor[segmentSelected] = rgbColor;
-                } else {
-                    // Convert single color to array and update specific segment
-                    const dataLength = dataset.data ? dataset.data.length : 1;
-                    dataset.backgroundColor = new Array(dataLength).fill(dataset.backgroundColor || rgbColor);
-                    dataset.backgroundColor[segmentSelected] = rgbColor;
+        if (color.hex != selectedColor) {
+            setSelectedColor(color.hex);        
+    
+            // Convert hex to RGB for QuickChart API
+            const rgbColor = hexToRgb(color.hex);
+            
+            // Create a copy of chartConfig with RGB colors
+            const updated = {
+                ...chartConfig,
+                chartStyle: {
+                    ...chartConfig.chartStyle,
+                    backgroundColor: color.hex // Keep hex for internal state
+                }
+            };
+            
+            // Apply RGB colors to chart configuration for API
+            if (updated.options) {
+                if (updated.options.elements) {
+                    updated.options.elements.backgroundColor = rgbColor;
                 }
             }
-        } else {
-            // For other charts, update the selected dataset
-            console.log("Selected dataset index:", datasetSelected);
-            if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
-                updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
+            
+            // Check if it's a pie chart
+            const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
+            
+            if (isPieChart) {
+                // For pie charts, update the specific segment color
+                console.log("Selected segment index:", segmentSelected);
+                if (updated.data && updated.data.datasets && updated.data.datasets[0]) {
+                    const dataset = updated.data.datasets[0];
+                    if (Array.isArray(dataset.backgroundColor)) {
+                        // Update specific segment
+                        dataset.backgroundColor[segmentSelected] = rgbColor;
+                    } else {
+                        // Convert single color to array and update specific segment
+                        const dataLength = dataset.data ? dataset.data.length : 1;
+                        dataset.backgroundColor = new Array(dataLength).fill(dataset.backgroundColor || rgbColor);
+                        dataset.backgroundColor[segmentSelected] = rgbColor;
+                    }
+                }
+            } else {
+                // For other charts, update the selected dataset
+                console.log("Selected dataset index:", datasetSelected);
+                if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
+                    updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
+                    updated.data.datasets[datasetSelected].borderColor = rgbColor;
+                }
             }
+            console.log("Updated chart config:", updated);
+            updateChartConfig(updated);
+
+
         }
-        console.log("Updated chart config:", updated);
-        updateChartConfig(updated);
     };
 
     // Handle chart title change
     const handleTitleChange = () => {
-        setChartTitle(tempTitle);
-        
-        const updated = {
-            ...chartConfig,
-            options: {
-                ...chartConfig.options,
-                plugins: {
-                    ...chartConfig.options?.plugins,
-                    title: {
-                        ...chartConfig.options?.plugins?.title,
-                        display: true,
-                        text: tempTitle,
-                        font: {
-                            ...chartConfig.options?.plugins?.title?.font,
-                            family: activeFontFamily,
-                            size: fontSize
+        if (tempTitle != chartTitle) {
+            setChartTitle(tempTitle);
+            
+            const updated = {
+                ...chartConfig,
+                options: {
+                    ...chartConfig.options,
+                    plugins: {
+                        ...chartConfig.options?.plugins,
+                        title: {
+                            ...chartConfig.options?.plugins?.title,
+                            display: true,
+                            text: tempTitle,
+                            font: {
+                                ...chartConfig.options?.plugins?.title?.font,
+                                family: activeFontFamily,
+                                size: fontSize
+                            }
                         }
                     }
                 }
-            }
-        };
-        
-        updateChartConfig(updated);
+            };
+            
+            updateChartConfig(updated);
+        }
     };
+
+    const handleAxisTitleChange = (axis, title) => {
+        const currentXAxisTitle = chartConfig.options?.scales?.x?.title?.text || "X-axis";
+        const currentYAxisTitle = chartConfig.options?.scales?.y?.title?.text || "";
+
+        // Only proceed if the new title is different from the current one
+        if ((axis === "x" && title !== currentXAxisTitle) || 
+            (axis === "y" && title !== currentYAxisTitle)) {
+
+            if (axis === "x") {
+                setTempXAxisTitle(title);
+            } else {
+                setTempYAxisTitle(title);
+            }
+
+            const updated = {
+                ...chartConfig,
+                options: {
+                    ...chartConfig.options,
+                    scales: {
+                        ...chartConfig.options?.scales,
+                        x: {
+                            ...chartConfig.options?.scales?.x,
+                            title: {
+                                ...chartConfig.options?.scales?.x?.title,
+                                text: axis === "x" ? title : currentXAxisTitle
+                            }
+                        },
+                        y: {
+                            ...chartConfig.options?.scales?.y,
+                            title: {
+                                ...chartConfig.options?.scales?.y?.title,
+                                text: axis === "y" ? title : currentYAxisTitle
+                            }
+                        }
+                    }
+                }
+            };
+
+            updateChartConfig(updated);
+        }
+    }
 
     // Handle text color change
     const handleTextColorChange = (color) => {
-        setTextColor(color.hex);
-        console.log("Confirmed text hex:", color.hex);
-        
-        // Create a copy of chartConfig with hex text colors (like background color)
-        const updated = {
-            ...chartConfig,
-            chartStyle: {
-                ...chartConfig.chartStyle,
-                textColor: color.hex // Keep hex for internal state
-            },
-            options: {
-                ...chartConfig.options,
-                plugins: {
-                    ...chartConfig.options?.plugins,
-                    title: {
-                        ...chartConfig.options?.plugins?.title,
-                        color: color.hex // Update chart title color
-                    },
-                    legend: {
-                        ...chartConfig.options?.plugins?.legend,
-                        labels: {
-                            ...chartConfig.options?.plugins?.legend?.labels,
-                            color: color.hex // Use hex for API (like background)
-                        }
-                    }
+        if (color.hex != textColor) {   
+            setTextColor(color.hex);
+            console.log("Confirmed text hex:", color.hex);
+            
+            // Create a copy of chartConfig with hex text colors (like background color)
+            const updated = {
+                ...chartConfig,
+                chartStyle: {
+                    ...chartConfig.chartStyle,
+                    textColor: color.hex // Keep hex for internal state
                 },
-                scales: {
-                    ...chartConfig.options?.scales,
-                    x: {
-                        ...chartConfig.options?.scales?.x,
-                        ticks: { 
-                            ...chartConfig.options?.scales?.x?.ticks,
-                            color: color.hex // Use hex for API (like background)
-                        },
+                options: {
+                    ...chartConfig.options,
+                    plugins: {
+                        ...chartConfig.options?.plugins,
                         title: {
-                            ...chartConfig.options?.scales?.x?.title,
-                            color: color.hex // Update x-axis title color
+                            ...chartConfig.options?.plugins?.title,
+                            color: color.hex // Update chart title color
+                        },
+                        legend: {
+                            ...chartConfig.options?.plugins?.legend,
+                            labels: {
+                                ...chartConfig.options?.plugins?.legend?.labels,
+                                color: color.hex // Use hex for API (like background)
+                            }
                         }
                     },
-                    y: {
-                        ...chartConfig.options?.scales?.y,
-                        ticks: { 
-                            ...chartConfig.options?.scales?.y?.ticks,
-                            color: color.hex // Use hex for API (like background)
+                    scales: {
+                        ...chartConfig.options?.scales,
+                        x: {
+                            ...chartConfig.options?.scales?.x,
+                            ticks: { 
+                                ...chartConfig.options?.scales?.x?.ticks,
+                                color: color.hex // Use hex for API (like background)
+                            },
+                            title: {
+                                ...chartConfig.options?.scales?.x?.title,
+                                color: color.hex // Update x-axis title color
+                            }
                         },
-                        title: {
-                            ...chartConfig.options?.scales?.y?.title,
-                            color: color.hex // Update y-axis title color
+                        y: {
+                            ...chartConfig.options?.scales?.y,
+                            ticks: { 
+                                ...chartConfig.options?.scales?.y?.ticks,
+                                color: color.hex // Use hex for API (like background)
+                            },
+                            title: {
+                                ...chartConfig.options?.scales?.y?.title,
+                                color: color.hex // Update y-axis title color
+                            }
                         }
                     }
                 }
-            }
-        };
-        
-        updateChartConfig(updated);
+            };
+            
+            updateChartConfig(updated); 
+
+        }
     };
 
     const handleFontSizeChange = (e) => {
         const newSize = parseInt(e.target.value, 10);
-        setFontSize(newSize);
+        if (newSize != fontSize) {
+            setFontSize(newSize);
 
-        const updated = {
-            ...chartConfig,
-            options: {
-                ...chartConfig.options,
-                plugins: {
-                    ...chartConfig.options?.plugins,
-                    title: {
-                        ...chartConfig.options?.plugins?.title,
-                        font: {
-                            ...chartConfig.options?.plugins?.title?.font,
-                            family: activeFontFamily,
-                            size: newSize
-                        }
-                    },
-                    legend: {
-                        ...chartConfig.options?.plugins?.legend,
-                        labels: {
-                            ...chartConfig.options?.plugins?.legend?.labels,
+            const updated = {
+                ...chartConfig,
+                options: {
+                    ...chartConfig.options,
+                    plugins: {
+                        ...chartConfig.options?.plugins,
+                        title: {
+                            ...chartConfig.options?.plugins?.title,
                             font: {
+                                ...chartConfig.options?.plugins?.title?.font,
                                 family: activeFontFamily,
                                 size: newSize
                             }
-                        }
-                    }
-                },
-                scales: {
-                    ...chartConfig.options?.scales,
-                    x: {
-                        ...chartConfig.options?.scales?.x,
-                        ticks: {
-                            ...chartConfig.options?.scales?.x?.ticks,
-                            font: {
-                                family: activeFontFamily,
-                                size: newSize
+                        },
+                        legend: {
+                            ...chartConfig.options?.plugins?.legend,
+                            labels: {
+                                ...chartConfig.options?.plugins?.legend?.labels,
+                                font: {
+                                    family: activeFontFamily,
+                                    size: newSize
+                                }
                             }
                         }
                     },
-                    y: {
-                        ...chartConfig.options?.scales?.y,
-                        ticks: {
-                            ...chartConfig.options?.scales?.y?.ticks,
-                            font: {
-                                family: activeFontFamily,
-                                size: newSize
+                    scales: {
+                        ...chartConfig.options?.scales,
+                        x: {
+                            ...chartConfig.options?.scales?.x,
+                            ticks: {
+                                ...chartConfig.options?.scales?.x?.ticks,
+                                font: {
+                                    family: activeFontFamily,
+                                    size: newSize
+                                }
+                            },
+                            title: {
+                                ...chartConfig.options?.scales?.x?.title,
+                                font: {
+                                    family: activeFontFamily,
+                                    size: newSize
+                                }
+                            }
+                        },
+                        y: {
+                            ...chartConfig.options?.scales?.y,
+                            ticks: {
+                                ...chartConfig.options?.scales?.y?.ticks,
+                                font: {
+                                    family: activeFontFamily,
+                                    size: newSize
+                                }
+                            },
+                            title: {
+                                ...chartConfig.options?.scales?.y?.title,
+                                font: {
+                                    family: activeFontFamily,
+                                    size: newSize
+                                }
                             }
                         }
                     }
                 }
-            }
-        };
+            };
 
-        updateChartConfig(updated);
+            updateChartConfig(updated);
+        }
     };
 
     // helper function to update chart config and maintain history
@@ -502,12 +602,26 @@ function EditSave() {
                                 family: newFontFamily,
                                 size: fontSize
                             }
+                        },
+                        title: {
+                            ...chartConfig.options?.scales?.x?.title,
+                            font: {
+                                family: newFontFamily,
+                                size: fontSize
+                            }
                         }
                     },
                     y: {
                         ...chartConfig.options?.scales?.y,
                         ticks: {
                             ...chartConfig.options?.scales?.y?.ticks,
+                            font: {
+                                family: newFontFamily,
+                                size: fontSize
+                            }
+                        },
+                        title: {
+                            ...chartConfig.options?.scales?.y?.title,
                             font: {
                                 family: newFontFamily,
                                 size: fontSize
@@ -520,6 +634,65 @@ function EditSave() {
         
         updateChartConfig(updated);
     };
+
+    const handleGridLines = () => {
+        setGridLines((prev) => {
+            const newGridState = !prev;
+        
+            const updated = {
+              ...chartConfig,
+              options: {
+                ...chartConfig.options,
+                scales: {
+                  ...chartConfig.options?.scales,
+                  x: {
+                    ...chartConfig.options?.scales?.x,
+                    grid: {
+                      ...chartConfig.options?.scales?.x?.grid,
+                      display: newGridState
+                    }
+                  },
+                  y: {
+                    ...chartConfig.options?.scales?.y,
+                    grid: {
+                      ...chartConfig.options?.scales?.y?.grid,
+                      display: newGridState
+                    }
+                  }
+                }
+              }
+            };
+        
+            updateChartConfig(updated);
+            return newGridState;
+          });
+    }
+
+    const handleLegend = () => {
+        setLegend((prev) => {
+            const newLegendState = !prev;
+        
+            const updated = {
+              ...chartConfig,
+              options: {
+                ...chartConfig.options,
+                plugins: {
+                  ...chartConfig.options?.plugins,
+                  legend: {
+                    ...chartConfig.options?.plugins?.legend,
+                    display: newLegendState,
+                    labels: {
+                      ...chartConfig.options?.plugins?.legend?.labels
+                    }
+                  }
+                }
+              }
+            };
+        
+            updateChartConfig(updated);
+            return newLegendState;
+        });
+    }
 
     useEffect(() => {
     if (chartConfig) {
@@ -583,7 +756,7 @@ function EditSave() {
                                     src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
                                     alt="Live Chart Preview"
                                     onLoad={() => setIsLoading(false)} 
-                                    className="w-full max-w-md mx-auto rounded-md shadow-md"
+                                    className="w-full max-w-2xl mx-auto rounded-md shadow-md"
                                 />
                                 ) : (
                                 <p className="text-center text-gray-500">No chart available</p>
@@ -607,7 +780,6 @@ function EditSave() {
                                     type="text"
                                     value={tempTitle}
                                     onChange={(e) => setTempTitle(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && handleTitleChange()}
                                     placeholder="Enter chart title"
                                     className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                                 />
@@ -619,7 +791,69 @@ function EditSave() {
                                 </button>
                             </div>
                         </div>
-
+                        {/* X/Y Axis title label*/}
+                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                {/* <Edit3 size={18} className="text-black" strokeWidth={2.5} /> */}
+                                <p className="text-lg font-semibold text-gray-800">Edit X Axis Title</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={tempXAxisTitle}
+                                    onChange={(e) => setTempXAxisTitle(e.target.value)}
+                                    placeholder="Enter X-axis title"
+                                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                />
+                                <button
+                                    onClick={() => handleAxisTitleChange("x", tempXAxisTitle)}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+                                >
+                                    Update
+                                </button>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                                {/* <Edit3 size={18} className="text-black" strokeWidth={2.5} /> */}
+                                <p className="text-lg font-semibold text-gray-800">Edit Y Axis Title</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={tempYAxisTitle}
+                                    onChange={(e) => setTempYAxisTitle(e.target.value)}
+                                    placeholder="Enter Y-axis title"
+                                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                />
+                                <button
+                                    onClick={() => handleAxisTitleChange("y", tempYAxisTitle)}
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
+                                >
+                                    Update
+                                </button>
+                            </div>
+                        </div>
+                        {/* Grid Lines section */}
+                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <p className="text-lg font-semibold text-gray-800">Grid Lines</p>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                                <button onClick={handleGridLines} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                                    {gridLines ? "Disable Grid Lines" : "Enable Grid Lines"}
+                                </button>
+                            </div>
+                        </div>
+                        {/* Legend section */}
+                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <p className="text-lg font-semibold text-gray-800">Legend</p>
+                            </div>
+                            <div className="flex items-center gap-2 mb-2">
+                                <button onClick={handleLegend} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                                    {legend ? "Disable Legend" : "Enable Legend"}
+                                </button>
+                            </div>
+                        </div>
                         {/* this is the "text" section card*/}
                         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
                             <div className="flex items-center gap-2 mb-2">

@@ -97,6 +97,7 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
                 label: label,
                 data: getYValues(label, datasets),
                 backgroundColor: colors[index % colors.length],
+                borderColor: colors[index % colors.length],
             }))
         },
         options: {
@@ -108,6 +109,26 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
                     font: {
                         family: "Noto Sans",
                         size: 22
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: "X-axis",
+                        font: {
+                            size: 18
+                        }
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: "Y-axis",
+                        font: {
+                            size: 18
+                        }
                     }
                 }
             }
