@@ -428,34 +428,6 @@ const dummyChart = [
     },
     {
         id: 17,
-        title: "Labelled Pie",
-        description: "Pie chart with labels on each segment.",
-        config: {
-            type: "pie",
-            data: {
-                labels: ["Marketing", "Sales", "Dev"],
-                datasets: [
-                    {
-                        data: [15, 25, 60],
-                        backgroundColor: [
-                        "#FF6384",
-                        "#36A2EB",
-                        "#FFCE56",
-                        ],
-                    },
-                ],
-            },
-            options: {
-                plugins: {
-                    datalabels: {
-                        formatter: (value, ctx) => ctx.chart.data.labels[ctx.dataIndex],
-                    },
-                },
-            },
-        },
-    },
-    {
-        id: 18,
         title: "Doughnut",
         description: "Basic doughnut chart.",
         config: {
@@ -472,31 +444,7 @@ const dummyChart = [
         },
     },
     {
-        id: 19,
-        title: "Labelled Doughnut",
-        description: "Doughnut chart with labels.",
-        config: {
-            type: "doughnut",
-            data: {
-                labels: ["East", "West", "North"],
-                datasets: [
-                    {
-                        data: [20, 50, 30],
-                        backgroundColor: ["#FF9F40", "#9966FF", "#C9CBCF"],
-                    },
-                ],
-            },
-            options: {
-                plugins: {
-                    datalabels: {
-                        formatter: (value, ctx) => ctx.chart.data.labels[ctx.dataIndex],
-                    },
-                },
-            },
-        },
-    },
-    {
-        id: 20,
+        id: 18,
         title: "Polar Area",
         description: "Polar area chart for comparison.",
         config: {
@@ -513,7 +461,7 @@ const dummyChart = [
         },
     },
     {
-        id: 21,
+        id: 19,
         title: "Polar Area Centered Point Labels",
         description: "Polar area with labels centered inside segments.",
         config: {
@@ -539,7 +487,7 @@ const dummyChart = [
         },
     },
     {
-        id: 22,
+        id: 20,
         title: "Multi Series Pie",
         description: "Emulates multiple pie charts by overlaying multiple datasets.",
         config: {
@@ -562,7 +510,7 @@ const dummyChart = [
         },
     },
     {
-        id: 23,
+        id: 21,
         title: "Combo Bar/Line",
         description: "Mixed chart combining bar and line datasets.",
         config: {
