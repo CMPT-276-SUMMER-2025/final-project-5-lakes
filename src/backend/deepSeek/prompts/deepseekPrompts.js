@@ -20,35 +20,34 @@ const promptExtractStructuredData =
         `
         IMPORTANT: You MUST respond with exactly ONE of the following:
 
-        - If meaningful data is found, output ONLY a JSON array of objects as described below.
         - If NO meaningful data is found, output EXACTLY this line:
         Error: No data was extracted.
 
         Do NOT include any other text, explanations, or formatting (no backticks, no quotes, no lists).
 
-        ---
-
-        You are given a parsed file (csv, excel, txt or pdf). Given the file, extract all the relevant data needed to
-        create a chart and format it as parsed csv file.
+        - If meaningful data is found, output ONLY a JSON array of objects as described below.
+        You are given a parsed file containing multiple sets of data.
         
-        Example format:
+        Your task:
+        1. Extract all data, identifying each data element as a key-value pair.
+        2. Identify important keys based on the estimated usage of the data. You can give appropriate names to these keys. Add a (#number) to the end of each key indicating the table the data came from.
+        3. Extract all data from all tables, identifying each data element as a key-value pair.
+        4. Merge all tables row-wise into a single JSON array:
+                - The first row from each table combines into the first object, the second rows combine into the second object, etc.
+                - If some tables have fewer rows, omit missing fields for those rows.
+        5. Keep in mind that this data will be used to generate a CSV file.
+        6. Only output the JSON array, without explanations or extra formatting.
+
+        Example:
         [
-                {
-                        "Label 1": "Value 1",
-                        "Label 2": "Value 2",
-                        "Label 3": "Value 3",
-                        ...
-                },
-                {
-                        "Label 1": "Value 1",
-                        "Label 2": "Value 2",
-                        "Label 3": "Value 3",
-                        ...
-                },
-                ...
+                { "Product (1)": ["Apple"], "Price (1)": ["1.00"],  "Week (2)": ["2"], "Apples Sold (2)": ["100"], "Bananas Sold (2)": ["120"] },
+                { "Product (1)": ["Banana"], "Price (1)": ["0.80"], "Week (2)": ["2"], "Apples Sold (2)": ["90"], "Bananas Sold (2)": ["150"] },
+                { "Product (1)": ["Orange"], "Price (1)": ["1.20"] }
         ]
         
         Important rules:
+        - Do NOT output empty objects ({}).
+        - Do NOT output rows with no data.
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
@@ -138,31 +137,6 @@ const graphRecommendationLogic =
 //(e.g., lacking numeric axes or having ambiguous categories)
 const summaryPrompt = 
         `
-        IMPORTANT: You MUST respond with exactly ONE of the following:
-
-        - If the data is INVALID 
-        (
-                Additional instructions for what counts as INVALID:
-                Data should be considered INVALID if any of the following apply:
-                - The table is missing or not present.
-                - The table contains empty or missing values.
-                - Column headers (labels) are missing or unclear.
-                - A column contains mixed data types (e.g., numbers and text).
-                - The table has inconsistent row lengths or structure.
-                - Values in one column do not match its intended meaning (e.g., "apple" in a "Time" column, or "123" in a "Fruit" column).
-                - The structure makes it impossible to graph using common tools like QuickChart or Chart.js.
-        ), output EXACTLY the following with a reason as a **JSON object with 2 keys**:
-        {
-                "errorTrigger": "TableInvalid", 
-                "issue": "specific reason here"
-        }
-
-        Important rules:
-        - Do NOT wrap the output in triple backticks (\`\`\`).
-        - Only return clean, valid JSON.
-
-        - If the data is VALID, follow the instructions below.
-
         Do NOT include any other text, explanations, or formatting (no backticks, no quotes, no lists).
 
         ---
@@ -186,6 +160,29 @@ const summaryPrompt =
         `
 
 const labelsSeparatorPrompt = `
+        IMPORTANT: You MUST respond with exactly ONE of the following:
+
+        - If the data is INVALID 
+        (
+                Additional instructions for what counts as INVALID:
+                Data should be considered INVALID if any of the following apply:
+                - The table is missing or not present.
+                - The table contains empty or missing values.
+                - Column headers (labels) are missing or unclear.
+                - The table has inconsistent row lengths or structure.
+                - Values in one column do not match its intended meaning (e.g., "apple" in a "Time" column, or "123" in a "Fruit" column).
+                - The structure makes it impossible to graph using common tools like QuickChart or Chart.js.
+        ), output EXACTLY the following with a reason as a **JSON object with 2 keys**:
+        {
+                "errorTrigger": "TableInvalid", 
+                "issue": "specific reason here"
+        }
+
+        Important rules:
+        - Do NOT wrap the output in triple backticks (\`\`\`).
+        - Only return clean, valid JSON.
+
+        - If the data is VALID, follow the instructions below.
         Analyze the provided dataset and return ONLY a JSON object with x and y axis labels following these strict rules:
         
         1. x: Array of all column labels that are:
@@ -298,12 +295,7 @@ const prompts = {
         labelsSeparatorPrompt: (query, data) =>
         `
         ${promptPrefix}${labelsSeparatorPrompt}${query}\n\nHere is the data:\n${data}
-        `,
-
-        multipleDataSetsPrompt: (query, data) =>
         `
-        ${promptPrefix}${multipleDataSetsPrompt}${query}\n\nHere is the data:\n${data}
-        `,
 };
 
 module.exports = prompts;

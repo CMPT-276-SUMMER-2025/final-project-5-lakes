@@ -63,7 +63,7 @@ function HomePage() {
      .then(async (response) => { //// to go to the next page if successful
       const data = await response.json();
       if (!response.ok) {
-        const error = new Error(data.error || 'Something went wrong.')
+        const error = new Error(data.error || 'Something went wrong')
         error.code = data.code || '';
         throw error;
       }
@@ -79,7 +79,7 @@ function HomePage() {
         showAlert(
           'error',
           'Extraction Failed',
-          `File parsing failed: ${error.message}`,
+          `We could not parse the file: ${error.message}.`,
           'Okay',
           () => navigate('/')
         )
@@ -87,7 +87,7 @@ function HomePage() {
         showAlert(
           'error',
           'Submission Error',
-          `File parsing failed: ${error.message} Please try again later.`,
+          `We could not parse the file: ${error.message}. Please try again later.`,
           'Okay',
           () => navigate('/')
         )
@@ -139,8 +139,8 @@ function HomePage() {
           encType="multipart/form-data"
           className="w-full max-w-screen-xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 mb-12"
         >
-          <FileUploadArea files={files} setFiles={setFiles} showAlert={showAlert} />
-          <TextInputArea text={text} setText={setText} />
+          <FileUploadArea files={files} setFiles={setFiles} showAlert={showAlert} text={text}/>
+          <TextInputArea text={text} setText={setText} files={files} showAlert={showAlert}/>
           
           <div className="col-span-full flex justify-center mt-4">
             <button

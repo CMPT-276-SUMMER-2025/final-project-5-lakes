@@ -3,7 +3,7 @@ const pdfParse = require('pdf-parse'); // For PDF parsing
 const XLSX = require('xlsx'); // For Excel parsing
 const Papa = require('papaparse'); // For CSV parsing
 const mammoth = require('mammoth'); // For Docx parsing
-const { convertToChartConfig } = require('./deepSeek/DeepSeekFeature1');
+const { convertToChartConfig } = require('./DeepSeekFeature1');
 
 async function parseFile(file){
     let filePath = null;
@@ -54,7 +54,7 @@ async function parseFile(file){
 
             //if non-matched
             default:
-                const error = new Error('Unsupported file type.');
+                const error = new Error('Unsupported file type');
                 error.code = '';
                 error.status = 400;
                 throw error;
