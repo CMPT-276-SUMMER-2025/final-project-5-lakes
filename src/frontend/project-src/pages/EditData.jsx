@@ -336,7 +336,11 @@ function EditData() {
                             <th key={colIdx} className="border px-3 py-2 bg-gray-100">
                               <input
                                 value={col}
+                                onClick={() =>
+                                  setSelectedCell({ row: -1, col: colIdx })
+                                }
                                 onFocus={() => {
+                                  setSelectedCell({ row: -1, col: colIdx });
                                   setColEditHistory({
                                     index: colIdx,
                                     prevValue: confirmedData.columns[colIdx],
@@ -359,7 +363,12 @@ function EditData() {
                                   }
                                   setColEditHistory(null);
                                 }}
-                                className="w-full font-semibold"
+                                className={`w-full font-semibold outline-none px-1 py-0.5 rounded 
+                                  ${
+                                    selectedCell?.row === -1 && selectedCell?.col === colIdx
+                                      ? "bg-blue-200 ring-2 ring-blue-500"
+                                      : ""
+                                  }`}
                               />
                             </th>
                           ))}
