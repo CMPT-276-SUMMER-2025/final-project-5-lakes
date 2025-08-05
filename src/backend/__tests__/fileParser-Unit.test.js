@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const { parseFile } = require('../file-parser.js');
+const { parseFile } = require('../deepSeek/DeepSeekFileParser.js');
 const deepseek = require('../deepSeek/APIdeepseek.js');
 
 const tempUnitDir = path.resolve(__dirname, 'tempUnit');
