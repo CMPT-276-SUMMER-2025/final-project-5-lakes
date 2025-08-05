@@ -2,7 +2,6 @@ import EditSaveStepper from "../components/editsave/EditSaveStepper";
 import EditSaveButtons from "../components/editsave/EditSaveButtons";
 import { SketchPicker } from 'react-color';
 import { useLocation } from "react-router-dom";
-import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
 import DownloadOptions from '../components/editsave/DownloadOptions';

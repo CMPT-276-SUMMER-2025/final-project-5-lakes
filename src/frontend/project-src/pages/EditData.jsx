@@ -94,12 +94,9 @@ function EditData() {
       throw error;
     }
 
-    setIsLoading(false);
-    navigate("/visual-select", { state: data });
-
+    navigate("/visual-select", { state: data, replace: true });
+    
   } catch (error) {
-    setIsLoading(false);
-
     if (error.code === "INVALID_EDITED_TABLE") {
       showAlert(
         "error",
@@ -115,6 +112,9 @@ function EditData() {
         "Okay"
       );
     }
+  }
+  finally {
+    setIsLoading(false);
   }
 };
   

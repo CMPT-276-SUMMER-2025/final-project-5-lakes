@@ -70,11 +70,13 @@ function HomePage() {
       return data;
     })
     .then((data) => {
-      setIsLoading(false);
-      navigate('/edit-data', { state: data });
+      if (data && data.parsedData && data.file) {
+        navigate('/edit-data', { state: data, replace: true });
+      } else {
+        throw new Error("Missing required data. Navigation aborted.");
+      }
     })
     .catch((error) => {
-      setIsLoading(false);
       if (error.code === 'NO_DATA_EXTRACTED') {
         showAlert(
           'error',
@@ -93,6 +95,9 @@ function HomePage() {
         )
       }
     })
+    .finally(() => {
+      setIsLoading(false);
+    });
   };
 
   const handleGlobalDragOver = (event) => {
