@@ -20,35 +20,34 @@ const promptExtractStructuredData =
         `
         IMPORTANT: You MUST respond with exactly ONE of the following:
 
-        - If meaningful data is found, output ONLY a JSON array of objects as described below.
         - If NO meaningful data is found, output EXACTLY this line:
         Error: No data was extracted.
 
         Do NOT include any other text, explanations, or formatting (no backticks, no quotes, no lists).
 
-        ---
-
-        You are given a parsed file (csv, excel, txt or pdf). Given the file, extract all the relevant data needed to
-        create a chart and format it as parsed csv file.
+        - If meaningful data is found, output ONLY a JSON array of objects as described below.
+        You are given a parsed file containing multiple sets of data.
         
-        Example format:
+        Your task:
+        1. Extract all data, identifying each data element as a key-value pair.
+        2. Identify important keys based on the estimated usage of the data. You can give appropriate names to these keys. Add a (#number) to the end of each key indicating the table the data came from.
+        3. Extract all data from all tables, identifying each data element as a key-value pair.
+        4. Merge all tables row-wise into a single JSON array:
+                - The first row from each table combines into the first object, the second rows combine into the second object, etc.
+                - If some tables have fewer rows, omit missing fields for those rows.
+        5. Keep in mind that this data will be used to generate a CSV file.
+        6. Only output the JSON array, without explanations or extra formatting.
+
+        Example:
         [
-                {
-                        "Label 1": "Value 1",
-                        "Label 2": "Value 2",
-                        "Label 3": "Value 3",
-                        ...
-                },
-                {
-                        "Label 1": "Value 1",
-                        "Label 2": "Value 2",
-                        "Label 3": "Value 3",
-                        ...
-                },
-                ...
+                { "Product (1)": ["Apple"], "Price (1)": ["1.00"],  "Week (2)": ["2"], "Apples Sold (2)": ["100"], "Bananas Sold (2)": ["120"] },
+                { "Product (1)": ["Banana"], "Price (1)": ["0.80"], "Week (2)": ["2"], "Apples Sold (2)": ["90"], "Bananas Sold (2)": ["150"] },
+                { "Product (1)": ["Orange"], "Price (1)": ["1.20"] }
         ]
         
         Important rules:
+        - Do NOT output empty objects ({}).
+        - Do NOT output rows with no data.
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
