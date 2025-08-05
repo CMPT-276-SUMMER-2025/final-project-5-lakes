@@ -14,7 +14,7 @@ async function separateLabels(data) {
     try {
         response = JSON.parse(rawResponse);
     } catch (jsonError) {
-        const error = new Error('Unexpected API response.');
+        const error = new Error('Unexpected API response');
         error.code = '';
         error.status = 500;
         throw error; 
