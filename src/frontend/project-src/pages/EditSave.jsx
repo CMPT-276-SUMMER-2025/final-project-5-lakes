@@ -770,8 +770,7 @@ function EditSave() {
                         </div>
                     </div>
 
-
-
+                    {/* Controls section, RIGHT SIDE OF PAGE */}
                     <div className="w-full md:w-[50%] grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Text editing section */}
                         <div className="space-y-6">
@@ -878,12 +877,9 @@ function EditSave() {
                                         Update
                                     </button>
                                 </div>
-                            </div>
-
-                            
+                            </div>    
                         </div>
-                        
-                        
+                          
                         {/* Color editing section */}
                         <div className="space-y-6">
 
@@ -973,7 +969,6 @@ function EditSave() {
                                 </p>
 
                                 {/* Show color option buttons only if no picker is active */}
-                                
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <button
                                         className={`edit-color-option ${activePicker === 'background' ? 'edit-color-option-active' : ''}`}
@@ -993,7 +988,6 @@ function EditSave() {
                                         Text Colour
                                     </button>
                                 </div>
-
 
                                 {/* Show the appropriate picker and Confirm/Cancel buttons */}
                                 {activePicker && (
@@ -1042,8 +1036,6 @@ function EditSave() {
                                 )}
                             </div>
 
-                            
-
                             {/* Grid Lines & Legend section */}
                             <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
                                 <div className="flex items-center gap-2 mb-4">
@@ -1076,28 +1068,15 @@ function EditSave() {
 
                             {/* downloading button, downloading thing is a component */}
                             <div className="w-full">
-                            <button
-                                className="w-full bg-blue-600 hover:bg-gray-300 text-white py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer"
-                                onClick={() => setIsDownloadModalOpen(true)}
-                            >
-                                <Download size={18} strokeWidth={4}/>
-                                Download
-                            </button>
+                                <button
+                                    className="w-full primary-button flex items-center justify-center gap-2"
+                                    onClick={() => setIsDownloadModalOpen(true)}
+                                >
+                                    <Download size={18} strokeWidth={4}/>
+                                    Download
+                                </button>
                             </div>
-                        </div>
-
-
-
-
-                        
-                        
-
-                        
-                        
-
-                        
-
-                        
+                        </div> 
                     </div>
                 </div>
             </div>
