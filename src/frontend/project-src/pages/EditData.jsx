@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import EditDataStepper from "../components/editdata/EditDataStepper";
 import LoadingPopUp from "../components/editdata/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
@@ -9,6 +8,7 @@ import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
 import { useRef } from "react";
 import InfoPopUp from '../components/messages/InfoPopUp';
+import ProgressStepper from "../components/layout/ProgressStepper";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
@@ -297,7 +297,7 @@ function EditData() {
         </div>
       )}
 
-      <EditDataStepper />
+      <ProgressStepper currentStep="Edit Data" />
       <form onSubmit={handleNext}>
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-7xl">
           <div className="flex flex-col md:flex-row items-center gap-1 w-full">
@@ -336,7 +336,11 @@ function EditData() {
                             <th key={colIdx} className="border px-3 py-2 bg-gray-100">
                               <input
                                 value={col}
+                                onClick={() =>
+                                  setSelectedCell({ row: -1, col: colIdx })
+                                }
                                 onFocus={() => {
+                                  setSelectedCell({ row: -1, col: colIdx });
                                   setColEditHistory({
                                     index: colIdx,
                                     prevValue: confirmedData.columns[colIdx],
@@ -359,7 +363,12 @@ function EditData() {
                                   }
                                   setColEditHistory(null);
                                 }}
-                                className="w-full font-semibold"
+                                className={`w-full font-semibold outline-none px-1 py-0.5 rounded 
+                                  ${
+                                    selectedCell?.row === -1 && selectedCell?.col === colIdx
+                                      ? "bg-blue-200 ring-2 ring-blue-500"
+                                      : ""
+                                  }`}
                               />
                             </th>
                           ))}
@@ -377,19 +386,12 @@ function EditData() {
                                     const isRow = rowIdx === selectedCell.row;
                                     const isCol = colIdx === selectedCell.col;
 
-                                    if (hoveredAction === "rowAbove" || hoveredAction === "rowBelow") {
-                                      return isRow ? "bg-blue-100" : "";
-                                    }
                                     if (hoveredAction === "removeRow") {
                                       return isRow ? "bg-red-100" : "";
-                                    }
-                                    if (hoveredAction === "colLeft" || hoveredAction === "colRight") {
-                                      return isCol ? "bg-blue-100" : "";
-                                    }
+                                    } 
                                     if (hoveredAction === "removeCol") {
                                       return isCol ? "bg-red-100" : "";
                                     }
-
                                     return "";
                                   })()
                                 }`}
@@ -441,8 +443,6 @@ function EditData() {
                   <div className="flex flex-wrap justify-center gap-4 mt-4 mb-4 mr-4 ml-4">
                     <button
                       type="button"
-                      onMouseEnter={() => setHoveredAction("rowAbove")}
-                      onMouseLeave={() => setHoveredAction(null)}
                       onMouseDown={() => {
                         if (selectedCell) insertRowAbove(selectedCell.row);
                       }}
@@ -455,8 +455,6 @@ function EditData() {
 
                     <button
                       type="button"
-                      onMouseEnter={() => setHoveredAction("rowBelow")}
-                      onMouseLeave={() => setHoveredAction(null)}
                       onMouseDown={() => {
                         if (selectedCell) insertRowBelow(selectedCell.row);
                       }}
@@ -469,8 +467,6 @@ function EditData() {
 
                     <button
                       type="button"
-                      onMouseEnter={() => setHoveredAction("colLeft")}
-                      onMouseLeave={() => setHoveredAction(null)}
                       onMouseDown={() => {
                         if (selectedCell) insertColumnLeft(selectedCell.col);
                       }}
@@ -483,8 +479,6 @@ function EditData() {
 
                     <button
                       type="button"
-                      onMouseEnter={() => setHoveredAction("colRight")}
-                      onMouseLeave={() => setHoveredAction(null)}
                       onMouseDown={() => {
                         if (selectedCell) insertColumnRight(selectedCell.col);
                       }}

@@ -1,7 +1,7 @@
-import EditSaveStepper from "../components/editsave/EditSaveStepper";
 import EditSaveButtons from "../components/editsave/EditSaveButtons";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import ProgressStepper from "../components/layout/ProgressStepper";
 import { Loader2, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
 import {
     getTitleFontSize,
@@ -69,6 +69,8 @@ function EditSave() {
 
     const [gridLines, setGridLines] = useState(true);
     const [legend, setLegend] = useState(true);
+
+    const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
 
     const [activePicker, setActivePicker] = useState(null); // 'background' | 'text' | null for color pickers
 
@@ -250,7 +252,7 @@ function EditSave() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter">
-            <EditSaveStepper />
+            <ProgressStepper currentStep="Edit & Save" />
             <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
                 <div className="flex flex-col md:flex-row gap-6 w-full">
                     {/* Display the chart image */}
@@ -327,14 +329,17 @@ function EditSave() {
                                 onUpdateTitle={handleTitleChangeLocal}
                             />
                             
-                            <AxisTitleSettings
-                                tempXAxisTitle={tempXAxisTitle}
-                                tempYAxisTitle={tempYAxisTitle}
-                                onXAxisTitleChange={(e) => setTempXAxisTitle(e.target.value)}
-                                onYAxisTitleChange={(e) => setTempYAxisTitle(e.target.value)}
-                                onUpdateXAxisTitle={() => handleAxisTitleChangeLocal("x", tempXAxisTitle)}
-                                onUpdateYAxisTitle={() => handleAxisTitleChangeLocal("y", tempYAxisTitle)}
-                            />
+                            {/* Only show axis title settings for non-pie charts */}
+                            {!isPieChart && (
+                                <AxisTitleSettings
+                                    tempXAxisTitle={tempXAxisTitle}
+                                    tempYAxisTitle={tempYAxisTitle}
+                                    onXAxisTitleChange={(e) => setTempXAxisTitle(e.target.value)}
+                                    onYAxisTitleChange={(e) => setTempYAxisTitle(e.target.value)}
+                                    onUpdateXAxisTitle={() => handleAxisTitleChangeLocal("x", tempXAxisTitle)}
+                                    onUpdateYAxisTitle={() => handleAxisTitleChangeLocal("y", tempYAxisTitle)}
+                                />
+                            )}
                         </div>
                           
                         {/* Color editing section */}
@@ -375,6 +380,7 @@ function EditSave() {
                                 legend={legend}
                                 onGridLinesToggle={handleGridLinesLocal}
                                 onLegendToggle={handleLegendLocal}
+                                isPieChart={isPieChart}
                             />
                         </div>
                     </div>

@@ -100,7 +100,7 @@ function EditSaveButtons({ chartImageUrl }) {
         onClick={() => setIsDownloadModalOpen(true)}
       >
         <Download size={18} strokeWidth={4} className="mr-2" />
-        Download
+        Download this chart
       </button>
 
       {isWarningVisible && (

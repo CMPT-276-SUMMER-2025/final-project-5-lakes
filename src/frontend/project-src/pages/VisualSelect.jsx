@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ChartSelectionCard from '../components/visualselect/ChartSelectionCard';
 import { ChevronLeft, ClipboardList } from 'lucide-react';
-import VisualSelectStepper from '../components/visualselect/VisualSelectStepper';
+import ProgressStepper from '../components/layout/ProgressStepper';
 
 // not connected with backend yet
 // may need to change the inputs
@@ -75,7 +75,7 @@ function VisualSelect() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start p-6 sm:p-10 font-inter">
       {isLoading && <LoadingPopUp show={true} />}
       <div>
-        <VisualSelectStepper />
+        <ProgressStepper currentStep="Choose Visual" />
       </div>
       
       <div className="w-full max-w-6xl bg-blue-50 shadow-md rounded-xl p-6 sm:p-8">
@@ -121,15 +121,14 @@ function VisualSelect() {
             {graphRecommendation[0] || 'No recommendation available'}
           </p>
         </div> */}
-        <div className="w-full max-w-6xl mt-6 mb-6 text-left">
+      </div>
+      <div className="w-full max-w-6xl mt-6 mb-6 text-center">
           <button onClick={goPreviousPage}
             className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100">
             <ChevronLeft size={18} className="mr-1" />
-            Edit my data
+            Go to the last step
           </button>
         </div>
-
-      </div>
     </div>
   );
 }
