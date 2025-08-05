@@ -22,13 +22,13 @@ let sessionData = {
     parsedData: null,
     edittedData: null,
     chartConfig: null,
+    labels: null,
     summary: null,
     graphRecommendation: null,
     styleConfig: null,
     chartOptions: null,
     visualSelected: null,
     selectedOption: null,
-    labels: null,
 };
 
 const allowedOrigins = process.env.NODE_ENV === 'production'
@@ -67,7 +67,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             if (error.code === 'NO_DATA_EXTRACTED') {
                 return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
             } else {
-                return res.status(error.status).json({ error: error.message, code: error.code });
+                return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
             }
         }
     }
@@ -83,7 +83,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         if (error.code === 'NO_DATA_EXTRACTED') {
             return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
         } else {
-            return res.status(error.status).json({ error: error.message, code: error.code });
+            return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
         }
     }
 });
@@ -94,22 +94,30 @@ app.post('/edit-data', async (req, res) => {
     
     try {
         sessionData.edittedData = data.edittedData;
+        let label;
+        try {
+            label = await separateLabels(JSON.stringify(data.edittedData));
+            sessionData.labels = label;
+        } catch (error) {
+            if(error.code === 'INVALID_EDITED_TABLE'){
+                return res.status(error.status).json({ error: error.message, code: error.code });
+            } else {
+                return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
+            }
+        }
+
         let summary;
         try {
             summary = await getSummary(JSON.stringify(data.edittedData));
             sessionData.summary = summary
         } catch (error) {
-            if(error.code === 'INVALID_EDITED_TABLE'){
-                return res.status(error.status).json({ error: error.message, code: error.code });
-            } else {
-                return res.status(error.status).json({ error: error.message, code: error.code });
-            }
+            return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
         }
 
         let graphRecommendation;
+        const chartsWithURLs = [];
         try{
             graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
-            const chartsWithURLs = [];
         
             for (let i = 0; i < graphRecommendation.types.length; i++) {
                 const chartType = graphRecommendation.types[i];
@@ -119,52 +127,25 @@ app.post('/edit-data', async (req, res) => {
 
             sessionData.graphRecommendation = graphRecommendation;
             sessionData.chartOptions = chartsWithURLs;
-
-            res.json({ 
-                summary: summary,
-                graphRecommendation: graphRecommendation,
-                chartsWithURLs: chartsWithURLs,
-                // labels: labels,
-            });
         } catch (error) {
-            return res.status(error.status).json({ error: error.message, code: error.code });
+            return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
         }
 
-        /*const labels = await separateLabels(JSON.stringify(data.parsedData));
-        console.log(labels);
-        // const chartConfig = await getChartsConfig(JSON.stringify(data.edittedData));
-        sessionData.summary = JSON.parse(summary);
-        sessionData.graphRecommendation = JSON.parse(graphRecommendation);*/
-
+        res.json({ 
+            summary: summary,
+            graphRecommendation: graphRecommendation,
+            chartsWithURLs: chartsWithURLs
+        });
     } catch (error) {
-        return res.status(error.status).json({ error: error.message, code: error.code });
+        return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
     }
 });
 
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
     sessionData.visualSelected = data.id;
-    //sessionData.selectedOption = sessionData.chartConfig[data.id];
 
     try{
-        // Check if theres data
-        if (!sessionData.edittedData){
-            return res.status(400).json({ error: 'No parsed data avaiable.' });
-        }
-
-        const labels = await separateLabels(JSON.stringify(sessionData.edittedData));
-        console.log(labels);
-
-        // Attach chartImageURL using QuickChart
-        /*const chartsWithURLs = chartConfigs.map(chart => ({
-            //id: chart.id,
-            //title: chart.title,
-            //description: chart.description,
-            id: 1,
-            title: "Bar Chart",
-            description: "Displays values as bars.",
-            imageURL: generateDummyChart()
-        }));*/
         let chartType = null;
         for (let i = 0; i < sessionData.chartOptions.length; i++) {
             if (sessionData.chartOptions[i].id === sessionData.visualSelected) {
@@ -172,12 +153,11 @@ app.post('/visual-selected', async (req, res) => {
             }
         }
 
-        const chartConfig = multipleDatasetsChartGenerator(chartType, labels, sessionData.edittedData, data.id);
+        const chartConfig = multipleDatasetsChartGenerator(chartType, sessionData.labels, sessionData.edittedData, data.id);
         sessionData.chartConfig = chartConfig;
-        res.json({chartConfig: chartConfig, labels: labels});
+        res.json({chartConfig: chartConfig, labels: sessionData.labels});
     } catch (error) {
-        console.error('Error generating chart URLs:', error);
-        res.status(500).json({ error: 'Failed to generate visualization options' });
+        res.status(500).json({ error: 'Failed to generate the selected chart', code: error.code || '' });
     }
 });
 
@@ -198,13 +178,13 @@ app.delete('/reset-session', async (req, res) => {
         parsedData: null,
         edittedData: null,
         chartConfig: null,
+        labels: null,
         summary: null,
         graphRecommendation: null,
         styleConfig: null,
         chartOptions: null,
         visualSelected: null,
         selectedOption: null,
-        labels: null
     };
     console.log('Session reset successfully');
     res.status(200).send('Session reset successfully');

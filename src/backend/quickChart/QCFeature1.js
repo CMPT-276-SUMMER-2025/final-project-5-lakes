@@ -72,7 +72,6 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
 
     // Use the first dataset to generate X labels (assuming all datasets share same X structure)
     const xLabels = getXValues(labels.x, datasets);
-
     const colors = [
         'rgb(54, 162, 235)',   // Blue
         'rgb(255, 99, 132)',   // Red

@@ -15,13 +15,6 @@ async function getSummary(data){
             error.status = 500;
             throw error;
         }
-
-        if(result.errorTrigger === "TableInvalid"){
-            const error = new Error(result.issue);
-            error.code = 'INVALID_EDITED_TABLE';
-            error.status = 400;
-            throw error;
-        }
         return result;
     } catch (error) {
         throw error;
