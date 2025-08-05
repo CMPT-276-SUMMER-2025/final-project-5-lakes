@@ -8,14 +8,13 @@ import VisualSelectStepper from '../components/visualselect/VisualSelectStepper'
 // may need to change the inputs
 // currently accepts an: ID, the title, the description, and the image URL
 
-const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/visual-select`;
 
 function VisualSelect() {
   const [chartOptions, setChartOptions] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   console.log(location.state);
-  const { summary, graphRecommendation, chartsWithURLs } = location.state || {}; 
+  const { summary, chartsWithURLs } = location.state || {}; 
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -54,11 +53,6 @@ function VisualSelect() {
       // Handle error - maybe show a notification or fallback
       alert('Failed to retrieve session data. Please try again.');
     }
-  };
-  const handleChartSelect = (chart) => {
-    setSelectedChart(chart);
-
-    // console.log("Selected chart:", chart);
   };
 
   useEffect(() => {
