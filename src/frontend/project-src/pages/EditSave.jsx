@@ -44,28 +44,6 @@ const hexToRgb = (hex) => {
 };
 
 // Utility function to convert RGB string back to hex
-const rgbToHex = (rgb) => {
-    if (!rgb || typeof rgb !== 'string') return '#36A2EB';
-    
-    // If it's already a hex color, return it
-    if (rgb.startsWith('#')) return rgb;
-    
-    // Extract RGB values from rgb(r, g, b) or rgba(r, g, b, a) format
-    const rgbMatch = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (!rgbMatch) return '#36A2EB';
-    
-    const r = parseInt(rgbMatch[1], 10);
-    const g = parseInt(rgbMatch[2], 10);
-    const b = parseInt(rgbMatch[3], 10);
-    
-    // Convert to hex
-    const toHex = (n) => {
-        const hex = n.toString(16);
-        return hex.length === 1 ? '0' + hex : hex;
-    };
-    
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-};
 
 
 
@@ -73,7 +51,7 @@ function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
     // const chartImageUrl = 'https://dummyimage.com/600x600'; 
     const location = useLocation();
-    const { chartConfig: initialConfig, labels: labels } = location.state || {};
+    const { chartConfig: initialConfig } = location.state || {};
     const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
     const [showTextPicker, setShowTextPicker] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
