@@ -70,11 +70,13 @@ function HomePage() {
       return data;
     })
     .then((data) => {
-      setIsLoading(false);
-      navigate('/edit-data', { state: data });
+      if (data && data.parsedData && data.file) {
+        navigate('/edit-data', { state: data, replace: true });
+      } else {
+        throw new Error("Missing required data. Navigation aborted.");
+      }
     })
     .catch((error) => {
-      setIsLoading(false);
       if (error.code === 'NO_DATA_EXTRACTED') {
         showAlert(
           'error',
@@ -93,6 +95,9 @@ function HomePage() {
         )
       }
     })
+    .finally(() => {
+      setIsLoading(false);
+    });
   };
 
   const handleGlobalDragOver = (event) => {
@@ -145,7 +150,7 @@ function HomePage() {
           <div className="col-span-full flex justify-center mt-4">
             <button
               type="submit"
-              className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+              className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
             >
               Go to the next step
               <ChevronRight size={25} className="ml-2" />
