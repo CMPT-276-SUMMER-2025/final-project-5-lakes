@@ -1,10 +1,10 @@
-import EditSaveStepper from "../components/editsave/EditSaveStepper";
 import EditSaveButtons from "../components/editsave/EditSaveButtons";
 import { SketchPicker } from 'react-color';
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import ProgressStepper from "../components/layout/ProgressStepper";
 // import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
-import DownloadOptions from '../components/editsave/DownloadOptions';
+// import DownloadOptions from '../components/editsave/DownloadOptions';
 import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw, Check, MousePointerClick, TextCursorInput, Columns3Cog } from 'lucide-react';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
@@ -109,6 +109,8 @@ function EditSave() {
 
     const [gridLines, setGridLines] = useState(true);
     const [legend, setLegend] = useState(true);
+
+    const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
 
     const [activePicker, setActivePicker] = useState(null); // 'background' | 'text' | null for color pickers
 
@@ -712,7 +714,7 @@ function EditSave() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter">
-            <EditSaveStepper />
+            <ProgressStepper currentStep="Edit & Save" />
             <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
                 <div className="flex flex-col md:flex-row gap-6 w-full">
                     {/* Display the chart image */}
@@ -840,46 +842,48 @@ function EditSave() {
                             </div>
                             
                             {/* X/Y Axis title label*/}
-                            <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <TextCursorInput size={18} className="text-black" strokeWidth={2.5} />
-                                    <p className="text-lg font-semibold text-gray-800">Edit X Axis Title</p>
-                                </div>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        value={tempXAxisTitle}
-                                        onChange={(e) => setTempXAxisTitle(e.target.value)}
-                                        placeholder="Enter X-axis title"
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                                    />
-                                    <button
-                                        onClick={() => handleAxisTitleChange("x", tempXAxisTitle)}
-                                        className="primary-button"
-                                    >
-                                        Update
-                                    </button>
-                                </div>
-                                <div className="flex items-center gap-2 mb-2">
-                                    <TextCursorInput size={18} className="text-black" strokeWidth={2.5} />
-                                    <p className="text-lg font-semibold text-gray-800">Edit Y Axis Title</p>
-                                </div>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        value={tempYAxisTitle}
-                                        onChange={(e) => setTempYAxisTitle(e.target.value)}
-                                        placeholder="Enter Y-axis title"
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                                    />
-                                    <button
-                                        onClick={() => handleAxisTitleChange("y", tempYAxisTitle)}
-                                        className="primary-button"
-                                    >
-                                        Update
-                                    </button>
-                                </div>
-                            </div>    
+                            {!isPieChart && (   
+                                <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <TextCursorInput size={18} className="text-black" strokeWidth={2.5} />
+                                        <p className="text-lg font-semibold text-gray-800">Edit X Axis Title</p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={tempXAxisTitle}
+                                            onChange={(e) => setTempXAxisTitle(e.target.value)}
+                                            placeholder="Enter X-axis title"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                        />
+                                        <button
+                                            onClick={() => handleAxisTitleChange("x", tempXAxisTitle)}
+                                            className="primary-button"
+                                        >
+                                            Update
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <TextCursorInput size={18} className="text-black" strokeWidth={2.5} />
+                                        <p className="text-lg font-semibold text-gray-800">Edit Y Axis Title</p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={tempYAxisTitle}
+                                            onChange={(e) => setTempYAxisTitle(e.target.value)}
+                                            placeholder="Enter Y-axis title"
+                                            className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                                        />
+                                        <button
+                                            onClick={() => handleAxisTitleChange("y", tempYAxisTitle)}
+                                            className="primary-button"
+                                        >
+                                            Update
+                                        </button>
+                                    </div>
+                                </div> 
+                            )}   
                         </div>
                           
                         {/* Color editing section */}
@@ -1045,43 +1049,29 @@ function EditSave() {
                             <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
                                 <div className="flex items-center gap-2 mb-4">
                                     <Columns3Cog size={18} className="text-black" strokeWidth={2.5} />
-                                    <p className="text-lg font-semibold text-gray-800">Customize Grid Lines & Legend</p>
+                                    <p className="text-lg font-semibold text-gray-800">
+                                        {isPieChart ? "Customize Legend" : "Customize Grid Lines & Legend"}
+                                    </p>
                                 </div>
 
                                 <div className="flex gap-4">
-                                    <button 
-                                    onClick={handleGridLines} 
-                                    className="w-1/2 primary-button text-center cursor-pointer justify-center"
-                                    >
-                                    {gridLines ? "Disable Grid Lines" : "Enable Grid Lines"}
-                                    </button>
+                                    {!isPieChart && (
+                                        <button 
+                                        onClick={handleGridLines} 
+                                        className="w-1/2 primary-button text-center cursor-pointer justify-center"
+                                        >
+                                        {gridLines ? "Disable Grid Lines" : "Enable Grid Lines"}
+                                        </button>
+                                    )}
 
                                     <button 
-                                    onClick={handleLegend} 
-                                    className="w-1/2 primary-button text-center cursor-pointer justify-center"
+                                        onClick={handleLegend} 
+                                        className={`${isPieChart ? "w-full" : "w-1/2"} primary-button text-center cursor-pointer justify-center`}
                                     >
-                                    {legend ? "Disable Legend" : "Enable Legend"}
+                                        {legend ? "Disable Legend" : "Enable Legend"}
                                     </button>
                                 </div>
                             </div>
-
-                            {/* {isDownloadModalOpen && (
-                                <DownloadOptions
-                                onClose={() => setIsDownloadModalOpen(false)}
-                                chartImageUrl={chartImageUrl}
-                                />
-                            )}
-
-                            {/* downloading button, downloading thing is a component */}
-                            {/* <div className="w-full">
-                                <button
-                                    className="w-full primary-button flex items-center justify-center gap-2"
-                                    onClick={() => setIsDownloadModalOpen(true)}
-                                >
-                                    <Download size={18} strokeWidth={4}/>
-                                    Download
-                                </button>
-                            </div>  */}
                         </div> 
                     </div>
                 </div>

@@ -7,7 +7,7 @@ function LoadingPopUp({ show }) {
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center">
       <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-        Generating <ChartColumnIncreasing className="w-5 h-5" />
+        Reading your table... <ChartColumnIncreasing className="w-5 h-5" />
       </h3>
       <PageLoader />
     </div>

@@ -1,6 +1,5 @@
 import TextInputArea from '../components/homepage/TextInputArea';
 import FileUploadArea from '../components/homepage/FileUploadArea';
-import HomeStepper from '../components/homepage/HomeStepper';
 import { ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useEffect } from 'react';
@@ -8,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
 import LoadingPopUp from '../components/homepage/LoadingPopUp';
+import ProgressStepper from '../components/layout/ProgressStepper';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/file-submit`;
 
@@ -137,7 +137,7 @@ function HomePage() {
        <p className="text-lg md:text-xl text-gray-600 mb-6">
          To get started, upload your file or simply write your information below.
        </p>
-       <HomeStepper />
+       <ProgressStepper currentStep="Upload Data" />
      </header>
 
 
