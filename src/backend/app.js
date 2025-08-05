@@ -52,7 +52,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     // Handle text input if no files are uploaded
     if (!files || files.length === 0) {
         if (!text || text.trim() === '') {
-            return res.status(400).json({ error: 'No file or text provided.', code: '' });
+            return res.status(400).json({ error: 'No file or text provided', code: '' });
         }
         
         try {
@@ -62,7 +62,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             return res.json({ parsedData: result, text: text });
         } catch (error) {
             if (error.code === 'NO_DATA_EXTRACTED') {
-                return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
+                return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file', code: error.code });
             } else {
                 return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || ''|| ''});
             }
@@ -78,7 +78,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         return res.json(result);
     } catch (error) {
         if (error.code === 'NO_DATA_EXTRACTED') {
-            return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file.', code: error.code });
+            return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file', code: error.code });
         } else {
             return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || ''|| ''});
         }
