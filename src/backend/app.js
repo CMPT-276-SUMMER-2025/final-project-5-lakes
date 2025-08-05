@@ -90,9 +90,9 @@ app.post('/edit-data', async (req, res) => {
     const data = req.body;
     
     try {
-        sessionData.edittedData = data.edittedData;
-
-        if(!sessionData.labels){
+        if(!sessionData.labels || 
+            JSON.stringify(sessionData.edittedData) !== JSON.stringify(data.edittedData)
+        ){
             let label;
             try {
                 label = await separateLabels(JSON.stringify(data.edittedData));
@@ -106,7 +106,9 @@ app.post('/edit-data', async (req, res) => {
             }
         }
 
-        if(!sessionData.summary){
+        if(!sessionData.summary ||
+            JSON.stringify(sessionData.edittedData) !== JSON.stringify(data.edittedData)
+        ){
             let summary;
             try {
                 summary = await getSummary(JSON.stringify(data.edittedData));
@@ -116,7 +118,9 @@ app.post('/edit-data', async (req, res) => {
             }
         }
 
-        if(!sessionData.graphRecommendation || !sessionData.chartOptions){
+        if(!sessionData.graphRecommendation || !sessionData.chartOptions ||
+            JSON.stringify(sessionData.edittedData) !== JSON.stringify(data.edittedData)
+        ){
             let graphRecommendation;
             const chartsWithURLs = [];
             try{
@@ -134,6 +138,8 @@ app.post('/edit-data', async (req, res) => {
                 return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
             }
         }
+        
+        sessionData.edittedData = data.edittedData;
 
         res.json({ 
             summary: summary,
