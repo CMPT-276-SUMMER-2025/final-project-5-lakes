@@ -142,9 +142,9 @@ app.post('/edit-data', async (req, res) => {
         sessionData.edittedData = data.edittedData;
 
         res.json({ 
-            summary: summary,
-            graphRecommendation: graphRecommendation,
-            chartsWithURLs: chartsWithURLs
+            summary: sessionData.summary,
+            graphRecommendation: sessionData.graphRecommendation,
+            chartsWithURLs: sessionData.chartOptions
         });
     } catch (error) {
         return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
