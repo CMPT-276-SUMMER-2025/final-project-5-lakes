@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash, Undo, Redo } from "lu
 import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
 import { useRef } from "react";
+import InfoPopUp from '../components/messages/InfoPopUp';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
@@ -32,6 +33,7 @@ function EditData() {
   const [editHistory, setEditHistory] = useState([null]);
   const [colEditHistory, setColEditHistory] = useState([null]);
 
+  const [showInfoPopUp, setShowInfoPopUp] = useState(true);
   const [hoveredAction, setHoveredAction] = useState(null);
 
   const tableRef = useRef(null);
@@ -45,6 +47,7 @@ function EditData() {
 
     const { table } = convertDeepSeekToTable(parsedData);
     setConfirmedData(structuredClone(table));
+    setUndoStack([structuredClone(table)]);
     setOriginalData(structuredClone(table));
   }, [parsedData, navigate]);
 
@@ -255,6 +258,10 @@ function EditData() {
     setConfirmedData(prev);
   };
 
+  const handleInfoPopUpClick = () => {
+    setShowInfoPopUp(false);
+  };
+
   const redo = () => {
     if (redoStack.length === 0) return;
     const next = redoStack[redoStack.length - 1];
@@ -265,6 +272,17 @@ function EditData() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
+      
+      {showInfoPopUp && (
+        <div className="absolute left-20 top-20 z-50">
+          <InfoPopUp
+            title="Data Extracted"
+            message="This is all the info that was extracted from your upload. Please delete any columns or information you don't want to use."
+            onButtonClick={handleInfoPopUpClick}
+          />
+        </div>
+      )}
+      
       <LoadingPopUp show={isLoading} />
 
       {isAlertVisible && (
