@@ -91,41 +91,48 @@ app.post('/edit-data', async (req, res) => {
     
     try {
         sessionData.edittedData = data.edittedData;
-        let label;
-        try {
-            label = await separateLabels(JSON.stringify(data.edittedData));
-            sessionData.labels = label;
-        } catch (error) {
-            if(error.code === 'INVALID_EDITED_TABLE'){
-                return res.status(error.status).json({ error: error.message, code: error.code });
-            } else {
+
+        if(!sessionData.labels){
+            let label;
+            try {
+                label = await separateLabels(JSON.stringify(data.edittedData));
+                sessionData.labels = label;
+            } catch (error) {
+                if(error.code === 'INVALID_EDITED_TABLE'){
+                    return res.status(error.status).json({ error: error.message, code: error.code });
+                } else {
+                    return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
+                }
+            }
+        }
+
+        if(!sessionData.summary){
+            let summary;
+            try {
+                summary = await getSummary(JSON.stringify(data.edittedData));
+                sessionData.summary = summary
+            } catch (error) {
+                return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
+            }
+        }
+
+        if(!sessionData.graphRecommendation || !sessionData.chartOptions){
+            let graphRecommendation;
+            const chartsWithURLs = [];
+            try{
+                graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
+            
+                for (let i = 0; i < graphRecommendation.types.length; i++) {
+                    const chartType = graphRecommendation.types[i];
+                    const reasoning = graphRecommendation.explanations?.[i] || "No explanation provided.";
+                    chartsWithURLs.push(generateDummyChart(chartType, reasoning));
+                }
+
+                sessionData.graphRecommendation = graphRecommendation;
+                sessionData.chartOptions = chartsWithURLs;
+            } catch (error) {
                 return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
             }
-        }
-
-        let summary;
-        try {
-            summary = await getSummary(JSON.stringify(data.edittedData));
-            sessionData.summary = summary
-        } catch (error) {
-            return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
-        }
-
-        let graphRecommendation;
-        const chartsWithURLs = [];
-        try{
-            graphRecommendation = await getGraphRecommendation(JSON.stringify(data.edittedData));
-        
-            for (let i = 0; i < graphRecommendation.types.length; i++) {
-                const chartType = graphRecommendation.types[i];
-                const reasoning = graphRecommendation.explanations?.[i] || "No explanation provided.";
-                chartsWithURLs.push(generateDummyChart(chartType, reasoning));
-            }
-
-            sessionData.graphRecommendation = graphRecommendation;
-            sessionData.chartOptions = chartsWithURLs;
-        } catch (error) {
-            return res.status(error.status || 500).json({ error: error.message, code: error.code || ''});
         }
 
         res.json({ 
