@@ -1,5 +1,5 @@
 function getYValues(label, dataset) {
-    return dataset.map(item => item[label]);
+    return dataset.map(item => parseFloat(item[label]));
 }
 
 function getXValues(labels, dataset) {
