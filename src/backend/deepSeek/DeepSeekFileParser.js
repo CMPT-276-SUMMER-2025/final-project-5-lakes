@@ -109,7 +109,7 @@ async function parseFile(file){
                         error.status = 410;
                         throw error;
                     }
-                    throw err
+                    throw err;
                 }
                 break;
             }
