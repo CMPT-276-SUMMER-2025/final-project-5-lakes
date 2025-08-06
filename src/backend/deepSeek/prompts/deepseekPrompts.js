@@ -92,9 +92,7 @@ const graphRecommendationLogic =
         - "Line (Multiple Series)"
         - "Scatter"
         - "Pie"
-        - "Labelled Pie"
         - "Doughnut"
-        - "Labelled Doughnut"
 
         ### Use the following as general **guidelines**, not strict rules:
 

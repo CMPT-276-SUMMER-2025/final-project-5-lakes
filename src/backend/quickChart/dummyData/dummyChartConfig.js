@@ -201,43 +201,6 @@ const dummyChart = [
     },
     {
         id: 9,
-        title: "Multi Axis Line",
-        description: "Line chart using multiple Y axes.",
-        config: {
-            type: "line",
-            data: {
-                labels: ["Jan", "Feb", "Mar"],
-                datasets: [
-                    {
-                        label: "Temperature",
-                        data: [30, 25, 27],
-                        borderColor: "rgba(255, 99, 132, 1)",
-                        yAxisID: "y",
-                    },
-                    {
-                        label: "Rainfall",
-                        data: [5, 8, 6],
-                        borderColor: "rgba(54, 162, 235, 1)",
-                        yAxisID: "y1",
-                    },
-                ],
-            },
-            options: {
-                scales: {
-                    y: {
-                        type: "linear",
-                        position: "left",
-                    },
-                    y1: {
-                        type: "linear",
-                        position: "right",
-                    },
-                },
-            },
-        },
-    },
-    {
-        id: 10,
         title: "Line (Multiple Series)",
         description: "Line chart with multiple data series.",
         config: {
@@ -262,7 +225,7 @@ const dummyChart = [
         },
     },
     {
-        id: 11,
+        id: 10,
         title: "Scatter",
         description: "Displays data as points in a Cartesian coordinate system.",
         config: {
@@ -283,7 +246,7 @@ const dummyChart = [
         },
     },
     {
-        id: 12,
+        id: 11,
         title: "Pie",
         description: "Basic pie chart representing proportions.",
         config: {
@@ -304,35 +267,7 @@ const dummyChart = [
         },
     },
     {
-        id: 13,
-        title: "Labelled Pie",
-        description: "Pie chart with labels on each segment.",
-        config: {
-            type: "pie",
-            data: {
-                labels: ["Marketing", "Sales", "Dev"],
-                datasets: [
-                    {
-                        data: [15, 25, 60],
-                        backgroundColor: [
-                        "#FF6384",
-                        "#36A2EB",
-                        "#FFCE56",
-                        ],
-                    },
-                ],
-            },
-            options: {
-                plugins: {
-                    datalabels: {
-                        formatter: (value, ctx) => ctx.chart.data.labels[ctx.dataIndex],
-                    },
-                },
-            },
-        },
-    },
-    {
-        id: 14,
+        id: 12,
         title: "Doughnut",
         description: "Basic doughnut chart.",
         config: {
@@ -347,31 +282,7 @@ const dummyChart = [
                 ],
             },
         },
-    },
-    {
-        id: 15,
-        title: "Labelled Doughnut",
-        description: "Doughnut chart with labels.",
-        config: {
-            type: "doughnut",
-            data: {
-                labels: ["East", "West", "North"],
-                datasets: [
-                    {
-                        data: [20, 50, 30],
-                        backgroundColor: ["#FF9F40", "#9966FF", "#C9CBCF"],
-                    },
-                ],
-            },
-            options: {
-                plugins: {
-                    datalabels: {
-                        formatter: (value, ctx) => ctx.chart.data.labels[ctx.dataIndex],
-                    },
-                },
-            },
-        },
-    },
+    }
 ];
 
 module.exports = dummyChart;

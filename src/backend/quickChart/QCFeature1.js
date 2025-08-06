@@ -1,8 +1,3 @@
-// Feature 1: Generate Chart
-// Get data from frontend after user confirms.
-// Seperate the data by "type", "lable", "dataset", etc.
-// Run through if statements to the right type
-// import the fixed parameters and create graph with data
 const { getXValues } = require('./QCAdditionalFunctions.js');
 const { getYValues } = require('./QCAdditionalFunctions.js');
 const { getScatterValues } = require('./QCAdditionalFunctions.js');
@@ -11,15 +6,14 @@ const dummyChart = require('./dummyData/dummyChartConfig.js');
 function multipleDatasetsChartGenerator(type, labels, datasets, id) {
     const chart = dummyChart.find(c => c.id === id);
 
-    // Use the first dataset to generate X labels (assuming all datasets share same X structure)
     const xLabels = getXValues(labels.x, datasets);
     const colors = [
-        'rgb(54, 162, 235)',   // Blue
-        'rgb(255, 99, 132)',   // Red
-        'rgb(75, 192, 192)',   // Teal
-        'rgb(255, 205, 86)',   // Yellow
-        'rgb(153, 102, 255)',  // Purple
-        'rgb(255, 159, 64)'    // Orange
+        'rgb(54, 162, 235)', 
+        'rgb(255, 99, 132)',  
+        'rgb(75, 192, 192)',  
+        'rgb(255, 205, 86)',   
+        'rgb(153, 102, 255)',  
+        'rgb(255, 159, 64)'
     ];
     
     let chartConfig = {
@@ -138,8 +132,7 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
     if (type == "scatter") {
         chartConfig.data.datasets[0].data = getScatterValues(labels, datasets);
     }
-
-    if (type === "pie" || type === "doughnut") {
+    else if (type === "pie" || type === "doughnut") {
         // For pie/doughnut charts, map background colors to the number of data points
         const dataLength = chartConfig.data.datasets[0].data.length;
         chartConfig.data.datasets[0].backgroundColor = colors.slice(0, dataLength);
@@ -173,7 +166,15 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
             }
         };
     }
+    else if (type === "line") {
+        for (let i = 0; i < chartConfig.data.datasets.length; i++){
+            chartConfig.data.datasets[i].fill = false;
+        }
 
+        if (id === 8){
+            chartConfig.data.datasets.stepped = true;
+        }
+    }
 
     return chartConfig;
 }
