@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ChevronLeft, ClipboardList } from "lucide-react";
 
 import ChartSelectionCard from "../components/visualselect/ChartSelectionCard";
 import ProgressStepper from "../components/layout/ProgressStepper";
@@ -16,30 +15,25 @@ function VisualSelect() {
 
   // Function to get session data and navigate back to edit-data
   const getSessionDataAndNavigateBack = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/get-session-data`, {
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/get-session-data`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // Include cookies for session management
+        credentials: "include"
+      })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok){
+          const error = new Error(`HTTP error! status: ${response.status}`);
+          throw error;
+        }
+        return data;
+      })
+      .then((data) => {
+        navigate('/edit-data', {state: data, replace: true});
+      })
+      .catch((error) => {
+        alert(error.message, "Please try again.");
       });
-
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-      const sessionData = await response.json();
-    
-      // Navigate back to edit-data with the retrieved data
-      navigate("/edit-data", {
-        state: {
-          parsedData: sessionData.edittedData,
-          file: sessionData.uploadedFile,
-          summary: sessionData.summary,
-          graphRecommendation: sessionData.graphRecommendation,
-          chartsWithURLs: sessionData.chartsWithURLs,
-        },
-      });
-    } catch (error) {
-      alert(error.message, "Please try again.");
-    }
   };
 
   const handleChartSelect = (chart) => {

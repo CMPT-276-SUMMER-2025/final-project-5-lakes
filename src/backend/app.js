@@ -42,7 +42,7 @@ app.use(cors({
 
 
 app.get('/get-session-data', async (req, res) => {
-    res.json(sessionData);
+    return res.json(sessionData);
 });
 
 app.post('/file-submit', upload.array('files'), async (req, res) => {
@@ -65,9 +65,10 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
                 buffer: fs.readFileSync(txtFilePath)
             };
 
-            let result = { parsedData: await parseFile(file), file: file };
             sessionData.uploadedFile = file;
-            sessionData.parsedData = result.parsedData;
+            sessionData.parsedData = await parseFile(file);
+            sessionData.edittedData = sessionData.parsedData;
+            let result = { parsedData: sessionData.parsedData, edittedData: sessionData.edittedData, file: file };
             return res.json(result);
         } catch (error) {
             if (error.code === 'NO_DATA_EXTRACTED') {
@@ -80,9 +81,10 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
 
     try {
         const file = files[0];
-        let result = { parsedData: await parseFile(file), file: file };
         sessionData.uploadedFile = file;
-        sessionData.parsedData = result.parsedData;
+        sessionData.parsedData = await parseFile(file);
+        sessionData.edittedData = sessionData.parsedData;
+        let result = { parsedData: sessionData.parsedData, edittedData: sessionData.edittedData, file: file };
         return res.json(result);
     } catch (error) {
         if (error.code === 'NO_DATA_EXTRACTED') {
