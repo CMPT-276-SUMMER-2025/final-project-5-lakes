@@ -52,7 +52,7 @@ function HomePage() {
       body: formData,
       credentials: 'include'
     })
-     .then(async (response) => { //// to go to the next page if successful
+     .then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
         const error = new Error(data.error || 'Something went wrong');
@@ -62,7 +62,7 @@ function HomePage() {
       return data;
     })
     .then((data) => {
-      if (data && data.parsedData && data.file) {
+      if (data && data.parsedData && data.edittedData && data.file) {
         navigate('/edit-data', { state: data, replace: true });
       } else {
         const error = new Error(data.error || 'Something went wrong');

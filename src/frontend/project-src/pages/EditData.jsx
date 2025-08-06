@@ -20,7 +20,7 @@ function EditData() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { parsedData } = location.state || {};
+  const { parsedData, edittedData } = location.state || {};
   const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -42,16 +42,13 @@ function EditData() {
 
   // Initialize confirmedData and originalData from parsedData
   useEffect(() => {
-    if (!parsedData) {
-      navigate("/");
-      return;
-    }
+    const {table: originalTable}  = convertDeepSeekToTable(parsedData);
+    const {table: currentTable}  = convertDeepSeekToTable(edittedData);
 
-    const { table } = convertDeepSeekToTable(parsedData);
-    setConfirmedData(structuredClone(table));
-    setUndoStack([structuredClone(table)]);
-    setOriginalData(structuredClone(table));
-  }, [parsedData, navigate]);
+    setConfirmedData(structuredClone(currentTable));
+    setUndoStack([structuredClone(currentTable)]);
+    setOriginalData(structuredClone(originalTable));
+  }, [parsedData, edittedData, navigate]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -80,8 +77,7 @@ function EditData() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        edittedData: formattedData,
-        parsedData: parsedData,
+        edittedData: formattedData
       }),
       credentials: "include",
     });
