@@ -13,6 +13,8 @@ function FileUploadArea({setFiles, files, showAlert, text}) {
     'text/plain', 
   ];
 
+  const MAX_FILE_SIZE_KB = 100;
+
   const handleValidateFiles = (newFiles) => {
     if (text.trim() !== '') {
       setIsDragOver(false);
@@ -26,13 +28,19 @@ function FileUploadArea({setFiles, files, showAlert, text}) {
     }
     const validFiles = [];
     const invalidFileNames = [];
+    const invalidFileSize = [];
 
     newFiles.forEach((file) => {
-      if (ACCEPTED_FILE_TYPES.includes(file.type)) {
-        validFiles.push(file);
-      } else {
+      const fileSizeKB = file.size / 1024;
+
+      if (!ACCEPTED_FILE_TYPES.includes(file.type)) {
         invalidFileNames.push(file.name);
+      } else if (fileSizeKB > MAX_FILE_SIZE_KB) {
+        invalidFileSize.push(file.name);
+      } else {
+        validFiles.push(file);
       }
+
     });
 
     if (invalidFileNames.length > 0) {
@@ -40,6 +48,13 @@ function FileUploadArea({setFiles, files, showAlert, text}) {
         'error',
         'Unsupported File Type',
         `Your file could not be uploaded because its file type is not supported. Please upload PDF, XLSX, DOCX, CSV, or TXT files.`,
+        'Okay'
+      );
+    } else if (invalidFileSize.length > 0) {
+      showAlert(
+        'error',
+        'Unsupported File Type',
+        `Your file could not be uploaded because its file size is too large. Please upload a file less than 100KB.`,
         'Okay'
       );
     }
