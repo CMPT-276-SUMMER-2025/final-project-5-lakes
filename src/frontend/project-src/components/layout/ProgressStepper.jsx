@@ -1,4 +1,3 @@
-// components/shared/ProgressStepper.jsx
 import { Upload, Check, SquareMousePointer, Pencil } from 'lucide-react';
 
 const steps = [
@@ -46,7 +45,7 @@ function ProgressStepper({ currentStep }) {
                 status === 'completed'
                   ? 'text-gray-900'
                   : status === 'current'
-                  ? 'text-indigo-600'
+                  ? 'text-blue-600'
                   : 'text-gray-400'
               }`}
             >
