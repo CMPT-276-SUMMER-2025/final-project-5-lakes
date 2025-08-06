@@ -110,20 +110,6 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
                         }
                     }
                 },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: "X-axis"
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: "Y-axis"
-                        }
-                    }
-                }
             };
         }
     }
