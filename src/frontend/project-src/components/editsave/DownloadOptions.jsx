@@ -1,3 +1,6 @@
+// This component renders a pop-up that allows users to download their chart in PDF, PNG, or SVG format.
+// It handles API calls, shows loading states, displays a success message, and offers next options after download.
+
 import { useEffect, useCallback, useState } from 'react';
 import { FileDown, Image, FileImage, X, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
