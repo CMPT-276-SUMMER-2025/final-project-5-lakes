@@ -30,9 +30,9 @@ function ProgressStepper({ currentStep }) {
               className={`w-10 h-10 flex items-center justify-center rounded-full font-bold mr-5
                 ${
                   status === 'completed'
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-blue-600 text-white'
                     : status === 'current'
-                    ? 'border-2 border-indigo-600 text-indigo-600'
+                    ? 'border-2 border-blue-600 text-blue-600'
                     : 'border-2 border-gray-300 text-gray-400'
                 }
               `}
