@@ -43,7 +43,6 @@ function VisualSelect() {
   };
 
   const handleChartSelect = (chart) => {
-    setSelectedChart(chart);
     navigate("/edit-save", { state: { selectedChart: chart } });
   };
 

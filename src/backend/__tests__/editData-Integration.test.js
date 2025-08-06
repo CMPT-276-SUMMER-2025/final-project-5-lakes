@@ -2,7 +2,7 @@ jest.resetModules();
 
 jest.mock('../deepSeek/DeepSeekLabelSeparation.js', () => ({
     separateLabels: jest.fn(() => {
-        Promise.resolve([{ x: ['Fruit'], y: ['Price'] }])
+        Promise.resolve([{ x: ['Fruit'], y: ['Price'] }]);
     })
 }));
 jest.mock('../deepSeek/DeepSeekFeature2.js', () => ({

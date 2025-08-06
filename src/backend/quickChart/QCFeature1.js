@@ -133,7 +133,7 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
                 family: "Noto Sans",
                 size: 18
             }
-        }
+        };
     }
 
     if (chart?.config) {

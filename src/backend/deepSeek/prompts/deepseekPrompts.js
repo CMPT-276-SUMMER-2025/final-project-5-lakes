@@ -160,7 +160,7 @@ const summaryPrompt =
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
-        `
+        `;
 
 const labelsSeparatorPrompt = `
         IMPORTANT: You MUST respond with exactly ONE of the following:
