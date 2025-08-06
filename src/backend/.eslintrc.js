@@ -3,7 +3,7 @@ module.exports = {
   env: {
     node: true,
     commonjs: true,
-    es2022: true, // equivalent to "ecmaVersion: 'latest'"
+    es2022: true,
   },
   ignorePatterns: ['node_modules', 'dist'],
   parserOptions: {
@@ -16,7 +16,8 @@ module.exports = {
     process: 'readonly',
   },
   rules: {
-    'no-unused-vars': 'off', // or 'warn'
-    'no-console': 'off',
+    'no-unused-vars': 'error',
+    'no-console': 'error',
+    "semi": ["error", "always"],
   },
 };

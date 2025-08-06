@@ -20,35 +20,45 @@ const promptExtractStructuredData =
         `
         IMPORTANT: You MUST respond with exactly ONE of the following:
 
-        - If meaningful data is found, output ONLY a JSON array of objects as described below.
         - If NO meaningful data is found, output EXACTLY this line:
         Error: No data was extracted.
 
         Do NOT include any other text, explanations, or formatting (no backticks, no quotes, no lists).
 
-        ---
-
-        You are given a parsed file (csv, excel, txt or pdf). Given the file, extract all the relevant data needed to
-        create a chart and format it as parsed csv file.
+        - If meaningful data is found, output ONLY a JSON array of objects as described below.
+        You are given a parsed file containing multiple sets of data.
         
-        Example format:
+        Your task:
+        1. Extract all structured and semi-structured data from the file, including both formal tables and natural-language quantitative statements (e.g., “60% take the bus, 20% drive…”).
+        2. For each dataset or inferred dataset:
+                - Identify the most meaningful column names based on semantic context.
+                - If a dataset is found in natural language form, you are allowed to infer logical column headers (e.g., “Commute Method”, “Percentage”).
+        3. If a column's data uses symbols (like '$' or '%'), REMOVE the symbol from the data values, but APPEND the symbol in the column name **in parentheses**. For example:
+                - 'Price' for '$1.20' → 'Price($): ["1.20"]'
+                - 'Percentage' for '60%' → '"Percentage(%)": ["60"]'
+        4. Merge all tables row-wise into a single JSON array:
+                - The first row from each table combines into the first object, the second rows combine into the second object, etc.
+                - If some tables have fewer rows, omit missing fields for those rows.
+                - If you found more than 1 distinct group/table of data: Append a (#number) suffix to each column name to indicate which group/table the data came from.
+        5. Keep in mind that this data will be used to generate a CSV file.
+        6. Only output the JSON array, without explanations or extra formatting.
+
+        Example 1:
         [
-                {
-                        "Label 1": "Value 1",
-                        "Label 2": "Value 2",
-                        "Label 3": "Value 3",
-                        ...
-                },
-                {
-                        "Label 1": "Value 1",
-                        "Label 2": "Value 2",
-                        "Label 3": "Value 3",
-                        ...
-                },
-                ...
+                { "Product (1)": ["Apple"], "Price($) (1)": ["1.00"],  "Week (2)": ["2"], "Apples Sold (2)": ["100"], "Bananas Sold (2)": ["120"] },
+                { "Product (1)": ["Banana"], "Price($) (1)": ["0.80"], "Week (2)": ["2"], "Apples Sold (2)": ["90"], "Bananas Sold (2)": ["150"] },
+                { "Product (1)": ["Orange"], "Price($) (1)": ["1.20"] }
+        ]
+
+        Example 2:
+        [
+                { "Product": ["Apple"], "Price($)": ["1.00"]},
+                { "Product": ["Banana"], "Price($)": ["0.80"]},
         ]
         
         Important rules:
+        - Do NOT output empty objects ({}).
+        - Do NOT output rows with no data.
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
@@ -76,23 +86,15 @@ const graphRecommendationLogic =
         - "Grouped Horizontal Bar"
         - "Stacked Bar"
         - "Stacked Bar With Groups"
-        - "Floating Bars"
         - "Line"
         - "Stepped Line"
         - "Multi Axis Line"
         - "Line (Multiple Series)"
-        - "Stacked Bar/Line"
         - "Scatter"
-        - "Scatter - Multi Axis"
-        - "Bubble"
         - "Pie"
         - "Labelled Pie"
         - "Doughnut"
         - "Labelled Doughnut"
-        - "Polar Area"
-        - "Polar Area Centered Point Labels"
-        - "Multi Series Pie"
-        - "Combo Bar/Line"
 
         ### Use the following as general **guidelines**, not strict rules:
 
@@ -158,7 +160,7 @@ const summaryPrompt =
         - Do NOT include any explanations, descriptions, or natural language text.
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
-        `
+        `;
 
 const labelsSeparatorPrompt = `
         IMPORTANT: You MUST respond with exactly ONE of the following:
@@ -169,6 +171,8 @@ const labelsSeparatorPrompt = `
                 Data should be considered INVALID if any of the following apply:
                 - The table is missing or not present.
                 - The table contains empty or missing values.
+                - The table only contains 1 row or 1 column.
+                - The table contains more than 50 rows or 50 columns.
                 - Column headers (labels) are missing or unclear.
                 - The table has inconsistent row lengths or structure.
                 - Values in one column do not match its intended meaning (e.g., "apple" in a "Time" column, or "123" in a "Fruit" column).
@@ -176,7 +180,7 @@ const labelsSeparatorPrompt = `
         ), output EXACTLY the following with a reason as a **JSON object with 2 keys**:
         {
                 "errorTrigger": "TableInvalid", 
-                "issue": "specific reason here"
+                "issue": "specific reason here (include period)"
         }
 
         Important rules:
@@ -204,12 +208,13 @@ const labelsSeparatorPrompt = `
         }
         
         4. Strict requirements:
-           - Return ONLY valid JSON with no wrapping text
-           - Never include actual data values
-           - Never include explanations
-           - If unsure whether a column is x or y, prefer x
-           - Maintain original column name casing
-           - Include ALL columns exactly once
+           - Return ONLY valid JSON with no wrapping text.
+           - Do NOT wrap the output in triple backticks (\`\`\`).
+           - Never include actual data values.
+           - Never include explanations.
+           - If unsure whether a column is x or y, prefer x.
+           - Maintain original column name casing.
+           - Include ALL columns exactly once.
         
         5. Example output for reference:
         {
@@ -222,60 +227,6 @@ const labelsSeparatorPrompt = `
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
         `;
-
-const multipleDataSetsPrompt = `
-        Given a parsed file (Excel/CSV/JSON) containing multiple unrelated datasets mixed together, 
-        transform it into the following JSON format:
-
-        {
-        "dataset1Title": [
-        {"Label1": "value1", "Label2": "value2", ...},
-        {"Label1": "value1", "Label2": "value2", ...},
-        ...
-        ],
-        "dataset2Title": [
-        {"Label1": "value1", "Label2": "value2", ...},
-        {"Label1": "value1", "Label2": "value2", ...},
-        ...
-        ],
-        ...
-        }
-
-        Requirements:
-        1. Detect dataset boundaries by:
-        - Blank rows/columns
-        - Repeating header rows
-        - Known separators (e.g., "---", "Dataset 2:")
-        2. Use the first non-blank row's values as keys for each dataset
-        3. Infer dataset titles from:
-        - The first header row of each dataset
-        - Filename patterns (e.g., "sales_data.csv" -> "salesData")
-        - Sequential numbering ("dataset1", "dataset2") if no better name exists
-        4. Preserve all original data values without modification
-        5. Handle missing values as null/empty strings
-
-        Example Input (CSV):
-        Date,Sales,Product
-        1/1/2023,1000,Widget A
-        ,,,
-        ---
-        Day,Temp
-        Mon,72
-        ,,,
-
-        Example Output:
-        {
-        "salesData": [
-        {"Date": "1/1/2023", "Sales": "1000", "Product": "Widget A"},
-        ...
-        ],
-        "temperatureData": [
-        {"Day": "Mon", "Temp": "72"},
-        ...
-        ]
-        }
-
-`;
 
 const prompts = {
         feature1: (query, data) => 
@@ -296,12 +247,7 @@ const prompts = {
         labelsSeparatorPrompt: (query, data) =>
         `
         ${promptPrefix}${labelsSeparatorPrompt}${query}\n\nHere is the data:\n${data}
-        `,
-
-        multipleDataSetsPrompt: (query, data) =>
         `
-        ${promptPrefix}${multipleDataSetsPrompt}${query}\n\nHere is the data:\n${data}
-        `,
 };
 
 module.exports = prompts;

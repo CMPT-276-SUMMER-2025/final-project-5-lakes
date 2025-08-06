@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import EditDataStepper from "../components/editdata/EditDataStepper";
+import { useRef } from "react";
 import LoadingPopUp from "../components/editdata/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
-import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash, Undo, Redo } from "lucide-react";
+import NavButtons from "../components/editdata/NavButtons";
 import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
+import InfoPopUp from '../components/messages/InfoPopUp';
+import ProgressStepper from "../components/layout/ProgressStepper";
+import TableButtons from "../components/editdata/TableButtons";
+import UndoRedoButtons from "../components/editdata/UndoRedoButtons";
+import EditableTable from "../components/editdata/EditableTable";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
@@ -14,14 +19,9 @@ function EditData() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { parsedData, file, summary, graphRecommendation, chartsWithURLs } = location.state || {};
+
+  const { parsedData } = location.state || {};
   const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
-
-  // const fileName = file?.originalname || "Unknown file";
-  // const fileSize = file?.size || 0;
-
-  console.log("file:", file);
-  console.log("parsedData:", parsedData);
 
   const [isLoading, setIsLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState(null);
@@ -32,114 +32,107 @@ function EditData() {
 
   const [selectedCell, setSelectedCell] = useState(null); 
 
+  const [editHistory, setEditHistory] = useState([null]);
+  const [colEditHistory, setColEditHistory] = useState([null]);
+
+  const [showInfoPopUp, setShowInfoPopUp] = useState(true);
+  const [hoveredAction, setHoveredAction] = useState(null);
+
+  const tableRef = useRef(null);
+
   // Initialize confirmedData and originalData from parsedData
   useEffect(() => {
-    if (!parsedData || !file) {
+    if (!parsedData) {
       navigate("/");
       return;
     }
 
     const { table } = convertDeepSeekToTable(parsedData);
     setConfirmedData(structuredClone(table));
+    setUndoStack([structuredClone(table)]);
     setOriginalData(structuredClone(table));
-  }, [parsedData, file, navigate]);
+  }, [parsedData, navigate]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (tableRef.current && !tableRef.current.contains(event.target)) {
+        setSelectedCell(null); 
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
 
   // Handle form submission
   const handleNext = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
+  setIsLoading(true);
 
-    const formattedData = convertTableToDeepSeekFormat(confirmedData);
+  const formattedData = convertTableToDeepSeekFormat(confirmedData);
 
-    /*if (summary && graphRecommendation && chartsWithURLs) {
-      navigate("/visual-select", { state: { summary: summary, graphRecommendation: graphRecommendation, parsedData: parsedData, file: file, chartsWithURLs:  chartsWithURLs } });
-      setIsLoading(false);
-      return;
-    }*/
-
-    // Take in data from backend
-    fetch(apiUrl, {
+  try {
+    const response = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         edittedData: formattedData,
         parsedData: parsedData,
-        file: file
       }),
       credentials: "include",
-    })
-    .then(async (response) =>{
-      const data = await response.json();
-      if (!response.ok) {
-        const error = new Error(data.error || 'Something went wrong');
-        error.code = data.code || '';
-        throw error;
-      }
-      return data;
-    })
-    .then((data) => {
-      setIsLoading(false);
-      navigate("/visual-select", { state: data });
-    })
-    .catch((error) => {
-      setIsLoading(false);
-      
-      if (error.code === 'INVALID_EDITED_TABLE'){
-        showAlert(
-          'error',
-          'Editing Failed',
-          `We could not generate the chart: ${error.message}.`,
-          'Okay'
-        );
-      } else {
-        showAlert(
-        'error',
-        'Generation Failed',
-        `We could not generate the chart: ${error.message}. Please try again later`,
-        'Okay'
-        );
-      }
-    })
-  };
-  
-  // Functions to add/remove rows and columns
-  const addRow = () => {
-    const updated = structuredClone(confirmedData);
-    updated.rows.push({
-      header: `Row ${updated.rows.length + 1}`,
-      cells: new Array(updated.columns.length).fill(""),
     });
-    updateConfirmedData(updated);
-  };
 
-  const removeRow = () => {
-    if (confirmedData.rows.length === 0) return;
-    const updated = structuredClone(confirmedData);
-    updated.rows.pop();
-    updateConfirmedData(updated);
-  };
+    const data = await response.json();
 
-  const addColumn = () => {
-    const updated = structuredClone(confirmedData);
-    updated.columns.push(`Column ${updated.columns.length + 1}`);
-    updated.rows.forEach((row) => row.cells.push(""));
-    updateConfirmedData(updated);
-  };
+    if (!response.ok) {
+      const error = new Error(data.error || "Something went wrong");
+      error.code = data.code || "";
+      throw error;
+    }
 
-  const removeColumn = () => {
-    if (confirmedData.columns.length === 0) return;
-    const updated = structuredClone(confirmedData);
-    updated.columns.pop();
-    updated.rows.forEach((row) => row.cells.pop());
-    updateConfirmedData(updated);
-  };
+    navigate("/visual-select", { state: data, replace: true });
+    
+  } catch (error) {
+    if (error.code === "INVALID_EDITED_TABLE") {
+      showAlert(
+        "error",
+        "Editing Failed",
+        `We could not generate the chart: ${error.message}`,
+        "Okay"
+      );
+    } else {
+      showAlert(
+        "error",
+        "Generation Failed",
+        `We could not generate the chart: ${error.message} Please try again later.`,
+        "Okay"
+      );
+    }
+  }
+  finally {
+    setIsLoading(false);
+  }
+};
 
+  // Insert row functions
   const insertRowAbove = (index) => {
     const updated = structuredClone(confirmedData);
     updated.rows.splice(index, 0, {
       cells: new Array(updated.columns.length).fill(""),
     });
+
     updateConfirmedData(updated);
+
+    setTimeout(() => {
+      setSelectedCell({
+        row: index + 1 < updated.rows.length ? index + 1 : updated.rows.length - 1,
+        col: selectedCell.col < updated.columns.length ? selectedCell.col : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
   const insertRowBelow = (index) => {
@@ -147,45 +140,87 @@ function EditData() {
     updated.rows.splice(index + 1, 0, {
       cells: new Array(updated.columns.length).fill(""),
     });
+
     updateConfirmedData(updated);
+
+    setTimeout(() => {
+      setSelectedCell({
+        row: index < updated.rows.length ? index : updated.rows.length - 1,
+        col: selectedCell.col < updated.columns.length ? selectedCell.col : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
+  // Insert column functions
   const insertColumnLeft = (index) => {
     const updated = structuredClone(confirmedData);
     updated.columns.splice(index, 0, `Column ${updated.columns.length + 1}`);
     updated.rows.forEach((row) => row.cells.splice(index, 0, ""));
+
     updateConfirmedData(updated);
+
+    setTimeout(() => {
+      setSelectedCell({
+        row: selectedCell.row < updated.rows.length ? selectedCell.row : updated.rows.length - 1,
+        col: index + 1 < updated.columns.length ? index + 1 : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
   const insertColumnRight = (index) => {
     const updated = structuredClone(confirmedData);
     updated.columns.splice(index + 1, 0, `Column ${updated.columns.length + 1}`);
     updated.rows.forEach((row) => row.cells.splice(index + 1, 0, ""));
+
     updateConfirmedData(updated);
+
+    setTimeout(() => {
+      setSelectedCell({
+        row: selectedCell.row < updated.rows.length ? selectedCell.row : updated.rows.length - 1,
+        col: index < updated.columns.length ? index : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
+  // Remove row/column functions
   const removeSelectedRow = (index) => {
     if (confirmedData.rows.length <= 1) return;
+
     const updated = structuredClone(confirmedData);
     updated.rows.splice(index, 1);
+
     updateConfirmedData(updated);
-    setSelectedCell(null); // clear selection
+
+    setTimeout(() => {
+      const newRow = index > 0 ? index - 1 : 0;
+      setSelectedCell({
+        row: newRow < updated.rows.length ? newRow : updated.rows.length - 1,
+        col: selectedCell.col < updated.columns.length ? selectedCell.col : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
   const removeSelectedColumn = (index) => {
     if (confirmedData.columns.length <= 1) return;
+
     const updated = structuredClone(confirmedData);
     updated.columns.splice(index, 1);
     updated.rows.forEach((row) => row.cells.splice(index, 1));
+
     updateConfirmedData(updated);
-    setSelectedCell(null);
+
+    setTimeout(() => {
+      const newCol = index > 0 ? index - 1 : 0;
+      setSelectedCell({
+        row: selectedCell.row < updated.rows.length ? selectedCell.row : updated.rows.length - 1,
+        col: newCol < updated.columns.length ? newCol : updated.columns.length - 1,
+      });
+    }, 0);
   };
 
-  // Undo/Redo functionality
+  // Undo/Redo functionalities
   const updateConfirmedData = (newData) => {
-    setUndoStack((prev) => [...prev, structuredClone(confirmedData)]);
-    setRedoStack([]); // clear redo on new action
-    setConfirmedData(newData); // ✅ FIXED: use newData instead of 'updated'
+    setConfirmedData(newData);
   };
 
   const undo = () => {
@@ -196,6 +231,10 @@ function EditData() {
     setConfirmedData(prev);
   };
 
+  const handleInfoPopUpClick = () => {
+    setShowInfoPopUp(false);
+  };
+
   const redo = () => {
     if (redoStack.length === 0) return;
     const next = redoStack[redoStack.length - 1];
@@ -204,8 +243,27 @@ function EditData() {
     setConfirmedData(next);
   };
 
+  // Main render
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
+      
+      {showInfoPopUp && (
+        <div className="absolute center right-20 z-50">
+          <InfoPopUp
+            title="Additional Information"
+            message={
+              <>
+                Here is all the data extracted from your upload. Please review and remove any information you don't want included in the graphs.<br /><br />
+                <span className="text-sm">
+                  (Note: If your titles have a number suffix (e.g., #1, #2), each number represents a unique dataset.)
+                </span>
+              </>
+            }
+            onButtonClick={handleInfoPopUpClick}
+          />
+        </div>
+      )}
+      
       <LoadingPopUp show={isLoading} />
 
       {isAlertVisible && (
@@ -220,147 +278,58 @@ function EditData() {
         </div>
       )}
 
-      <EditDataStepper />
+      <ProgressStepper currentStep="Edit Data" />
       <form onSubmit={handleNext}>
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-7xl">
           <div className="flex flex-col md:flex-row items-center gap-1 w-full">
             <div className="w-full bg-white rounded-xl p-4 sm:p-6 shadow-lg">
               <h2 className="font-semibold text-center">Edit Data</h2>
               <p className="text-md text-gray-600 text-center mb-4">
-                Modify values, add/remove rows or columns as needed.
+                Click on a cell to modify its value, add/remove rows or columns as needed.
               </p>
-
               {confirmedData && (
                 <>
-                  <div className="flex justify-center gap-2 mb-4">
-                    <button
-                      type="button"
-                      onClick={undo}
-                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
-                      disabled={undoStack.length === 0}
-                    >
-                      <Undo size={18} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={redo}
-                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
-                      disabled={redoStack.length === 0}
-                    >
-                      <Redo size={18} />
-                    </button>
-                  </div>
-
-                  <div className="overflow-auto border">
-                    <table className="min-w-full border border-gray-300">
-                      <thead>
-                        <tr>
-                          {confirmedData.columns.map((col, colIdx) => (
-                            <th key={colIdx} className="border px-3 py-2 bg-gray-100">
-                              <input
-                                value={col}
-                                onChange={(e) => {
-                                  const updated = structuredClone(confirmedData);
-                                  updated.columns[colIdx] = e.target.value;
-                                  updateConfirmedData(updated);
-                                }}
-                                className="w-full font-semibold"
-                              />
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {confirmedData.rows.map((row, rowIdx) => (
-                          <tr key={rowIdx}>
-                            {row.cells.map((cell, colIdx) => (
-                              <td key={colIdx} className="border px-3 py-2">
-                                <input
-                                  value={cell}
-                                  onClick={() => setSelectedCell({ row: rowIdx, col: colIdx })}
-                                  onChange={(e) => {
-                                    const updated = structuredClone(confirmedData);
-                                    updated.rows[rowIdx].cells[colIdx] = e.target.value;
-                                    updateConfirmedData(updated);
-                                  }}
-                                  className={`w-full ${selectedCell?.row === rowIdx && selectedCell?.col === colIdx ? "bg-yellow-100" : ""}`}
-                                />
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  {selectedCell && (
-                      <div className="flex flex-wrap justify-center gap-4 mt-4 mb-4 mr-4 ml-4">
-                        <button type="button" onClick={() => insertRowAbove(selectedCell.row)} className="btn-icon">
-                          <Plus size={10} className="mr-1" />
-                          Row Above
-                        </button>
-                        <button type="button" onClick={() => insertRowBelow(selectedCell.row)} className="btn-icon">
-                          <Plus size={10} className="mr-1" />
-                          Row Below
-                        </button>
-                        <button type="button" onClick={() => insertColumnLeft(selectedCell.col)} className="btn-icon">
-                          <Plus size={10} className="mr-1" />
-                          Col Left
-                        </button>
-                        <button type="button" onClick={() => insertColumnRight(selectedCell.col)} className="btn-icon">
-                          <Plus size={10} className="mr-1" />
-                          Col Right
-                        </button>
-                        <button type="button" onClick={() => removeSelectedRow(selectedCell.row)} className="btn-icon">
-                          <Trash size={10} className="mr-1" />
-                          Row
-                        </button>
-                        <button type="button" onClick={() => removeSelectedColumn(selectedCell.col)} className="btn-icon">
-                          <Trash size={10} className="mr-1" />
-                          Col
-                        </button>
-                      </div>
-                    )}
-                  {/* <div className="flex justify-center mt-4">
-                      <ViewUpload
-                        fileName={fileName}
-                        fileSize={fileSize}
-                        fileContent={parsedData?.base64 || file?.url || "about:blank"}
-                      />
-                  </div> */}
+                  <UndoRedoButtons
+                    undo={undo}
+                    redo={redo}
+                    undoDisabled={undoStack.length === 0}
+                    redoDisabled={redoStack.length === 0}
+                  />
+                  <EditableTable
+                    tableRef={tableRef}
+                    confirmedData={confirmedData}
+                    selectedCell={selectedCell}
+                    setSelectedCell={setSelectedCell}
+                    editHistory={editHistory}
+                    setEditHistory={setEditHistory}
+                    colEditHistory={colEditHistory}
+                    setColEditHistory={setColEditHistory}
+                    hoveredAction={hoveredAction}
+                    updateConfirmedData={updateConfirmedData}
+                    setUndoStack={setUndoStack}
+                    setRedoStack={setRedoStack}
+                  />
+                  <TableButtons
+                    selectedCell={selectedCell}
+                    insertRowAbove={insertRowAbove}
+                    insertRowBelow={insertRowBelow}
+                    insertColumnLeft={insertColumnLeft}
+                    insertColumnRight={insertColumnRight}
+                    removeSelectedRow={removeSelectedRow}
+                    removeSelectedColumn={removeSelectedColumn}
+                    setHoveredAction={setHoveredAction}
+                  />
                 </>
               )}
             </div>
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="flex justify-between mt-10 flex-wrap gap-4">
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-          >
-            <ChevronLeft size={25} className="mr-2" />
-            Go to the last step
-          </button>
-
-          <button
-            type="button"
-            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-            onClick={() => setConfirmedData(structuredClone(originalData))}
-          >
-            <RotateCw size={20} className="mr-2" />
-            Restore original data
-          </button>
-
-          <button
-            type="submit"
-            className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-          >
-            Go to the next step
-            <ChevronRight size={25} className="ml-2" />
-          </button>
-        </div>
+        <NavButtons
+          onBack={() => navigate("/")}
+          onRestore={() => setConfirmedData(structuredClone(originalData))}
+          onNext={handleNext}
+        />
       </form>
     </div>
   );

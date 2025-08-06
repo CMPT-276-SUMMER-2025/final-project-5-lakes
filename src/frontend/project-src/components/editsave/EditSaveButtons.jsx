@@ -1,12 +1,16 @@
-import { ChevronLeft, CirclePlus } from 'lucide-react';
+import { ChevronLeft, CirclePlus, Download } from 'lucide-react';
 import useWarningAlert from '../../hooks/useWarningAlert';
 import DefaultWarning from '../messages/DefaultWarning';
 import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from 'react';
+import DownloadOptions from '../editsave/DownloadOptions';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-selected`;
+const resetUrl = `${import.meta.env.VITE_API_BASE_URL}/reset-session`
 
-function EditSaveButtons() {
+function EditSaveButtons({ chartImageUrl }) {
 
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const navigate = useNavigate();
   const {
   isWarningVisible,
@@ -17,8 +21,6 @@ function EditSaveButtons() {
 
     const location = useLocation();
     const { chartConfig } = location.state || {};
-    console.log(chartConfig);
-
 
     const editConfig = {
         chartLabel: chartConfig.chartLabel,
@@ -49,21 +51,19 @@ function EditSaveButtons() {
             navigate("/visual-select", { state: data });
         })
         .catch(error => {
-            console.error("Error editing chart:", error);   
+            alert(error.message, 'Please try again.');
         });
     }
 
     const goBackHomepage = async () => {
         try {
-            await fetch(apiUrl, {
+            await fetch(resetUrl, {
                 method: "DELETE",
                 headers: { 'Content-Type': 'application/json' },
-                body: "{}",
                 credentials: 'include'
             });
             navigate("/");
         } catch (err) {
-            console.error("Error generating mock chart:", err);
             alert("Something went wrong generating the chart.");
         }
     };
@@ -72,7 +72,7 @@ function EditSaveButtons() {
         <div className="flex justify-between mt-10 flex-wrap gap-4">
             <button
                 onClick={handleGoToLastStep}
-                className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+                className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
             >
                 <ChevronLeft size={25} className="mr-2" />
                 Go to the last step
@@ -86,10 +86,18 @@ function EditSaveButtons() {
               'Make a New Chart'
             );
           }}
-        className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+        className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
       >
         <CirclePlus size={25} className="mr-3" />
         Create another chart
+      </button>
+
+      <button
+        className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+        onClick={() => setIsDownloadModalOpen(true)}
+      >
+        <Download size={18} strokeWidth={4} className="mr-2" />
+        Download this chart
       </button>
 
       {isWarningVisible && (
@@ -111,6 +119,12 @@ function EditSaveButtons() {
         </div>
       )}
 
+      {isDownloadModalOpen && (
+        <DownloadOptions
+          onClose={() => setIsDownloadModalOpen(false)}
+          chartImageUrl={chartImageUrl}
+        />
+      )}
     </div>
   );
 

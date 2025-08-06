@@ -1,5 +1,5 @@
-const prompts = require('./prompts/deepseekPrompts');
-const { queryDeepSeekV3 } = require('./deepSeek/APIdeepseek.js');
+const prompts = require('./prompts/deepseekPrompts.js');
+const { queryDeepSeekV3 } = require('./APIdeepseek.js');
 
 async function separateLabels(data) {
     const prompt = prompts.labelsSeparatorPrompt('', data);
@@ -11,7 +11,7 @@ async function separateLabels(data) {
         try{
             result = JSON.parse(rawResult);
         } catch (jsonError) {
-            const error = new Error('Unexpected API response');
+            const error = new Error('Unexpected API response.');
             error.code = '';
             error.status = 500;
             throw error;

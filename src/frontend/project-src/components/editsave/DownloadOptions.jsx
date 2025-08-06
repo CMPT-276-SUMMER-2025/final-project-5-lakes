@@ -29,7 +29,6 @@ async function downloadChart(format, chartImageUrl) {
     window.URL.revokeObjectURL(blobUrl);
     
   } catch (error) {
-    console.error('Download failed:', error);
     alert('Download failed. Please try again.');
   }
 }
@@ -45,7 +44,7 @@ function DownloadOptions({ onClose, chartImageUrl }) {
       await downloadChart(format, chartImageUrl);
       setDownloadSuccessful(true);
     } catch (error) {
-      console.error('Download error:', error);
+      alert('Download failed. Please try again.');
     } finally {
       setDownloading(null);
     }

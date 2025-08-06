@@ -1,13 +1,14 @@
-import TextInputArea from '../components/homepage/TextInputArea';
-import FileUploadArea from '../components/homepage/FileUploadArea';
-import HomeStepper from '../components/homepage/HomeStepper';
-import { ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
+
+import TextInputArea from '../components/homepage/TextInputArea';
+import FileUploadArea from '../components/homepage/FileUploadArea';
 import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
 import LoadingPopUp from '../components/homepage/LoadingPopUp';
+import ProgressStepper from '../components/layout/ProgressStepper';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/file-submit`;
 
@@ -20,7 +21,6 @@ function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-        console.log('[HomePage] Files state updated:', Array.from(files));
     }, [files]);
 
   const handleSubmit = (event) => {
@@ -47,14 +47,6 @@ function HomePage() {
 
     setIsLoading(true);
 
-    console.log('testing inputs:');
-    console.log('Text input:', text);
-    console.log("Files:", Array.from(files));
-
-
-
-    // replace with real backend
-    /***************************/
     fetch(apiUrl, {
       method: 'POST',
       body: formData,
@@ -63,23 +55,27 @@ function HomePage() {
      .then(async (response) => { //// to go to the next page if successful
       const data = await response.json();
       if (!response.ok) {
-        const error = new Error(data.error || 'Something went wrong')
+        const error = new Error(data.error || 'Something went wrong');
         error.code = data.code || '';
         throw error;
       }
       return data;
     })
     .then((data) => {
-      setIsLoading(false);
-      navigate('/edit-data', { state: data });
+      if (data && data.parsedData && data.file) {
+        navigate('/edit-data', { state: data, replace: true });
+      } else {
+        const error = new Error(data.error || 'Something went wrong');
+        error.code = data.code || '';
+        throw error;
+      }
     })
     .catch((error) => {
-      setIsLoading(false);
       if (error.code === 'NO_DATA_EXTRACTED') {
         showAlert(
           'error',
           'Extraction Failed',
-          `We could not parse the file: ${error.message}.`,
+          `We could not parse the file: ${error.message}`,
           'Okay',
           () => navigate('/')
         )
@@ -87,12 +83,15 @@ function HomePage() {
         showAlert(
           'error',
           'Submission Error',
-          `We could not parse the file: ${error.message}. Please try again later.`,
+          `We could not parse the file: ${error.message} Please try again later.`,
           'Okay',
           () => navigate('/')
         )
       }
     })
+    .finally(() => {
+      setIsLoading(false);
+    });
   };
 
   const handleGlobalDragOver = (event) => {
@@ -130,9 +129,8 @@ function HomePage() {
        <p className="text-lg md:text-xl text-gray-600 mb-6">
          To get started, upload your file or simply write your information below.
        </p>
-       <HomeStepper />
+       <ProgressStepper currentStep="Upload Data" />
      </header>
-
 
       <form
           onSubmit={handleSubmit}
@@ -145,14 +143,13 @@ function HomePage() {
           <div className="col-span-full flex justify-center mt-4">
             <button
               type="submit"
-              className="bottom-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+              className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
             >
               Go to the next step
               <ChevronRight size={25} className="ml-2" />
             </button>
           </div>
       </form>
-
    </div>
 
   );

@@ -1,67 +1,33 @@
-import EditSaveStepper from "../components/editsave/EditSaveStepper";
 import EditSaveButtons from "../components/editsave/EditSaveButtons";
-import { SketchPicker } from 'react-color';
 import { useLocation } from "react-router-dom";
-import generateChartUrl from "../utils/generateChartURL";
 import { useState, useEffect } from "react";
-// import FontPicker from 'font-picker-react'; // Replaced with custom Noto fonts dropdown
-import DownloadOptions from '../components/editsave/DownloadOptions';
-import { Loader2, Text, Paintbrush, Download, Edit3, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
+import ProgressStepper from "../components/layout/ProgressStepper";
+import { Loader2, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
+import {
+    getTitleFontSize,
+    getBaseFontSize,
+    hexToRgb,
+    rgbToHex,
+    handleColorChange,
+    handleTitleChange,
+    handleAxisTitleChange,
+    handleTextColorChange,
+    handleFontSizeChange,
+    handleUndo,
+    handleRedo,
+    handleReset,
+    handleFontChange,
+    handleGridLines,
+    handleLegend
+} from '../utils/EditSaveUtils';
+import FontSettings from '../components/editsave/FontSettings';
+import TitleSettings from '../components/editsave/TitleSettings';
+import AxisTitleSettings from '../components/editsave/AxisTitleSettings';
+import DatasetSelection from '../components/editsave/DatasetSelection';
+import ColorSettings from '../components/editsave/ColorSettings';
+import GridLegendSettings from '../components/editsave/GridLegendSettings';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
-
-// Google Noto fonts supported by QuickChart
-const notoFonts = [
-    { name: "Noto Sans", value: "Noto Sans" },
-    { name: "Noto Serif", value: "Noto Serif" },
-    { name: "Noto Sans Mono", value: "Noto Sans Mono" },
-    { name: "Noto Sans Display", value: "Noto Sans Display" },
-    { name: "Noto Serif Display", value: "Noto Serif Display" },
-    { name: "Noto Sans JP", value: "Noto Sans JP" },
-    { name: "Noto Sans KR", value: "Noto Sans KR" },
-    { name: "Noto Sans SC", value: "Noto Sans SC" },
-    { name: "Noto Sans TC", value: "Noto Sans TC" },
-    { name: "Noto Color Emoji", value: "Noto Color Emoji" }
-];
-
-// Utility function to convert hex to RGB
-const hexToRgb = (hex) => {
-    // Remove the hash if it exists
-    hex = hex.replace('#', '');
-    
-    // Parse the hex values
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-    
-    return `rgb(${r}, ${g}, ${b})`;
-};
-
-// Utility function to convert RGB string back to hex
-const rgbToHex = (rgb) => {
-    if (!rgb || typeof rgb !== 'string') return '#36A2EB';
-    
-    // If it's already a hex color, return it
-    if (rgb.startsWith('#')) return rgb;
-    
-    // Extract RGB values from rgb(r, g, b) or rgba(r, g, b, a) format
-    const rgbMatch = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-    if (!rgbMatch) return '#36A2EB';
-    
-    const r = parseInt(rgbMatch[1], 10);
-    const g = parseInt(rgbMatch[2], 10);
-    const b = parseInt(rgbMatch[3], 10);
-    
-    // Convert to hex
-    const toHex = (n) => {
-        const hex = n.toString(16);
-        return hex.length === 1 ? '0' + hex : hex;
-    };
-    
-    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-};
-
-
 
 function EditSave() {
     const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -71,8 +37,6 @@ function EditSave() {
     const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
     const [showTextPicker, setShowTextPicker] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    console.log(initialConfig);
-
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
     const [chartImageUrl, setChartImageUrl] = useState(`${quickChartURL}${encodeURIComponent(JSON.stringify(initialConfig))}`);
@@ -85,12 +49,6 @@ function EditSave() {
     
     const [activeFontFamily, setActiveFontFamily] = useState("Noto Sans");
     const [fontSize, setFontSize] = useState(14); 
-
-    const [fontStyle, setFontStyle] = useState({
-        bold: false,
-        italic: false,
-        underline: false
-    });
 
     const [history, setHistory] = useState([initialConfig]);
     const [historyIndex, setHistoryIndex] = useState(0);
@@ -110,13 +68,9 @@ function EditSave() {
     const [gridLines, setGridLines] = useState(true);
     const [legend, setLegend] = useState(true);
 
-    // Generate the initial chart image URL
-    // useEffect(() => {
-    //     if (chartConfig) {
-    //     const Url = `${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`;
-    //     setChartImageUrl(Url);
-    //     }
-    // }, [chartConfig]);
+    const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
+
+    const [activePicker, setActivePicker] = useState(null); // 'background' | 'text' | null for color pickers
 
     useEffect(() => {
         if (chartConfig?.type === "pie" || chartConfig?.type === "doughnut") {
@@ -126,20 +80,18 @@ function EditSave() {
       
 
     useEffect(() => {
-        console.log("Creating chartConfig");
         if (chartConfig && chartConfig.options) {
             // Ensure basic chart structure exists
             if (!chartConfig.options.plugins) {
                 chartConfig.options.plugins = {};
             }
             if (!chartConfig.options.plugins.title) {
-                console.log("Setting title");
                 chartConfig.options.plugins.title = {
                     display: true,
                     text: chartTitle || "Chart Title",
                     font: {
                         family: "Noto Sans",
-                        size: fontSize
+                        size: getTitleFontSize(fontSize) // Use helper function
                     }
                 };
             }
@@ -221,267 +173,26 @@ function EditSave() {
     }, [chartConfig, datasetSelected, segmentSelected]);
 
     // Handle color change from the color picker
-    const handleColorChange = (color) => {
-        if (color.hex != selectedColor) {
-            setSelectedColor(color.hex);        
-    
-            // Convert hex to RGB for QuickChart API
-            const rgbColor = hexToRgb(color.hex);
-            
-            // Create a copy of chartConfig with RGB colors
-            const updated = {
-                ...chartConfig,
-                chartStyle: {
-                    ...chartConfig.chartStyle,
-                    backgroundColor: color.hex // Keep hex for internal state
-                }
-            };
-            
-            // Apply RGB colors to chart configuration for API
-            if (updated.options) {
-                if (updated.options.elements) {
-                    updated.options.elements.backgroundColor = rgbColor;
-                }
-            }
-            
-            // Check if it's a pie chart
-            const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
-            
-            if (isPieChart) {
-                // For pie charts, update the specific segment color
-                console.log("Selected segment index:", segmentSelected);
-                if (updated.data && updated.data.datasets && updated.data.datasets[0]) {
-                    const dataset = updated.data.datasets[0];
-                    if (Array.isArray(dataset.backgroundColor)) {
-                        // Update specific segment
-                        dataset.backgroundColor[segmentSelected] = rgbColor;
-                    } else {
-                        // Convert single color to array and update specific segment
-                        const dataLength = dataset.data ? dataset.data.length : 1;
-                        dataset.backgroundColor = new Array(dataLength).fill(dataset.backgroundColor || rgbColor);
-                        dataset.backgroundColor[segmentSelected] = rgbColor;
-                    }
-                }
-            } else {
-                // For other charts, update the selected dataset
-                console.log("Selected dataset index:", datasetSelected);
-                if (updated.data && updated.data.datasets && updated.data.datasets[datasetSelected]) {
-                    updated.data.datasets[datasetSelected].backgroundColor = rgbColor;
-                    updated.data.datasets[datasetSelected].borderColor = rgbColor;
-                }
-            }
-            console.log("Updated chart config:", updated);
-            updateChartConfig(updated);
-
-
-        }
+    const handleColorChangeLocal = (color) => {
+        handleColorChange(color, selectedColor, chartConfig, datasetSelected, segmentSelected, setSelectedColor, updateChartConfig);
     };
 
     // Handle chart title change
-    const handleTitleChange = () => {
-        if (tempTitle != chartTitle) {
-            setChartTitle(tempTitle);
-            
-            const updated = {
-                ...chartConfig,
-                options: {
-                    ...chartConfig.options,
-                    plugins: {
-                        ...chartConfig.options?.plugins,
-                        title: {
-                            ...chartConfig.options?.plugins?.title,
-                            display: true,
-                            text: tempTitle,
-                            font: {
-                                ...chartConfig.options?.plugins?.title?.font,
-                                family: activeFontFamily,
-                                size: fontSize
-                            }
-                        }
-                    }
-                }
-            };
-            
-            updateChartConfig(updated);
-        }
+    const handleTitleChangeLocal = () => {
+        handleTitleChange(tempTitle, chartTitle, chartConfig, activeFontFamily, fontSize, setChartTitle, updateChartConfig);
     };
 
-    const handleAxisTitleChange = (axis, title) => {
-        const currentXAxisTitle = chartConfig.options?.scales?.x?.title?.text || "X-axis";
-        const currentYAxisTitle = chartConfig.options?.scales?.y?.title?.text || "";
-
-        // Only proceed if the new title is different from the current one
-        if ((axis === "x" && title !== currentXAxisTitle) || 
-            (axis === "y" && title !== currentYAxisTitle)) {
-
-            if (axis === "x") {
-                setTempXAxisTitle(title);
-            } else {
-                setTempYAxisTitle(title);
-            }
-
-            const updated = {
-                ...chartConfig,
-                options: {
-                    ...chartConfig.options,
-                    scales: {
-                        ...chartConfig.options?.scales,
-                        x: {
-                            ...chartConfig.options?.scales?.x,
-                            title: {
-                                ...chartConfig.options?.scales?.x?.title,
-                                text: axis === "x" ? title : currentXAxisTitle
-                            }
-                        },
-                        y: {
-                            ...chartConfig.options?.scales?.y,
-                            title: {
-                                ...chartConfig.options?.scales?.y?.title,
-                                text: axis === "y" ? title : currentYAxisTitle
-                            }
-                        }
-                    }
-                }
-            };
-
-            updateChartConfig(updated);
-        }
-    }
+    const handleAxisTitleChangeLocal = (axis, title) => {
+        handleAxisTitleChange(axis, title, chartConfig, setTempXAxisTitle, setTempYAxisTitle, updateChartConfig);
+    };
 
     // Handle text color change
-    const handleTextColorChange = (color) => {
-        if (color.hex != textColor) {   
-            setTextColor(color.hex);
-            console.log("Confirmed text hex:", color.hex);
-            
-            // Create a copy of chartConfig with hex text colors (like background color)
-            const updated = {
-                ...chartConfig,
-                chartStyle: {
-                    ...chartConfig.chartStyle,
-                    textColor: color.hex // Keep hex for internal state
-                },
-                options: {
-                    ...chartConfig.options,
-                    plugins: {
-                        ...chartConfig.options?.plugins,
-                        title: {
-                            ...chartConfig.options?.plugins?.title,
-                            color: color.hex // Update chart title color
-                        },
-                        legend: {
-                            ...chartConfig.options?.plugins?.legend,
-                            labels: {
-                                ...chartConfig.options?.plugins?.legend?.labels,
-                                color: color.hex // Use hex for API (like background)
-                            }
-                        }
-                    },
-                    scales: {
-                        ...chartConfig.options?.scales,
-                        x: {
-                            ...chartConfig.options?.scales?.x,
-                            ticks: { 
-                                ...chartConfig.options?.scales?.x?.ticks,
-                                color: color.hex // Use hex for API (like background)
-                            },
-                            title: {
-                                ...chartConfig.options?.scales?.x?.title,
-                                color: color.hex // Update x-axis title color
-                            }
-                        },
-                        y: {
-                            ...chartConfig.options?.scales?.y,
-                            ticks: { 
-                                ...chartConfig.options?.scales?.y?.ticks,
-                                color: color.hex // Use hex for API (like background)
-                            },
-                            title: {
-                                ...chartConfig.options?.scales?.y?.title,
-                                color: color.hex // Update y-axis title color
-                            }
-                        }
-                    }
-                }
-            };
-            
-            updateChartConfig(updated); 
-
-        }
+    const handleTextColorChangeLocal = (color) => {
+        handleTextColorChange(color, textColor, chartConfig, setTextColor, updateChartConfig);
     };
 
-    const handleFontSizeChange = (e) => {
-        const newSize = parseInt(e.target.value, 10);
-        if (newSize != fontSize) {
-            setFontSize(newSize);
-
-            const updated = {
-                ...chartConfig,
-                options: {
-                    ...chartConfig.options,
-                    plugins: {
-                        ...chartConfig.options?.plugins,
-                        title: {
-                            ...chartConfig.options?.plugins?.title,
-                            font: {
-                                ...chartConfig.options?.plugins?.title?.font,
-                                family: activeFontFamily,
-                                size: newSize
-                            }
-                        },
-                        legend: {
-                            ...chartConfig.options?.plugins?.legend,
-                            labels: {
-                                ...chartConfig.options?.plugins?.legend?.labels,
-                                font: {
-                                    family: activeFontFamily,
-                                    size: newSize
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        ...chartConfig.options?.scales,
-                        x: {
-                            ...chartConfig.options?.scales?.x,
-                            ticks: {
-                                ...chartConfig.options?.scales?.x?.ticks,
-                                font: {
-                                    family: activeFontFamily,
-                                    size: newSize
-                                }
-                            },
-                            title: {
-                                ...chartConfig.options?.scales?.x?.title,
-                                font: {
-                                    family: activeFontFamily,
-                                    size: newSize
-                                }
-                            }
-                        },
-                        y: {
-                            ...chartConfig.options?.scales?.y,
-                            ticks: {
-                                ...chartConfig.options?.scales?.y?.ticks,
-                                font: {
-                                    family: activeFontFamily,
-                                    size: newSize
-                                }
-                            },
-                            title: {
-                                ...chartConfig.options?.scales?.y?.title,
-                                font: {
-                                    family: activeFontFamily,
-                                    size: newSize
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            updateChartConfig(updated);
-        }
+    const handleFontSizeChangeLocal = (e) => {
+        handleFontSizeChange(e, fontSize, chartConfig, activeFontFamily, setFontSize, updateChartConfig);
     };
 
     // helper function to update chart config and maintain history
@@ -494,208 +205,36 @@ function EditSave() {
         setChartImageUrl(`${quickChartURL}${encodeURIComponent(JSON.stringify(newConfig))}`);
         
         // Save current selection to history
-        console.log("dataset modified to", datasetSelected);
         const updatedSelectionHistory = selectionHistory.slice(0, historyIndex + 1);
         updatedSelectionHistory.push({ dataset: datasetSelected, segment: segmentSelected });
         setSelectionHistory(updatedSelectionHistory);
     };
 
     // Handle undo and redo actions
-    const handleUndo = () => {
-        if (historyIndex > 0) {
-            const prevIndex = historyIndex - 1;
-            const prevSelection = selectionHistory[prevIndex];
-            // Restore the previous dataset/segment selection
-            setDatasetSelected(prevSelection.dataset);
-            setSegmentSelected(prevSelection.segment);
-            setChartConfig(history[prevIndex]);
-            setHistoryIndex(prevIndex);
-            setSelectedColor(history[prevIndex].chartStyle?.backgroundColor || "#36A2EB");
-            setTextColor(history[prevIndex].chartStyle?.textColor || "#000000");
-            const prevTitle = history[prevIndex].options?.plugins?.title?.text || "Chart Title";
-            setChartTitle(prevTitle);
-            setTempTitle(prevTitle);
-            const prevFontFamily = history[prevIndex].options?.plugins?.title?.font?.family || "Noto Sans";
-            const prevFontSize = history[prevIndex].options?.plugins?.title?.font?.size || 14;
-            setActiveFontFamily(prevFontFamily);
-            setFontSize(prevFontSize);
-            
-
-        }
+    const handleUndoLocal = () => {
+        handleUndo(historyIndex, history, selectionHistory, setDatasetSelected, setSegmentSelected, setChartConfig, setHistoryIndex, setSelectedColor, setTextColor, setChartTitle, setTempTitle, setActiveFontFamily, setFontSize, setChartImageUrl);
     };
 
-    const handleRedo = () => {
-        if (historyIndex < history.length - 1) {
-            const nextIndex = historyIndex + 1;
-            const nextSelection = selectionHistory[nextIndex];
-            // Restore the next dataset/segment selection
-            setDatasetSelected(nextSelection.dataset);
-            setSegmentSelected(nextSelection.segment);
-            setChartConfig(history[nextIndex]);
-            setHistoryIndex(nextIndex);
-            setSelectedColor(history[nextIndex].chartStyle?.backgroundColor || "#36A2EB");
-            setTextColor(history[nextIndex].chartStyle?.textColor || "#000000");
-            const nextTitle = history[nextIndex].options?.plugins?.title?.text || "Chart Title";
-            setChartTitle(nextTitle);
-            setTempTitle(nextTitle);
-            const nextFontFamily = history[nextIndex].options?.plugins?.title?.font?.family || "Noto Sans";
-            const nextFontSize = history[nextIndex].options?.plugins?.title?.font?.size || 14;
-            setActiveFontFamily(nextFontFamily);
-            setFontSize(nextFontSize);
-            
-
-        }
+    const handleRedoLocal = () => {
+        handleRedo(historyIndex, history, selectionHistory, setDatasetSelected, setSegmentSelected, setChartConfig, setHistoryIndex, setSelectedColor, setTextColor, setChartTitle, setTempTitle, setActiveFontFamily, setFontSize, setChartImageUrl);
     };
 
-    const handleReset = () => {
-        setChartConfig(initialConfig);
-        setSelectedColor(initialConfig.chartStyle?.backgroundColor || "#4F46E5");
-        setTextColor(initialConfig.chartStyle?.textColor || "#000000");
-        const initialTitle = initialConfig.options?.plugins?.title?.text || "Chart Title";
-        setChartTitle(initialTitle);
-        setTempTitle(initialTitle);
-        const initialFontFamily = initialConfig.options?.plugins?.title?.font?.family || "Noto Sans";
-        const initialFontSize = initialConfig.options?.plugins?.title?.font?.size || 14;
-        setActiveFontFamily(initialFontFamily);
-        setFontSize(initialFontSize);
-        setDatasetSelected(0); // Reset to first dataset
-        setSegmentSelected(0); // Reset to first segment
-        setHistory([initialConfig]);
-        setHistoryIndex(0);
-        setSelectionHistory([{ dataset: 0, segment: 0 }]); // Reset selection history
+    const handleResetLocal = () => {
+        handleReset(initialConfig, setChartConfig, setSelectedColor, setTextColor, setChartTitle, setTempTitle, setActiveFontFamily, setFontSize, setDatasetSelected, setSegmentSelected, setHistory, setHistoryIndex, setSelectionHistory, setChartImageUrl);
     };
 
     // Handle font change
-    const handleFontChange = (e) => {
-        const newFontFamily = e.target.value;
-        setActiveFontFamily(newFontFamily);
-
-        const updated = {
-            ...chartConfig,
-            options: {
-                ...chartConfig.options,
-                plugins: {
-                    ...chartConfig.options?.plugins,
-                    title: {
-                        ...chartConfig.options?.plugins?.title,
-                        font: {
-                            ...chartConfig.options?.plugins?.title?.font,
-                            family: newFontFamily,
-                            size: fontSize
-                        }
-                    },
-                    legend: {
-                        ...chartConfig.options?.plugins?.legend,
-                        labels: {
-                            ...chartConfig.options?.plugins?.legend?.labels,
-                            font: {
-                                family: newFontFamily,
-                                size: fontSize
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    ...chartConfig.options?.scales,
-                    x: {
-                        ...chartConfig.options?.scales?.x,
-                        ticks: {
-                            ...chartConfig.options?.scales?.x?.ticks,
-                            font: {
-                                family: newFontFamily,
-                                size: fontSize
-                            }
-                        },
-                        title: {
-                            ...chartConfig.options?.scales?.x?.title,
-                            font: {
-                                family: newFontFamily,
-                                size: fontSize
-                            }
-                        }
-                    },
-                    y: {
-                        ...chartConfig.options?.scales?.y,
-                        ticks: {
-                            ...chartConfig.options?.scales?.y?.ticks,
-                            font: {
-                                family: newFontFamily,
-                                size: fontSize
-                            }
-                        },
-                        title: {
-                            ...chartConfig.options?.scales?.y?.title,
-                            font: {
-                                family: newFontFamily,
-                                size: fontSize
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        
-        updateChartConfig(updated);
+    const handleFontChangeLocal = (e) => {
+        handleFontChange(e, chartConfig, activeFontFamily, fontSize, setActiveFontFamily, updateChartConfig);
     };
 
-    const handleGridLines = () => {
-        setGridLines((prev) => {
-            const newGridState = !prev;
-        
-            const updated = {
-              ...chartConfig,
-              options: {
-                ...chartConfig.options,
-                scales: {
-                  ...chartConfig.options?.scales,
-                  x: {
-                    ...chartConfig.options?.scales?.x,
-                    grid: {
-                      ...chartConfig.options?.scales?.x?.grid,
-                      display: newGridState
-                    }
-                  },
-                  y: {
-                    ...chartConfig.options?.scales?.y,
-                    grid: {
-                      ...chartConfig.options?.scales?.y?.grid,
-                      display: newGridState
-                    }
-                  }
-                }
-              }
-            };
-        
-            updateChartConfig(updated);
-            return newGridState;
-          });
-    }
+    const handleGridLinesLocal = () => {
+        handleGridLines(gridLines, chartConfig, setGridLines, updateChartConfig);
+    };
 
-    const handleLegend = () => {
-        setLegend((prev) => {
-            const newLegendState = !prev;
-        
-            const updated = {
-              ...chartConfig,
-              options: {
-                ...chartConfig.options,
-                plugins: {
-                  ...chartConfig.options?.plugins,
-                  legend: {
-                    ...chartConfig.options?.plugins?.legend,
-                    display: newLegendState,
-                    labels: {
-                      ...chartConfig.options?.plugins?.legend?.labels
-                    }
-                  }
-                }
-              }
-            };
-        
-            updateChartConfig(updated);
-            return newLegendState;
-        });
-    }
+    const handleLegendLocal = () => {
+        handleLegend(legend, chartConfig, setLegend, updateChartConfig);
+    };
 
     useEffect(() => {
     if (chartConfig) {
@@ -708,11 +247,11 @@ function EditSave() {
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter">
-            <EditSaveStepper />
+            <ProgressStepper currentStep="Edit & Save" />
             <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full">
-                <div className="flex flex-col md:flex-row gap-8 w-full">
+                <div className="flex flex-col md:flex-row gap-6 w-full">
                     {/* Display the chart image */}
-                    <div className="flex-1 bg-white rounded-xl p-4 sm:p-6 shadow-lg relative">
+                    <div className="w-full md:w-[55%] bg-white rounded-xl p-4 sm:p-6 shadow-lg relative">
                         <div>
                             <h2 className="font-semibold flex items-center justify-center gap-4 mb-2">
                             {/* <Edit3 size={30} />
@@ -720,7 +259,7 @@ function EditSave() {
 
                             <div className="flex ml-6 space-x-3">
                                 <button
-                                onClick={handleUndo}
+                                onClick={handleUndoLocal}
                                 disabled={historyIndex === 0}
                                 className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Undo"
@@ -729,7 +268,7 @@ function EditSave() {
                                 </button>
 
                                 <button
-                                onClick={handleRedo}
+                                onClick={handleRedoLocal}
                                 disabled={historyIndex === history.length - 1}
                                 className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Redo"
@@ -738,7 +277,7 @@ function EditSave() {
                                 </button>
 
                                 <button
-                                onClick={handleReset}
+                                onClick={handleResetLocal}
                                 className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100"
                                 title="Reset"
                                 >
@@ -759,7 +298,7 @@ function EditSave() {
                                     src={`${quickChartURL}${encodeURIComponent(JSON.stringify(chartConfig))}`}
                                     alt="Live Chart Preview"
                                     onLoad={() => setIsLoading(false)} 
-                                    className="w-full max-w-2xl mx-auto rounded-md shadow-md"
+                                    className="w-full max-w-lg mx-auto rounded-md shadow-md"
                                 />
                                 ) : (
                                 <p className="text-center text-gray-500">No chart available</p>
@@ -768,299 +307,81 @@ function EditSave() {
                         </div>
                     </div>
 
+                    {/* Controls section, RIGHT SIDE OF PAGE */}
+                    <div className="w-full md:w-[45%] grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Text editing section */}
+                        <div className="space-y-6">
+                            <FontSettings
+                                activeFontFamily={activeFontFamily}
+                                fontSize={fontSize}
+                                onFontChange={handleFontChangeLocal}
+                                onFontSizeChange={handleFontSizeChangeLocal}
+                            />
 
-
-                    <div className="space-y-6">
-
-                        {/* Chart Title section */}
-                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Text size={18} className="text-black" strokeWidth={2.5} />
-                                <p className="text-lg font-semibold text-gray-800">Chart Title</p>
-                            </div>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={tempTitle}
-                                    onChange={(e) => setTempTitle(e.target.value)}
-                                    placeholder="Enter chart title"
-                                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                            <TitleSettings
+                                tempTitle={tempTitle}
+                                onTitleChange={(e) => setTempTitle(e.target.value)}
+                                onUpdateTitle={handleTitleChangeLocal}
+                            />
+                            
+                            {/* Only show axis title settings for non-pie charts */}
+                            {!isPieChart && (
+                                <AxisTitleSettings
+                                    tempXAxisTitle={tempXAxisTitle}
+                                    tempYAxisTitle={tempYAxisTitle}
+                                    onXAxisTitleChange={(e) => setTempXAxisTitle(e.target.value)}
+                                    onYAxisTitleChange={(e) => setTempYAxisTitle(e.target.value)}
+                                    onUpdateXAxisTitle={() => handleAxisTitleChangeLocal("x", tempXAxisTitle)}
+                                    onUpdateYAxisTitle={() => handleAxisTitleChangeLocal("y", tempYAxisTitle)}
                                 />
-                                <button
-                                    onClick={handleTitleChange}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-                                >
-                                    Update
-                                </button>
-                            </div>
+                            )}
                         </div>
-                        {/* X/Y Axis title label*/}
-                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                {/* <Edit3 size={18} className="text-black" strokeWidth={2.5} /> */}
-                                <p className="text-lg font-semibold text-gray-800">Edit X Axis Title</p>
-                            </div>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={tempXAxisTitle}
-                                    onChange={(e) => setTempXAxisTitle(e.target.value)}
-                                    placeholder="Enter X-axis title"
-                                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                                />
-                                <button
-                                    onClick={() => handleAxisTitleChange("x", tempXAxisTitle)}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-                                >
-                                    Update
-                                </button>
-                            </div>
-                            <div className="flex items-center gap-2 mb-2">
-                                {/* <Edit3 size={18} className="text-black" strokeWidth={2.5} /> */}
-                                <p className="text-lg font-semibold text-gray-800">Edit Y Axis Title</p>
-                            </div>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    value={tempYAxisTitle}
-                                    onChange={(e) => setTempYAxisTitle(e.target.value)}
-                                    placeholder="Enter Y-axis title"
-                                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                                />
-                                <button
-                                    onClick={() => handleAxisTitleChange("y", tempYAxisTitle)}
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-                                >
-                                    Update
-                                </button>
-                            </div>
-                        </div>
-                        {/* Grid Lines section */}
-                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <p className="text-lg font-semibold text-gray-800">Grid Lines</p>
-                            </div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <button onClick={handleGridLines} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-                                    {gridLines ? "Disable Grid Lines" : "Enable Grid Lines"}
-                                </button>
-                            </div>
-                        </div>
-                        {/* Legend section */}
-                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <p className="text-lg font-semibold text-gray-800">Legend</p>
-                            </div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <button onClick={handleLegend} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-                                    {legend ? "Disable Legend" : "Enable Legend"}
-                                </button>
-                            </div>
-                        </div>
-                        {/* this is the "text" section card*/}
-                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Edit3 size={18} className="text-black" strokeWidth={2.5} />
-                                <p className="text-lg font-semibold text-gray-800">Edit Text</p>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                <div className="flex-1">
-                                    <select
-                                        id="fontFamilyDropdown"
-                                        value={activeFontFamily}
-                                        onChange={handleFontChange}
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                                        style={{ fontFamily: activeFontFamily }}
-                                    >
-                                        {notoFonts.map((font) => (
-                                            <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
-                                                {font.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="flex-1">  
-                                    <select
-                                        id="fontSizeDropdown"
-                                        value={fontSize}
-                                        onChange={handleFontSizeChange}
-                                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                                    >
-                                        {[6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32].map((size) => (
-                                        <option key={size} value={size}>
-                                            {size}
-                                        </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                          
+                        {/* Color editing section */}
+                        <div className="space-y-6">
+                            <DatasetSelection
+                                chartConfig={chartConfig}
+                                datasetSelected={datasetSelected}
+                                segmentSelected={segmentSelected}
+                                onDatasetSelect={setDatasetSelected}
+                                onSegmentSelect={setSegmentSelected}
+                            />
 
-                        {/* Dataset/Segment Selection section */}
-                        {(() => {
-                            const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
-                            const shouldShowSelection = isPieChart 
-                                ? chartConfig?.data?.datasets?.[0]?.data?.length > 1
-                                : chartConfig?.data?.datasets?.length > 1;
-
-                            if (!shouldShowSelection) return null;
-
-                            return (
-                                <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                                    <p className="text-lg font-semibold text-gray-800 mb-2">
-                                        {isPieChart ? 'Select Segment' : 'Select Dataset'}
-                                    </p>
-                                    <div className="flex flex-wrap gap-2">
-                                        {isPieChart ? (
-                                            // Pie chart segments
-                                            chartConfig.data.datasets[0].data.map((value, index) => (
-                                                <button
-                                                    key={index}
-                                                    onClick={() => setSegmentSelected(index)}
-                                                    className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
-                                                        segmentSelected === index
-                                                            ? 'bg-blue-600 text-white border-blue-600'
-                                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                                                    }`}
-                                                >
-                                                    {chartConfig.data.labels?.[index] || `Segment ${index + 1}`}
-                                                </button>
-                                            ))
-                                        ) : (
-                                            // Regular chart datasets
-                                            chartConfig.data.datasets.map((dataset, index) => (
-                                                <button
-                                                    key={index}
-                                                    onClick={() => setDatasetSelected(index)}
-                                                    className={`px-4 py-2 rounded-lg border transition-all duration-200 ${
-                                                        datasetSelected === index
-                                                            ? 'bg-blue-600 text-white border-blue-600'
-                                                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                                                    }`}
-                                                >
-                                                    {dataset.label || `Dataset ${index + 1}`}
-                                                </button>
-                                            ))
-                                        )}
-                                    </div>
-                                    <p className="text-sm text-gray-600">
-                                        Selected: {isPieChart 
-                                            ? (chartConfig.data.labels?.[segmentSelected] || `Segment ${segmentSelected + 1}`)
-                                            : (chartConfig.data.datasets[datasetSelected]?.label || `Dataset ${datasetSelected + 1}`)
-                                        }
-                                    </p>
-                                </div>
-                            );
-                        })()}
-
-                        {/* This is the colour card */}
-                        <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Paintbrush size={18} className="text-black" strokeWidth={2.5}/>
-                                <p className="text-lg font-semibold text-gray-800">Edit Colour</p>
-                            </div>
-                            <p className="text-lg font-semibold text-gray-800 mb-2">
-                                
-                                {(() => {
-                                    const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
-                                    const shouldShowLabel = isPieChart 
-                                        ? chartConfig?.data?.datasets?.[0]?.data?.length > 1
-                                        : chartConfig?.data?.datasets?.length > 1;
-
-                                    if (!shouldShowLabel) return null;
-
-                                    const label = isPieChart 
-                                        ? (chartConfig.data.labels?.[segmentSelected] || `Segment ${segmentSelected + 1}`)
-                                        : (chartConfig.data.datasets[datasetSelected]?.label || `Dataset ${datasetSelected + 1}`);
-
-                                    return (
-                                        <span className="text-sm font-normal text-blue-600 ml-2">
-                                            ({label})
-                                        </span>
-                                    );
-                                })()}
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-4">
-
-                                {/* This is the button where they choose the background colour*/}
-                                <button
-                                className={`flex-1 ${showBackgroundPicker ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-md transition cursor-pointer`}
-                                onClick={() => {
-                                    if (showBackgroundPicker) {
-                                    setSelectedColor(tempBackgroundColor); // final color to state
-                                    handleColorChange({ hex: tempBackgroundColor }); // call your function
-                                    setShowBackgroundPicker(false); // hide picker
-                                    } else {
-                                    setShowBackgroundPicker(true); // open picker
-                                    setShowTextPicker(false);
-                                    }
+                            <ColorSettings
+                                chartConfig={chartConfig}
+                                datasetSelected={datasetSelected}
+                                segmentSelected={segmentSelected}
+                                activePicker={activePicker}
+                                tempBackgroundColor={tempBackgroundColor}
+                                tempTextColor={tempTextColor}
+                                onSetActivePicker={setActivePicker}
+                                onTempBackgroundColorChange={setTempBackgroundColor}
+                                onTempTextColorChange={setTempTextColor}
+                                onConfirmBackgroundColor={() => {
+                                    setSelectedColor(tempBackgroundColor);
+                                    handleColorChangeLocal({ hex: tempBackgroundColor });
+                                    setActivePicker(null);
                                 }}
-                                >
-                                {showBackgroundPicker ? "Confirm Chart Colour" : "Chart Colour"}
-                                </button>
-
-                                {/* This is the button where they choose the text colour*/}
-                                <button
-                                className={`flex-1 ${showTextPicker ? 'bg-cyan-500 hover:bg-cyan-600' : 'bg-blue-600 hover:bg-blue-700'} text-white px-4 py-2 rounded-md transition cursor-pointer`}
-                                onClick={() => {
-                                    if (showTextPicker) {
+                                onConfirmTextColor={() => {
                                     setTextColor(tempTextColor);
-                                    handleTextColorChange({ hex: tempTextColor });
-                                    setShowTextPicker(false);
-                                    } else {
-                                    setShowTextPicker(true);
-                                    setShowBackgroundPicker(false);
-                                    }
+                                    handleTextColorChangeLocal({ hex: tempTextColor });
+                                    setActivePicker(null);
                                 }}
-                                >
-                                {showTextPicker ? "Confirm Text Colour" : "Text Colour"}
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Background picker */}
-                        {showBackgroundPicker && (
-                        <div className="flex flex-col items-center gap-4 mb-6">
-                            <SketchPicker
-                            color={tempBackgroundColor}
-                            onChangeComplete={(color) => setTempBackgroundColor(color.hex)}
-                            disableAlpha={true}
+                                onCancelColorPicker={() => setActivePicker(null)}
                             />
-                        </div>
-                        )}
 
-                        {/* Text picker */}
-                        {showTextPicker && (
-                        <div className="flex flex-col items-center gap-4 mb-6">
-                            <SketchPicker
-                            color={tempTextColor}
-                            onChangeComplete={(color) => setTempTextColor(color.hex)}
-                            disableAlpha={true}
+                            <GridLegendSettings
+                                gridLines={gridLines}
+                                legend={legend}
+                                onGridLinesToggle={handleGridLinesLocal}
+                                onLegendToggle={handleLegendLocal}
+                                isPieChart={isPieChart}
                             />
-                        </div>
-                        )}
-
-                        {isDownloadModalOpen && (
-                            <DownloadOptions
-                            onClose={() => setIsDownloadModalOpen(false)}
-                            chartImageUrl={chartImageUrl}
-                            />
-                        )}
-
-                        {/* downloading button, downloading thing is a component */}
-                        <div className="w-full">
-                        <button
-                            className="w-full bg-blue-600 hover:bg-gray-300 text-white py-2 px-4 rounded-lg shadow-sm transition duration-200 ease-in-out flex items-center justify-center gap-2 cursor-pointer"
-                            onClick={() => setIsDownloadModalOpen(true)}
-                        >
-                            <Download size={18} strokeWidth={4}/>
-                            Download
-                        </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <EditSaveButtons />
+            <EditSaveButtons chartImageUrl={chartImageUrl} />
         </div>
     );
 }

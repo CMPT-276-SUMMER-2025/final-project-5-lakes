@@ -1,5 +1,5 @@
 const { queryDeepSeekV3 } = require('./APIdeepseek.js');
-const prompts = require('../prompts/deepseekPrompts.js');
+const prompts = require('./prompts/deepseekPrompts.js');
 
 async function getSummary(data){
     const prompt = prompts.feature3("", data);
@@ -10,7 +10,7 @@ async function getSummary(data){
         try {
             result = JSON.parse(rawResult);
         } catch (jsonError) {
-            const error = new Error('Unexpected API response');
+            const error = new Error('Unexpected API response.');
             error.code = '';
             error.status = 500;
             throw error;
