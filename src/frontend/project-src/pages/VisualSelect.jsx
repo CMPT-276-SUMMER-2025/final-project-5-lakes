@@ -26,7 +26,6 @@ function VisualSelect() {
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const sessionData = await response.json();
-      console.log("Retrieved session data:", sessionData);
     
       // Navigate back to edit-data with the retrieved data
       navigate("/edit-data", {

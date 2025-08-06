@@ -23,8 +23,6 @@ function EditData() {
   const { parsedData } = location.state || {};
   const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
-  console.log("parsedData:", parsedData);
-
   const [isLoading, setIsLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState(null);
   const [originalData, setOriginalData] = useState(null);

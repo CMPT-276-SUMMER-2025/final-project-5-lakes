@@ -37,8 +37,6 @@ function EditSave() {
     const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
     const [showTextPicker, setShowTextPicker] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    console.log(initialConfig);
-
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
     const [chartImageUrl, setChartImageUrl] = useState(`${quickChartURL}${encodeURIComponent(JSON.stringify(initialConfig))}`);
@@ -82,14 +80,12 @@ function EditSave() {
       
 
     useEffect(() => {
-        console.log("Creating chartConfig");
         if (chartConfig && chartConfig.options) {
             // Ensure basic chart structure exists
             if (!chartConfig.options.plugins) {
                 chartConfig.options.plugins = {};
             }
             if (!chartConfig.options.plugins.title) {
-                console.log("Setting title");
                 chartConfig.options.plugins.title = {
                     display: true,
                     text: chartTitle || "Chart Title",
@@ -209,7 +205,6 @@ function EditSave() {
         setChartImageUrl(`${quickChartURL}${encodeURIComponent(JSON.stringify(newConfig))}`);
         
         // Save current selection to history
-        console.log("dataset modified to", datasetSelected);
         const updatedSelectionHistory = selectionHistory.slice(0, historyIndex + 1);
         updatedSelectionHistory.push({ dataset: datasetSelected, segment: segmentSelected });
         setSelectionHistory(updatedSelectionHistory);
