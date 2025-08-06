@@ -1,3 +1,4 @@
+// Custom hook for displaying error alerts in a consistent format.
 import { useState, useCallback } from 'react';
 
 const useDefaultError = () => {

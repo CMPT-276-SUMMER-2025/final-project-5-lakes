@@ -1,3 +1,6 @@
+// Reusable error alert component that displays a message with a title, description, and button.
+// It conditionally renders based on visibility.
+
 import { AlertCircle } from 'lucide-react';
 
 const DefaultError = ({
