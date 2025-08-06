@@ -20,7 +20,7 @@ function EditData() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { parsedData } = location.state || {};
+  const { parsedData, edittedData } = location.state || {};
   const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -42,16 +42,13 @@ function EditData() {
 
   // Initialize confirmedData and originalData from parsedData
   useEffect(() => {
-    if (!parsedData) {
-      navigate("/");
-      return;
-    }
+    const {table: originalTable}  = convertDeepSeekToTable(parsedData);
+    const {table: currentTable}  = convertDeepSeekToTable(edittedData);
 
-    const { table } = convertDeepSeekToTable(parsedData);
-    setConfirmedData(structuredClone(table));
-    setUndoStack([structuredClone(table)]);
-    setOriginalData(structuredClone(table));
-  }, [parsedData, navigate]);
+    setConfirmedData(structuredClone(currentTable));
+    setUndoStack([structuredClone(currentTable)]);
+    setOriginalData(structuredClone(originalTable));
+  }, [parsedData, edittedData, navigate]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -70,53 +67,52 @@ function EditData() {
 
   // Handle form submission
   const handleNext = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
+    e.preventDefault();
+    setIsLoading(true);
 
-  const formattedData = convertTableToDeepSeekFormat(confirmedData);
+    const formattedData = convertTableToDeepSeekFormat(confirmedData);
 
-  try {
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        edittedData: formattedData,
-        parsedData: parsedData,
-      }),
-      credentials: "include",
+    fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          edittedData: formattedData
+        }),
+        credentials: "include",
+      })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          const error = new Error(data.error || "Something went wrong");
+          error.code = data.code || "";
+          throw error;
+        }
+        return data;
+      })
+      .then((data) => {
+        navigate("/visual-select", { state: data, replace: true });
+      })
+      .catch((error) => {
+      if (error.code === "INVALID_EDITED_TABLE") {
+        showAlert(
+          "error",
+          "Editing Failed",
+          `We could not generate the chart: ${error.message}`,
+          "Okay"
+        );
+      } else {
+        showAlert(
+          "error",
+          "Generation Failed",
+          `We could not generate the chart: ${error.message} Please try again later.`,
+          "Okay"
+        );
+      }
+    })
+    .finally(() => {
+      setIsLoading(false);
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const error = new Error(data.error || "Something went wrong");
-      error.code = data.code || "";
-      throw error;
-    }
-
-    navigate("/visual-select", { state: data, replace: true });
-    
-  } catch (error) {
-    if (error.code === "INVALID_EDITED_TABLE") {
-      showAlert(
-        "error",
-        "Editing Failed",
-        `We could not generate the chart: ${error.message}`,
-        "Okay"
-      );
-    } else {
-      showAlert(
-        "error",
-        "Generation Failed",
-        `We could not generate the chart: ${error.message} Please try again later.`,
-        "Okay"
-      );
-    }
-  }
-  finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   // Insert row functions
   const insertRowAbove = (index) => {

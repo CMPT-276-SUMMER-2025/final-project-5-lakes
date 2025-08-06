@@ -2,7 +2,7 @@ function convertDeepSeekToTable(parsedData) {
   if (!Array.isArray(parsedData) || parsedData.length === 0) {
     return {
       table: {
-        rowHeaderTitle: "Row",
+        rowHeaderTitle: '',
         columns: [],
         rows: [],
       },

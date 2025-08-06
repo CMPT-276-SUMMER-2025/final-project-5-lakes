@@ -1,4 +1,6 @@
-// src/components/visualselect/ChartSelectionCard.jsx
+// ChartSelectionCard displays a preview of a chart option with a title, description, and selection button.
+// When selected, it sends the chart ID to the backend and navigates the user to the editing page with the returned configuration.
+
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 

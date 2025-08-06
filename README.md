@@ -8,20 +8,16 @@ EasyChart
 Nick Ze Kun Lei, Javier Deng Xu, Shelby Haines, Tony Junxiang Wu
 
 # Brief Description of Project
-A website that provides a simple way for users to visualize data, without having to learn complex tools. Users can upload data in various formats, and the platform will automatically generate relevant visualizations such as charts and graphs. These visuals can then be exported in various formats.
-
-**Brief Description of API changes from Milestone 0**
----
-In milestone 0, our team mentioned to use the OpenAI API for chart analysis, NLQ parsing, and smart selection. However, during our process in working on milestone 1, we figured that the OpenAI API did not offer a free tier. To compensate, we will be changing our API to DeepSeek's free APIs (Using OpenRouter, which allows free access to DeepSeek V3 0324) while maintaining identical features.
+EasyChart is a website that provides a simple way for users to visualize data, without having to learn complex tools. Users can upload data in various formats, and the platform will automatically generate relevant visualizations such as charts and graphs. These visuals can then be edited and exported in various formats.
 
 # Links
 **Project website link:** easychart-omega.vercel.app  
 **Project Report link:**  
-**Project  M1 video link:** [M1 Group 5 Video](https://www.google.com/url?q=https://drive.google.com/file/d/1T4y1QCeSbcONjlZ-4wep66cwlItRHwUW/view&sa=D&source=editors&ust=1754398172556768&usg=AOvVaw3dkA3paY9PeDAzT2hVgkcb)
+**Project  M1 video link:** [M1 Group 5 Video](https://www.google.com/url?q=https://drive.google.com/file/d/1T4y1QCeSbcONjlZ-4wep66cwlItRHwUW/view&sa=D&source=editors&ust=1754398172556768&usg=AOvVaw3dkA3paY9PeDAzT2hVgkcb)    
 **Project  M2 video link:**
 
 # Folder Structure
-This project is organized into directories for documentation, source code, and tools:
+This project is organized into directories for documentation, source code, and dependencies:
 
 - `docs/`: Contains project-related documents including our AI disclosure forms.   
 - `src/`: The main source code folder, split into:  
@@ -29,6 +25,7 @@ This project is organized into directories for documentation, source code, and t
   - `frontend/`: Frontend assets including the main HTML, configuration, React components, pages, styles, and utilities.  
 - Root files: Configuration and metadata such as `package.json` and lock files.
 
+Below is a simplified overview of our folder structure:
 ```bash
 final-project-5-lakes/
 ├── README.md
@@ -40,7 +37,6 @@ final-project-5-lakes/
 │   │   ├── server.js
 │   │   ├── deepSeek/
 │   │   ├── quickChart/
-│   │   ├── prompts/
 │   │   ├── uploads/
 │   │   └── __tests__/
 │   └── frontend/
@@ -48,12 +44,14 @@ final-project-5-lakes/
 │       ├── vite.config.js
 │       ├── project-src/
 │       │   ├── App.jsx
+│       │   ├── assets/
 │       │   ├── components/
+│       │   ├── hooks/
+│       │   ├── lib/
 │       │   ├── pages/
 │       │   ├── styles/
 │       │   └── utils/
 │       └── public/
-├── tools/
 ├── package.json
 └── package-lock.json
 ```
@@ -65,3 +63,16 @@ final-project-5-lakes/
 4. Open a terminal, and navigate to the `frontend` folder (`final-project-5-lakes/src/frontend`). Then enter `npm install --legacy-peer-deps` and wait for it to install.
 5. Open a different (new) terminal, and navigate to the `backend` folder (`final-project-5-lakes/src/backend`). Run `npm install` and wait for it to install. Then enter `node server.js`, it should say the server is running.
 6. Lastly, in the terminal where you are in the frontend (`final-project-5-lakes/src/frontend`), run `npm run dev`. Click on the link that is provided to you (it should look like "http://localhost:5173") and view the website through your browser.
+
+# Known Issues and Limitations
+- Occasionally, the DeepSeek API doesn’t work properly, and users may see an error message. When this happens, users can simply dismiss the error and try again.
+- The DeepSeek API can sometimes take a long time to respond, leading to delays in loading results.
+- Users need to navigate between pages using the buttons provided on the page. Using their browser navigation buttons can sometimes cause unexpected behaviour.   
+_To find a record of all our current and fixed bugs, you can filter through our tickets using the 'bug' label._
+
+# Technologies Used
+- React (frontend)  
+- Node.js (backend)  
+- QuickChart API for chart rendering  
+- DeepSeek API for data analysis  
+- Tailwind CSS for styling  

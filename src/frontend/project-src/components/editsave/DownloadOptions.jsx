@@ -1,3 +1,6 @@
+// This component renders a pop-up that allows users to download their chart in PDF, PNG, or SVG format.
+// It handles API calls, shows loading states, displays a success message, and offers next options after download.
+
 import { useEffect, useCallback, useState } from 'react';
 import { FileDown, Image, FileImage, X, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -119,7 +122,7 @@ function DownloadOptions({ onClose, chartImageUrl }) {
           <button
             onClick={() => handleDownload('pdf')}
             disabled={downloading !== null}
-            className="w-full bg-blue-600 hover:bg-blue-400 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-75 flex items-center justify-center"
+            className="w-full bg-blue-600 hover:bg-blue-400 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none flex items-center justify-center"
           >
             {downloading === 'pdf' ? (
               <Loader2 className="h-6 w-6 mr-2 flex-shrink-0 animate-spin" />
@@ -132,7 +135,7 @@ function DownloadOptions({ onClose, chartImageUrl }) {
           <button
             onClick={() => handleDownload('png')}
             disabled={downloading !== null}
-            className="w-full bg-blue-600 hover:bg-blue-400 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 flex items-center justify-center"
+            className="w-full bg-blue-600 hover:bg-blue-400 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none flex items-center justify-center"
           >
             {downloading === 'png' ? (
               <Loader2 className="w-6 h-6 mr-2 flex-shrink-0 animate-spin" />
@@ -145,7 +148,7 @@ function DownloadOptions({ onClose, chartImageUrl }) {
           <button
             onClick={() => handleDownload('svg')}
             disabled={downloading !== null}
-            className="w-full bg-blue-600 hover:bg-blue-400 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75 flex items-center justify-center"
+            className="w-full bg-blue-600 hover:bg-blue-400 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none flex items-center justify-center"
           >
             {downloading === 'svg' ? (
               <Loader2 className="h-6 w-6 mr-2 flex-shrink-0 animate-spin" />
