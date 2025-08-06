@@ -1,9 +1,10 @@
-import TextInputArea from '../components/homepage/TextInputArea';
-import FileUploadArea from '../components/homepage/FileUploadArea';
-import { ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
+
+import TextInputArea from '../components/homepage/TextInputArea';
+import FileUploadArea from '../components/homepage/FileUploadArea';
 import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
 import LoadingPopUp from '../components/homepage/LoadingPopUp';
@@ -20,7 +21,6 @@ function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-        console.log('[HomePage] Files state updated:', Array.from(files));
     }, [files]);
 
   const handleSubmit = (event) => {
@@ -47,14 +47,6 @@ function HomePage() {
 
     setIsLoading(true);
 
-    console.log('testing inputs:');
-    console.log('Text input:', text);
-    console.log("Files:", Array.from(files));
-
-
-
-    // replace with real backend
-    /***************************/
     fetch(apiUrl, {
       method: 'POST',
       body: formData,
@@ -140,7 +132,6 @@ function HomePage() {
        <ProgressStepper currentStep="Upload Data" />
      </header>
 
-
       <form
           onSubmit={handleSubmit}
           encType="multipart/form-data"
@@ -159,7 +150,6 @@ function HomePage() {
             </button>
           </div>
       </form>
-
    </div>
 
   );

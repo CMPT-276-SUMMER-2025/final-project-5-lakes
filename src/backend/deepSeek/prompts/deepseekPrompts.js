@@ -39,15 +39,21 @@ const promptExtractStructuredData =
         4. Merge all tables row-wise into a single JSON array:
                 - The first row from each table combines into the first object, the second rows combine into the second object, etc.
                 - If some tables have fewer rows, omit missing fields for those rows.
-                - Append a (#number) suffix to each column name to indicate which group/table the data came from.
+                - If you found more than 1 distinct group/table of data: Append a (#number) suffix to each column name to indicate which group/table the data came from.
         5. Keep in mind that this data will be used to generate a CSV file.
         6. Only output the JSON array, without explanations or extra formatting.
 
-        Example:
+        Example 1:
         [
                 { "Product (1)": ["Apple"], "Price($) (1)": ["1.00"],  "Week (2)": ["2"], "Apples Sold (2)": ["100"], "Bananas Sold (2)": ["120"] },
                 { "Product (1)": ["Banana"], "Price($) (1)": ["0.80"], "Week (2)": ["2"], "Apples Sold (2)": ["90"], "Bananas Sold (2)": ["150"] },
                 { "Product (1)": ["Orange"], "Price($) (1)": ["1.20"] }
+        ]
+
+        Example 2:
+        [
+                { "Product": ["Apple"], "Price($)": ["1.00"]},
+                { "Product": ["Banana"], "Price($)": ["0.80"]},
         ]
         
         Important rules:
@@ -165,6 +171,8 @@ const labelsSeparatorPrompt = `
                 Data should be considered INVALID if any of the following apply:
                 - The table is missing or not present.
                 - The table contains empty or missing values.
+                - The table only contains 1 row or 1 column.
+                - The table contains more than 50 rows or 50 columns.
                 - Column headers (labels) are missing or unclear.
                 - The table has inconsistent row lengths or structure.
                 - Values in one column do not match its intended meaning (e.g., "apple" in a "Time" column, or "123" in a "Fruit" column).
@@ -219,60 +227,6 @@ const labelsSeparatorPrompt = `
         - Do NOT wrap the output in triple backticks (\`\`\`).
         - Only return clean, valid JSON.
         `;
-
-const multipleDataSetsPrompt = `
-        Given a parsed file (Excel/CSV/JSON) containing multiple unrelated datasets mixed together, 
-        transform it into the following JSON format:
-
-        {
-        "dataset1Title": [
-        {"Label1": "value1", "Label2": "value2", ...},
-        {"Label1": "value1", "Label2": "value2", ...},
-        ...
-        ],
-        "dataset2Title": [
-        {"Label1": "value1", "Label2": "value2", ...},
-        {"Label1": "value1", "Label2": "value2", ...},
-        ...
-        ],
-        ...
-        }
-
-        Requirements:
-        1. Detect dataset boundaries by:
-        - Blank rows/columns
-        - Repeating header rows
-        - Known separators (e.g., "---", "Dataset 2:")
-        2. Use the first non-blank row's values as keys for each dataset
-        3. Infer dataset titles from:
-        - The first header row of each dataset
-        - Filename patterns (e.g., "sales_data.csv" -> "salesData")
-        - Sequential numbering ("dataset1", "dataset2") if no better name exists
-        4. Preserve all original data values without modification
-        5. Handle missing values as null/empty strings
-
-        Example Input (CSV):
-        Date,Sales,Product
-        1/1/2023,1000,Widget A
-        ,,,
-        ---
-        Day,Temp
-        Mon,72
-        ,,,
-
-        Example Output:
-        {
-        "salesData": [
-        {"Date": "1/1/2023", "Sales": "1000", "Product": "Widget A"},
-        ...
-        ],
-        "temperatureData": [
-        {"Day": "Mon", "Temp": "72"},
-        ...
-        ]
-        }
-
-`;
 
 const prompts = {
         feature1: (query, data) => 
