@@ -5,7 +5,6 @@ function generateDummyChart(type, description) {
     const chart = dummyChart.find(c => c.title === type);
 
     if (!chart) {
-        console.warn(`No dummy chart found for type: ${type}`);
         return null;
     }
 
