@@ -8,12 +8,12 @@ EasyChart
 Nick Ze Kun Lei, Javier Deng Xu, Shelby Haines, Tony Junxiang Wu
 
 # Brief Description of Project
-A website that provides a simple way for users to visualize data, without having to learn complex tools. Users can upload data in various formats, and the platform will automatically generate relevant visualizations such as charts and graphs. These visuals can then be edited and exported in various formats.
+EasyChart is a website that provides a simple way for users to visualize data, without having to learn complex tools. Users can upload data in various formats, and the platform will automatically generate relevant visualizations such as charts and graphs. These visuals can then be edited and exported in various formats.
 
 # Links
 **Project website link:** easychart-omega.vercel.app  
 **Project Report link:**  
-**Project  M1 video link:** [M1 Group 5 Video](https://www.google.com/url?q=https://drive.google.com/file/d/1T4y1QCeSbcONjlZ-4wep66cwlItRHwUW/view&sa=D&source=editors&ust=1754398172556768&usg=AOvVaw3dkA3paY9PeDAzT2hVgkcb)
+**Project  M1 video link:** [M1 Group 5 Video](https://www.google.com/url?q=https://drive.google.com/file/d/1T4y1QCeSbcONjlZ-4wep66cwlItRHwUW/view&sa=D&source=editors&ust=1754398172556768&usg=AOvVaw3dkA3paY9PeDAzT2hVgkcb)    
 **Project  M2 video link:**
 
 # Folder Structure
@@ -67,10 +67,10 @@ final-project-5-lakes/
 # Known Issues and Limitations
 - Occasionally, the DeepSeek API doesn’t work properly, and users may see an error message. When this happens, users can simply dismiss the error and try again.
 - The DeepSeek API can sometimes take a long time to respond, leading to delays in loading results.
-- Users need to navigate between pages using the buttons provided on the page. Using their browser navigation buttons can sometimes cause unexpected behaviour.
+- Users need to navigate between pages using the buttons provided on the page. Using their browser navigation buttons can sometimes cause unexpected behaviour.   
 _To find a record of all our current and fixed bugs, you can filter through our tickets using the 'bug' label._
 
-# Technologies  
+# Technologies Used
 - React (frontend)  
 - Node.js (backend)  
 - QuickChart API for chart rendering  
