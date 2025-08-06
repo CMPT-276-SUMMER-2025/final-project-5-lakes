@@ -170,7 +170,7 @@ const labelsSeparatorPrompt = `
                 - The table is missing or not present.
                 - The table contains empty or missing values.
                 - The table contains less than 2 rows or 2 columns.
-                - The table contains more than 50 rows or 50 columns.
+                - The table contains more than 10 rows or 10 columns.
                 - Column headers (labels) are missing or unclear.
                 - The table has inconsistent row lengths or structure.
                 - Values in one column do not match its intended meaning (e.g., "apple" in a "Time" column, or "123" in a "Fruit" column).

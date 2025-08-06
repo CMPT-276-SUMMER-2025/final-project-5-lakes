@@ -14,12 +14,6 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
 
   const handleSelectOption = () => {
 
-
-    // if (chartConfig) {
-    //   navigate("/edit-save", { state: {chartConfig: chartConfig} });
-    //   return;
-    // }
-
     fetch(apiUrl, {
       method: "POST",
       body: JSON.stringify({
@@ -34,6 +28,7 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
       if (!response.ok) {
         const error = new Error(data.error || 'Something went wrong');
         error.code = data.code || '';
+        error.status = response.status || 500;
         throw error;
       }
       return data;

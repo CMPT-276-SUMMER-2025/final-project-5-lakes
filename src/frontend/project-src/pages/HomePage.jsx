@@ -57,6 +57,7 @@ function HomePage() {
       if (!response.ok) {
         const error = new Error(data.error || 'Something went wrong');
         error.code = data.code || '';
+        error.status = response.status || 500;
         throw error;
       }
       return data;
@@ -67,6 +68,7 @@ function HomePage() {
       } else {
         const error = new Error(data.error || 'Something went wrong');
         error.code = data.code || '';
+        error.status = data.status || 500;
         throw error;
       }
     })
@@ -76,6 +78,14 @@ function HomePage() {
           'error',
           'Extraction Failed',
           `We could not parse the file: ${error.message}`,
+          'Okay',
+          () => navigate('/')
+        )
+      } else if (error.status === 410){
+        showAlert(
+          'error',
+          'Submission Error',
+          `We could not parse the file: ${error.message} Please upload a different file.`,
           'Okay',
           () => navigate('/')
         )

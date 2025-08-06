@@ -43,6 +43,7 @@ function EditSaveButtons({ chartImageUrl }) {
             if (!response.ok) {
                 const error = new Error(data.error || 'Something went wrong')
                 error.code = data.code || '';
+                error.status = response.status || 500;
                 throw error;
             }
             return data;
