@@ -52,7 +52,6 @@ async function parseFile(file){
                 break;
             }
 
-            //if non-matched
             default:
                 const error = new Error('Unsupported file type');
                 error.code = '';

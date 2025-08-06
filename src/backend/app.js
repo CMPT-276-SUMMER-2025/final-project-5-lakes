@@ -9,11 +9,9 @@ const { generateDummyChart } = require('./quickChart/QCGenerateDummyChart.js');
 const { multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 const path = require('path');
 const fs = require('fs');
-const { stringify } = require('querystring');
 
 const app = express();
 
-// Add JSON middleware to parse request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,10 +46,8 @@ app.get('/get-session-data', async (req, res) => {
 });
 
 app.post('/file-submit', upload.array('files'), async (req, res) => {
-    console.log('Incoming /file-submit request from:', req.headers.origin);
     const files = req.files;
     const text = req.body.text;
-    // Handle text input if no files are uploaded
     if (!files || files.length === 0) {
         if (!text || text.trim() === '') {
             return res.status(400).json({ error: 'No file or text provided', code: '' });
@@ -77,14 +73,13 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
             if (error.code === 'NO_DATA_EXTRACTED') {
                 return res.status(error.status).json({ error: 'No meaningful data could be extracted from the text', code: error.code });
             } else {
-                return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || '' });
+                return res.status(error.status || 500 ).json({ error: error.message, code: error.code || '' });
             }
         }
     }
 
-    // Handle file
     try {
-        const file = files[0]; // Process first file uploaded
+        const file = files[0];
         let result = { parsedData: await parseFile(file), file: file };
         sessionData.uploadedFile = file;
         sessionData.parsedData = result.parsedData;
@@ -93,7 +88,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
         if (error.code === 'NO_DATA_EXTRACTED') {
             return res.status(error.status).json({ error: 'No meaningful data could be extracted from the file', code: error.code });
         } else {
-            return res.status(error.status || 500 || 500).json({ error: error.message, code: error.code || '' });
+            return res.status(error.status || 500 ).json({ error: error.message, code: error.code || '' });
         }
     }
 });
@@ -113,7 +108,7 @@ app.post('/edit-data', async (req, res) => {
                 if(error.code === 'INVALID_EDITED_TABLE'){
                     return res.status(error.status).json({ error: error.message, code: error.code });
                 } else {
-                    return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
+                    return res.status(error.status || 500 ).json({ error: error.message, code: error.code || '' });
                 }
             }
         }
@@ -147,7 +142,7 @@ app.post('/edit-data', async (req, res) => {
                 sessionData.graphRecommendation = graphRecommendation;
                 sessionData.chartOptions = chartsWithURLs;
             } catch (error) {
-                return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
+                return res.status(error.status || 500 ).json({ error: error.message, code: error.code || '' });
             }
         }
         
@@ -159,7 +154,7 @@ app.post('/edit-data', async (req, res) => {
             chartsWithURLs: sessionData.chartOptions
         });
     } catch (error) {
-        return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
+        return res.status(error.status || 500 ).json({ error: error.message, code: error.code || '' });
     }
 });
 
@@ -178,7 +173,7 @@ app.post('/visual-selected', async (req, res) => {
         sessionData.chartConfig = chartConfig;
         res.json({chartConfig: chartConfig, labels: sessionData.labels});
     } catch (error) {
-        return res.status(error.status || 500).json({ error: error.message, code: error.code || '' });
+        return res.status(error.status || 500 ).json({ error: error.message, code: error.code || '' });
     }
 });
 
@@ -207,7 +202,6 @@ app.delete('/reset-session', async (req, res) => {
         visualSelected: null,
         selectedOption: null,
     };
-    console.log('Session reset successfully');
     res.status(200).send('Session reset successfully');
 });
 
