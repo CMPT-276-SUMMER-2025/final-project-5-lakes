@@ -63,3 +63,16 @@ final-project-5-lakes/
 4. Open a terminal, and navigate to the `frontend` folder (`final-project-5-lakes/src/frontend`). Then enter `npm install --legacy-peer-deps` and wait for it to install.
 5. Open a different (new) terminal, and navigate to the `backend` folder (`final-project-5-lakes/src/backend`). Run `npm install` and wait for it to install. Then enter `node server.js`, it should say the server is running.
 6. Lastly, in the terminal where you are in the frontend (`final-project-5-lakes/src/frontend`), run `npm run dev`. Click on the link that is provided to you (it should look like "http://localhost:5173") and view the website through your browser.
+
+# Known Issues and Limitations
+- Occasionally, the DeepSeek API doesn’t work properly, and users may see an error message. When this happens, users can simply dismiss the error and try again.
+- The DeepSeek API can sometimes take a long time to respond, leading to delays in loading results.
+- Users need to navigate between pages using the buttons provided on the page. Using their browser navigation buttons can sometimes cause unexpected behaviour.
+_To find a record of all our current and fixed bugs, you can filter through our tickets using the 'bug' label._
+
+# Technologies  
+- React (frontend)  
+- Node.js (backend)  
+- QuickChart API for chart rendering  
+- DeepSeek API for data analysis  
+- Tailwind CSS for styling  
