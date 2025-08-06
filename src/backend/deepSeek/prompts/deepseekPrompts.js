@@ -39,15 +39,21 @@ const promptExtractStructuredData =
         4. Merge all tables row-wise into a single JSON array:
                 - The first row from each table combines into the first object, the second rows combine into the second object, etc.
                 - If some tables have fewer rows, omit missing fields for those rows.
-                - Append a (#number) suffix to each column name to indicate which group/table the data came from.
+                - If you found more than 1 distinct group/table of data: Append a (#number) suffix to each column name to indicate which group/table the data came from.
         5. Keep in mind that this data will be used to generate a CSV file.
         6. Only output the JSON array, without explanations or extra formatting.
 
-        Example:
+        Example 1:
         [
                 { "Product (1)": ["Apple"], "Price($) (1)": ["1.00"],  "Week (2)": ["2"], "Apples Sold (2)": ["100"], "Bananas Sold (2)": ["120"] },
                 { "Product (1)": ["Banana"], "Price($) (1)": ["0.80"], "Week (2)": ["2"], "Apples Sold (2)": ["90"], "Bananas Sold (2)": ["150"] },
                 { "Product (1)": ["Orange"], "Price($) (1)": ["1.20"] }
+        ]
+
+        Example 2:
+        [
+                { "Product": ["Apple"], "Price($)": ["1.00"]},
+                { "Product": ["Banana"], "Price($)": ["0.80"]},
         ]
         
         Important rules:
@@ -165,6 +171,8 @@ const labelsSeparatorPrompt = `
                 Data should be considered INVALID if any of the following apply:
                 - The table is missing or not present.
                 - The table contains empty or missing values.
+                - The table only contains 1 row or 1 column.
+                - The table contains more than 50 rows or 50 columns.
                 - Column headers (labels) are missing or unclear.
                 - The table has inconsistent row lengths or structure.
                 - Values in one column do not match its intended meaning (e.g., "apple" in a "Time" column, or "123" in a "Fruit" column).
