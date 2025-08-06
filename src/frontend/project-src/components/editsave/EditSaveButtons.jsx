@@ -20,8 +20,6 @@ function EditSaveButtons({ chartImageUrl }) {
 
     const location = useLocation();
     const { chartConfig } = location.state || {};
-    console.log(chartConfig);
-
 
     const editConfig = {
         chartLabel: chartConfig.chartLabel,

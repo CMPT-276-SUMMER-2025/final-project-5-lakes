@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useRef } from "react";
 import LoadingPopUp from "../components/editdata/LoadingPopUp";
 import convertDeepSeekToTable from "../utils/DeepSeekToTable";
 import convertTableToDeepSeekFormat from "../utils/TableToDeepSeek";
-import { ChevronLeft, ChevronRight, RotateCw, Plus, Trash, Undo, Redo } from "lucide-react";
+import NavButtons from "../components/editdata/NavButtons";
 import DefaultError from '../components/messages/DefaultError';
 import useDefaultError from '../hooks/DefaultErrorHook';
-import { useRef } from "react";
 import InfoPopUp from '../components/messages/InfoPopUp';
 import ProgressStepper from "../components/layout/ProgressStepper";
+import TableButtons from "../components/editdata/TableButtons";
+import UndoRedoButtons from "../components/editdata/UndoRedoButtons";
+import EditableTable from "../components/editdata/EditableTable";
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-data`;
 
@@ -16,10 +19,9 @@ function EditData() {
 
   const location = useLocation();
   const navigate = useNavigate();
-  const { parsedData, summary, graphRecommendation, chartsWithURLs } = location.state || {};
-  const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
-  console.log("parsedData:", parsedData);
+  const { parsedData } = location.state || {};
+  const { isAlertVisible, alertConfig, showAlert, hideAlert } = useDefaultError();
 
   const [isLoading, setIsLoading] = useState(false);
   const [confirmedData, setConfirmedData] = useState(null);
@@ -54,7 +56,7 @@ function EditData() {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (tableRef.current && !tableRef.current.contains(event.target)) {
-        setSelectedCell(null); // clear selection
+        setSelectedCell(null); 
       }
     };
 
@@ -115,39 +117,8 @@ function EditData() {
     setIsLoading(false);
   }
 };
-  
-  // Functions to add/remove rows and columns
-  const addRow = () => {
-    const updated = structuredClone(confirmedData);
-    updated.rows.push({
-      header: `Row ${updated.rows.length + 1}`,
-      cells: new Array(updated.columns.length).fill(""),
-    });
-    updateConfirmedData(updated);
-  };
 
-  const removeRow = () => {
-    if (confirmedData.rows.length === 0) return;
-    const updated = structuredClone(confirmedData);
-    updated.rows.pop();
-    updateConfirmedData(updated);
-  };
-
-  const addColumn = () => {
-    const updated = structuredClone(confirmedData);
-    updated.columns.push(`Column ${updated.columns.length + 1}`);
-    updated.rows.forEach((row) => row.cells.push(""));
-    updateConfirmedData(updated);
-  };
-
-  const removeColumn = () => {
-    if (confirmedData.columns.length === 0) return;
-    const updated = structuredClone(confirmedData);
-    updated.columns.pop();
-    updated.rows.forEach((row) => row.cells.pop());
-    updateConfirmedData(updated);
-  };
-
+  // Insert row functions
   const insertRowAbove = (index) => {
     const updated = structuredClone(confirmedData);
     updated.rows.splice(index, 0, {
@@ -180,6 +151,7 @@ function EditData() {
     }, 0);
   };
 
+  // Insert column functions
   const insertColumnLeft = (index) => {
     const updated = structuredClone(confirmedData);
     updated.columns.splice(index, 0, `Column ${updated.columns.length + 1}`);
@@ -210,6 +182,7 @@ function EditData() {
     }, 0);
   };
 
+  // Remove row/column functions
   const removeSelectedRow = (index) => {
     if (confirmedData.rows.length <= 1) return;
 
@@ -245,7 +218,7 @@ function EditData() {
     }, 0);
   };
 
-  // Undo/Redo functionality
+  // Undo/Redo functionalities
   const updateConfirmedData = (newData) => {
     setConfirmedData(newData);
   };
@@ -270,6 +243,7 @@ function EditData() {
     setConfirmedData(next);
   };
 
+  // Main render
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
       
@@ -306,251 +280,49 @@ function EditData() {
               <p className="text-md text-gray-600 text-center mb-4">
                 Click on a cell to modify its value, add/remove rows or columns as needed.
               </p>
-
               {confirmedData && (
                 <>
-                  <div className="flex justify-center gap-2 mb-4">
-                    <button
-                      type="button"
-                      onClick={undo}
-                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={undoStack.length === 0}
-                    >
-                      <Undo size={18} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={redo}
-                      className="p-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled={redoStack.length === 0}
-                    >
-                      <Redo size={18} />
-                    </button>
-                  </div>
-
-                  <div ref={tableRef} className="overflow-auto border max-w-full max-h-[400px]">
-                    <table className="w-full min-w-max border border-gray-300">
-                      <thead>
-                        <tr>
-                          {confirmedData.columns.map((col, colIdx) => (
-                            <th key={colIdx} className="border px-3 py-2 bg-gray-100">
-                              <input
-                                value={col}
-                                onClick={() =>
-                                  setSelectedCell({ row: -1, col: colIdx })
-                                }
-                                onFocus={() => {
-                                  setSelectedCell({ row: -1, col: colIdx });
-                                  setColEditHistory({
-                                    index: colIdx,
-                                    prevValue: confirmedData.columns[colIdx],
-                                    snapshot: structuredClone(confirmedData),
-                                  });
-                                }}
-                                onChange={(e) => {
-                                  const updated = structuredClone(confirmedData);
-                                  updated.columns[colIdx] = e.target.value;
-                                  updateConfirmedData(updated);
-                                }}
-                                onBlur={() => {
-                                  if (
-                                    colEditHistory &&
-                                    colEditHistory.index === colIdx &&
-                                    colEditHistory.prevValue !== confirmedData.columns[colIdx]
-                                  ) {
-                                    setUndoStack((prev) => [...prev, colEditHistory.snapshot]);
-                                    setRedoStack([]);
-                                  }
-                                  setColEditHistory(null);
-                                }}
-                                className={`w-full font-semibold outline-none px-1 py-0.5 rounded 
-                                  ${
-                                    selectedCell?.row === -1 && selectedCell?.col === colIdx
-                                      ? "bg-blue-200 ring-2 ring-blue-500"
-                                      : ""
-                                  }`}
-                              />
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {confirmedData.rows.map((row, rowIdx) => (
-                          <tr key={rowIdx}>
-                            {row.cells.map((cell, colIdx) => (
-                              <td
-                                key={colIdx}
-                                className={`border px-3 py-2 ${
-                                  (() => {
-                                    if (!selectedCell) return "";
-                                    const isRow = rowIdx === selectedCell.row;
-                                    const isCol = colIdx === selectedCell.col;
-
-                                    if (hoveredAction === "removeRow") {
-                                      return isRow ? "bg-red-100" : "";
-                                    } 
-                                    if (hoveredAction === "removeCol") {
-                                      return isCol ? "bg-red-100" : "";
-                                    }
-                                    return "";
-                                  })()
-                                }`}
-                              >
-                                <input
-                                  value={cell}
-                                  onClick={() => setSelectedCell({ row: rowIdx, col: colIdx })}
-                                  onFocus={() => {
-                                    setEditHistory({
-                                      row: rowIdx,
-                                      col: colIdx,
-                                      prevValue: confirmedData.rows[rowIdx].cells[colIdx],
-                                      snapshot: structuredClone(confirmedData) // save full table before editing
-                                    });
-                                    setSelectedCell({ row: rowIdx, col: colIdx });
-                                  }}
-                                  onChange={(e) => {
-                                    const updated = structuredClone(confirmedData);
-                                    updated.rows[rowIdx].cells[colIdx] = e.target.value;
-                                    updateConfirmedData(updated); // Don't push to undo yet
-                                  }}
-                                  onBlur={() => {
-                                    if (
-                                      editHistory &&
-                                      editHistory.row === rowIdx &&
-                                      editHistory.col === colIdx
-                                    ) {
-                                      const currentValue = confirmedData.rows[rowIdx].cells[colIdx];
-                                      if (editHistory.prevValue !== currentValue) {
-                                        setUndoStack((prev) => [...prev, editHistory.snapshot]);
-                                        setRedoStack([]);
-                                      }
-                                      setEditHistory(null);
-                                    }
-                                  }}
-                                  className={`w-full outline-none ${
-                                    selectedCell?.row === rowIdx && selectedCell?.col === colIdx
-                                      ? "bg-blue-200 ring-2 ring-blue-500 rounded"
-                                      : ""
-                                  }`}
-                                />
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  <div className="flex flex-wrap justify-center gap-4 mt-4 mb-4 mr-4 ml-4">
-                    <button
-                      type="button"
-                      onMouseDown={() => {
-                        if (selectedCell) insertRowAbove(selectedCell.row);
-                      }}
-                      disabled={!selectedCell}
-                      className={`btn-icon`}
-                    >
-                      <Plus size={10} className="mr-1" />
-                      Row Above
-                    </button>
-
-                    <button
-                      type="button"
-                      onMouseDown={() => {
-                        if (selectedCell) insertRowBelow(selectedCell.row);
-                      }}
-                      disabled={!selectedCell}
-                      className={`btn-icon`}
-                    >
-                      <Plus size={10} className="mr-1" />
-                      Row Below
-                    </button>
-
-                    <button
-                      type="button"
-                      onMouseDown={() => {
-                        if (selectedCell) insertColumnLeft(selectedCell.col);
-                      }}
-                      disabled={!selectedCell}
-                      className={`btn-icon`}
-                    >
-                      <Plus size={10} className="mr-1" />
-                      Col Left
-                    </button>
-
-                    <button
-                      type="button"
-                      onMouseDown={() => {
-                        if (selectedCell) insertColumnRight(selectedCell.col);
-                      }}
-                      disabled={!selectedCell}
-                      className={`btn-icon`}
-                    >
-                      <Plus size={10} className="mr-1" />
-                      Col Right
-                    </button>
-
-                    <button
-                      type="button"
-                      onMouseEnter={() => setHoveredAction("removeRow")}
-                      onMouseLeave={() => setHoveredAction(null)}
-                      onMouseDown={() => {
-                        if (selectedCell) removeSelectedRow(selectedCell.row);
-                      }}
-                      disabled={!selectedCell}
-                      className={`btn-icon`}
-                    >
-                      <Trash size={10} className="mr-1" />
-                      Row
-                    </button>
-
-                    <button
-                      type="button"
-                      onMouseEnter={() => setHoveredAction("removeCol")}
-                      onMouseLeave={() => setHoveredAction(null)}
-                      onMouseDown={() => {
-                        if (selectedCell) removeSelectedColumn(selectedCell.col);
-                      }}
-                      disabled={!selectedCell}
-                      className={`btn-icon`}
-                    >
-                      <Trash size={10} className="mr-1" />
-                      Col
-                    </button>
-                  </div>
+                  <UndoRedoButtons
+                    undo={undo}
+                    redo={redo}
+                    undoDisabled={undoStack.length === 0}
+                    redoDisabled={redoStack.length === 0}
+                  />
+                  <EditableTable
+                    tableRef={tableRef}
+                    confirmedData={confirmedData}
+                    selectedCell={selectedCell}
+                    setSelectedCell={setSelectedCell}
+                    editHistory={editHistory}
+                    setEditHistory={setEditHistory}
+                    colEditHistory={colEditHistory}
+                    setColEditHistory={setColEditHistory}
+                    hoveredAction={hoveredAction}
+                    updateConfirmedData={updateConfirmedData}
+                    setUndoStack={setUndoStack}
+                    setRedoStack={setRedoStack}
+                  />
+                  <TableButtons
+                    selectedCell={selectedCell}
+                    insertRowAbove={insertRowAbove}
+                    insertRowBelow={insertRowBelow}
+                    insertColumnLeft={insertColumnLeft}
+                    insertColumnRight={insertColumnRight}
+                    removeSelectedRow={removeSelectedRow}
+                    removeSelectedColumn={removeSelectedColumn}
+                    setHoveredAction={setHoveredAction}
+                  />
                 </>
               )}
             </div>
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="flex justify-between mt-10 flex-wrap gap-4">
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-          >
-            <ChevronLeft size={25} className="mr-2" />
-            Go to the last step
-          </button>
-
-          <button
-            type="button"
-            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-            onClick={() => setConfirmedData(structuredClone(originalData))}
-          >
-            <RotateCw size={20} className="mr-2" />
-            Restore original data
-          </button>
-
-          <button
-            type="submit"
-            className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-          >
-            Go to the next step
-            <ChevronRight size={25} className="ml-2" />
-          </button>
-        </div>
+        <NavButtons
+          onBack={() => navigate("/")}
+          onRestore={() => setConfirmedData(structuredClone(originalData))}
+          onNext={handleNext}
+        />
       </form>
     </div>
   );
