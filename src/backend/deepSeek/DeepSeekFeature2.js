@@ -1,6 +1,7 @@
 const { queryDeepSeekV3 } = require('./APIdeepseek.js');
 const prompts = require('./prompts/deepseekPrompts.js');
 
+// Generates the feature 2 prompt using input query and data, sends it to DeepSeek, and returns the parsed chart config.
 async function getGraphRecommendation(data){
     const prompt = prompts.feature2("", data);
     try {

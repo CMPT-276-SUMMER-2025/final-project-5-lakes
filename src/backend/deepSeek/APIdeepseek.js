@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
+// Sends a prompt to the DeepSeek Chat V3 model via OpenRouter API and returns the response content.
 async function queryDeepSeekV3(prompt) {
   try{
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {

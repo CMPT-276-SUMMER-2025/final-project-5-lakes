@@ -5,6 +5,7 @@ const Papa = require('papaparse'); // For CSV parsing
 const mammoth = require('mammoth'); // For Docx parsing
 const { convertToChartConfig } = require('./DeepSeekFeature1');
 
+// Parses file (CSV, XLSX, PDF, DOCX, TXT), extracts data, and runs DeepSeek feature 1
 async function parseFile(file){
     let filePath = null;
     try{

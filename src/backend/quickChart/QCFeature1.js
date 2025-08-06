@@ -3,6 +3,7 @@ const { getYValues } = require('./QCAdditionalFunctions.js');
 const { getScatterValues } = require('./QCAdditionalFunctions.js');
 const dummyChart = require('./dummyData/dummyChartConfig.js');
 
+// Generates a Chart.js configuration object for various chart types using multiple Y-axis datasets.
 function multipleDatasetsChartGenerator(type, labels, datasets, id) {
     const chart = dummyChart.find(c => c.id === id);
 
