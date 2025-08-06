@@ -8,11 +8,7 @@ EasyChart
 Nick Ze Kun Lei, Javier Deng Xu, Shelby Haines, Tony Junxiang Wu
 
 # Brief Description of Project
-A website that provides a simple way for users to visualize data, without having to learn complex tools. Users can upload data in various formats, and the platform will automatically generate relevant visualizations such as charts and graphs. These visuals can then be exported in various formats.
-
-**Brief Description of API changes from Milestone 0**
----
-In milestone 0, our team mentioned to use the OpenAI API for chart analysis, NLQ parsing, and smart selection. However, during our process in working on milestone 1, we figured that the OpenAI API did not offer a free tier. To compensate, we will be changing our API to DeepSeek's free APIs (Using OpenRouter, which allows free access to DeepSeek V3 0324) while maintaining identical features.
+A website that provides a simple way for users to visualize data, without having to learn complex tools. Users can upload data in various formats, and the platform will automatically generate relevant visualizations such as charts and graphs. These visuals can then be edited and exported in various formats.
 
 # Links
 **Project website link:** easychart-omega.vercel.app  
@@ -21,7 +17,7 @@ In milestone 0, our team mentioned to use the OpenAI API for chart analysis, NLQ
 **Project  M2 video link:**
 
 # Folder Structure
-This project is organized into directories for documentation, source code, and tools:
+This project is organized into directories for documentation, source code, and dependencies:
 
 - `docs/`: Contains project-related documents including our AI disclosure forms.   
 - `src/`: The main source code folder, split into:  
@@ -29,6 +25,7 @@ This project is organized into directories for documentation, source code, and t
   - `frontend/`: Frontend assets including the main HTML, configuration, React components, pages, styles, and utilities.  
 - Root files: Configuration and metadata such as `package.json` and lock files.
 
+Below is a simplified overview of our folder structure:
 ```bash
 final-project-5-lakes/
 ├── README.md
@@ -40,7 +37,6 @@ final-project-5-lakes/
 │   │   ├── server.js
 │   │   ├── deepSeek/
 │   │   ├── quickChart/
-│   │   ├── prompts/
 │   │   ├── uploads/
 │   │   └── __tests__/
 │   └── frontend/
@@ -48,12 +44,14 @@ final-project-5-lakes/
 │       ├── vite.config.js
 │       ├── project-src/
 │       │   ├── App.jsx
+│       │   ├── assets/
 │       │   ├── components/
+│       │   ├── hooks/
+│       │   ├── lib/
 │       │   ├── pages/
 │       │   ├── styles/
 │       │   └── utils/
 │       └── public/
-├── tools/
 ├── package.json
 └── package-lock.json
 ```
