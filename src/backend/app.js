@@ -206,7 +206,6 @@ app.delete('/reset-session', async (req, res) => {
         visualSelected: null,
         selectedOption: null,
     };
-    console.log('Session reset successfully');
     res.status(200).send('Session reset successfully');
 });
 

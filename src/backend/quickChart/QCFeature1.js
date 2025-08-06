@@ -96,6 +96,44 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
         }
     };
 
+    if (chart?.config) {
+        // Merge top-level fields like options, parsing
+        if (chart.config.options) {
+            chartConfig.options = {
+                ...chartConfig.options,
+                ...chart.config.options,
+                plugins: {
+                    ...chartConfig.options.plugins,
+                    ...chart.config.options.plugins,
+                    title: {
+                        ...chartConfig.options.plugins?.title,
+                        ...chart.config.options.plugins?.title,
+                        display: true,
+                        text: chart?.title || "Chart Title",
+                        font: {
+                            family: "Noto Sans",
+                            size: 24
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "X-axis"
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: "Y-axis"
+                        }
+                    }
+                }
+            };
+        }
+    }
+
 
     if (type == "scatter") {
         chartConfig.data.datasets[0].data = getScatterValues(labels, datasets);
@@ -136,29 +174,6 @@ function multipleDatasetsChartGenerator(type, labels, datasets, id) {
         }
     }
 
-    if (chart?.config) {
-        // Merge top-level fields like options, parsing
-        if (chart.config.options) {
-            chartConfig.options = {
-                ...chartConfig.options,
-                ...chart.config.options,
-                plugins: {
-                    ...chartConfig.options.plugins,
-                    ...chart.config.options.plugins,
-                    title: {
-                        ...chartConfig.options.plugins?.title,
-                        ...chart.config.options.plugins?.title,
-                        display: true,
-                        text: chart?.title || "Chart Title",
-                        font: {
-                            family: "Noto Sans",
-                            size: 24
-                        }
-                    }
-                }
-            };
-        }
-    }
 
     return chartConfig;
 }
