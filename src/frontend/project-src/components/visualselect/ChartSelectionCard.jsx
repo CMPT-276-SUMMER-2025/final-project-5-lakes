@@ -30,7 +30,7 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
     .then(async (response) => {
       const data = await response.json();
       if (!response.ok) {
-        const error = new Error(data.error || 'Something went wrong')
+        const error = new Error(data.error || 'Something went wrong');
         error.code = data.code || '';
         throw error;
       }
@@ -40,7 +40,7 @@ const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText 
       navigate("/edit-save", { state: data });
     })
     .catch(error => {
-      //console.warn(error.message);
+      alert(error.message, "Please try again.");
     });
   }
 

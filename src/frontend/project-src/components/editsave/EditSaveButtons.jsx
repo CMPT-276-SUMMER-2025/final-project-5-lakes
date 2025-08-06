@@ -6,6 +6,7 @@ import { useState } from 'react';
 import DownloadOptions from '../editsave/DownloadOptions';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-selected`;
+const resetUrl = `${import.meta.env.VITE_API_BASE_URL}/reset-session`
 
 function EditSaveButtons({ chartImageUrl }) {
 
@@ -50,21 +51,19 @@ function EditSaveButtons({ chartImageUrl }) {
             navigate("/visual-select", { state: data });
         })
         .catch(error => {
-            console.error("Error editing chart:", error);   
+            alert(error.message, 'Please try again.');
         });
     }
 
     const goBackHomepage = async () => {
         try {
-            await fetch(apiUrl, {
+            await fetch(resetUrl, {
                 method: "DELETE",
                 headers: { 'Content-Type': 'application/json' },
-                body: "{}",
                 credentials: 'include'
             });
             navigate("/");
         } catch (err) {
-            console.error("Error generating mock chart:", err);
             alert("Something went wrong generating the chart.");
         }
     };

@@ -30,7 +30,7 @@ async function queryDeepSeekV3(prompt) {
       return data.choices[0].message.content;
     }
     else{
-      const error = new Error ("Unexpected API response");
+      const error = new Error ("Unexpected API response.");
       error.code = '';
       error.status = 500;
       throw error;

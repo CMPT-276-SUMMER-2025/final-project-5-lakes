@@ -38,8 +38,7 @@ function VisualSelect() {
         },
       });
     } catch (error) {
-      console.error("Error retrieving session data:", error);
-      alert("Failed to retrieve session data. Please try again.");
+      alert(error.message, "Please try again.");
     }
   };
 
