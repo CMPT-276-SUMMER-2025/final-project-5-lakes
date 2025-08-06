@@ -1,8 +1,12 @@
 import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
 
+// NavButtons: Renders three navigation buttons for going back, restoring data, and proceeding to the next step
 function NavButtons({ onBack, onRestore, onNext }) {
   return (
+    // Container with spacing and wrap support for responsiveness
     <div className="flex justify-between mt-10 flex-wrap gap-4">
+
+      {/* Back button — go back to previous step */}
       <button
         type="button"
         onClick={onBack}
@@ -12,6 +16,7 @@ function NavButtons({ onBack, onRestore, onNext }) {
         Use different data
       </button>
 
+      {/* Restore button — resets table to original parsed data */}
       <button
         type="button"
         onClick={onRestore}
@@ -21,6 +26,7 @@ function NavButtons({ onBack, onRestore, onNext }) {
         Restore original data
       </button>
 
+      {/* Next button — submits the current table and moves to the next step */}
       <button
         type="submit"
         onClick={onNext}

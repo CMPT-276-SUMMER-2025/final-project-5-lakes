@@ -2,6 +2,7 @@
 
 import "../../styles/PageLoader.css";
 
+// This component displays a stylized animated loader 
 function PageLoader() {
   return (
     <div className="loader mx-auto my-8">
