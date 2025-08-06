@@ -169,7 +169,7 @@ const labelsSeparatorPrompt = `
                 Data should be considered INVALID if any of the following apply:
                 - The table is missing or not present.
                 - The table contains empty or missing values.
-                - The table only contains 1 row or 1 column.
+                - The table contains less than 2 rows or 2 columns.
                 - The table contains more than 50 rows or 50 columns.
                 - Column headers (labels) are missing or unclear.
                 - The table has inconsistent row lengths or structure.
