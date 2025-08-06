@@ -67,52 +67,51 @@ function EditData() {
 
   // Handle form submission
   const handleNext = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
+    e.preventDefault();
+    setIsLoading(true);
 
-  const formattedData = convertTableToDeepSeekFormat(confirmedData);
+    const formattedData = convertTableToDeepSeekFormat(confirmedData);
 
-  try {
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        edittedData: formattedData
-      }),
-      credentials: "include",
+    fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          edittedData: formattedData
+        }),
+        credentials: "include",
+      })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          const error = new Error(data.error || "Something went wrong");
+          error.code = data.code || "";
+          throw error;
+        }
+      })
+      .then((data) => {
+        navigate("/visual-select", { state: data, replace: true });
+      })
+      .catch((error) => {
+      if (error.code === "INVALID_EDITED_TABLE") {
+        showAlert(
+          "error",
+          "Editing Failed",
+          `We could not generate the chart: ${error.message}`,
+          "Okay"
+        );
+      } else {
+        showAlert(
+          "error",
+          "Generation Failed",
+          `We could not generate the chart: ${error.message} Please try again later.`,
+          "Okay"
+        );
+      }
+    })
+    .finally(() => {
+      setIsLoading(false);
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      const error = new Error(data.error || "Something went wrong");
-      error.code = data.code || "";
-      throw error;
-    }
-
-    navigate("/visual-select", { state: data, replace: true });
-    
-  } catch (error) {
-    if (error.code === "INVALID_EDITED_TABLE") {
-      showAlert(
-        "error",
-        "Editing Failed",
-        `We could not generate the chart: ${error.message}`,
-        "Okay"
-      );
-    } else {
-      showAlert(
-        "error",
-        "Generation Failed",
-        `We could not generate the chart: ${error.message} Please try again later.`,
-        "Okay"
-      );
-    }
-  }
-  finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   // Insert row functions
   const insertRowAbove = (index) => {
