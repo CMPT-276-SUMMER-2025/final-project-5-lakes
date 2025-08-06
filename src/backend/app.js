@@ -9,6 +9,7 @@ const { generateDummyChart } = require('./quickChart/QCGenerateDummyChart.js');
 const { multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js');
 const path = require('path');
 const fs = require('fs');
+const { stringify } = require('querystring');
 
 const app = express();
 
@@ -210,4 +211,4 @@ app.delete('/reset-session', async (req, res) => {
     res.status(200).send('Session reset successfully');
 });
 
-module.exports = app;
+module.exports = {app, sessionData};
