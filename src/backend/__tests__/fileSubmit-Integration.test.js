@@ -1,5 +1,17 @@
+jest.resetModules();
+
+jest.mock('../deepSeek/DeepSeekFeature1.js', () => ({
+  convertToChartConfig: jest.fn(() => 
+    Promise.resolve([
+      { "Name": "Alice", "Score": "85" },
+      { "Name": "Bob", "Score": "90" },
+      { "Name": "Charlie", "Score": "78" }
+    ])
+  )
+}));
+
 const request = require('supertest');
-const app = require('../app.js');
+const { app } = require('../app.js');
 const path = require('path');
 const fs = require('fs');
 
@@ -19,16 +31,6 @@ afterAll(() => {
         fs.rmdirSync(tempDir, { recursive: true });
     }
 });
-
-jest.mock('../deepSeek/DeepSeekFeature1.js', () => ({
-  convertToChartConfig: jest.fn(() => {
-    return Promise.resolve([
-      { "Name": "Alice", "Score": "85" },
-      { "Name": "Bob", "Score": "90" },
-      { "Name": "Charlie", "Score": "78" }
-    ]);
-  })
-}));
 
 describe('Integration test of file upload flow', () => {
     test('uploads file and hits backend endpoint', async () => {

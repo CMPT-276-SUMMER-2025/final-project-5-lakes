@@ -14,15 +14,7 @@ async function getGraphRecommendation(data){
             error.code = '';
             error.status = 500;
             throw error;
-        }
-
-        if (!result.types) {
-            const error = new Error ('Unexpected API response');
-            error.code = '';
-            error.status = 500;
-            throw error;
-        }
-            
+        } 
         return result;
     } catch (error) {
         throw error;

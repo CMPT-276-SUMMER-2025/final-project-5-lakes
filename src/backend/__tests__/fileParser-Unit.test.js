@@ -1,3 +1,15 @@
+jest.resetModules();
+
+jest.mock('../deepSeek/APIdeepseek.js', () => ({
+  queryDeepSeekV3: jest.fn(() => 
+    Promise.resolve(JSON.stringify([
+      { "Name": "Alice", "Score": "85" },
+      { "Name": "Bob", "Score": "90" },
+      { "Name": "Charlie", "Score": "78" }
+    ]))
+  )
+}));
+
 const path = require('path');
 const fs = require('fs');
 
@@ -11,7 +23,6 @@ const tempPDFPath = path.join(tempUnitDir, 'temp_sample.pdf');
 const tempTXTPath = path.join(tempUnitDir, 'temp_sample.txt');
 const tempXLSXPath = path.join(tempUnitDir, 'temp_sample.xlsx');
 
-// Create dummy dir and file
 beforeAll(async() => {
     fs.mkdirSync(tempUnitDir);
 
@@ -39,26 +50,13 @@ beforeAll(async() => {
     fs.writeFileSync(tempXLSXPath, buffer);
 });
 
-// Delete dummy dir (files are deleted in the parseFile function)
 afterAll(async () => {
     if (fs.existsSync(tempUnitDir)) {
         await fs.promises.rm(tempUnitDir, { recursive: true, force: true });
     }
 });
 
-
-jest.mock('../deepSeek/APIdeepseek.js', () => ({
-  queryDeepSeekV3: jest.fn(() => {
-    return Promise.resolve(JSON.stringify([
-      { "Name": "Alice", "Score": "85" },
-      { "Name": "Bob", "Score": "90" },
-      { "Name": "Charlie", "Score": "78" }
-    ]));
-  })
-}));
-
-//Test functions of which does not simply call DeepSeek
-describe('Unit test functions', () => {
+describe('Unit test for File-Parser', () => {
   test('parses CSV', async () => {
     const mockFile = {
       mimetype: 'text/csv',
