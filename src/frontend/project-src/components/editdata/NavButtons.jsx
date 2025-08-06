@@ -9,7 +9,7 @@ function NavButtons({ onBack, onRestore, onNext }) {
         className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
       >
         <ChevronLeft size={25} className="mr-2" />
-        Go to the last step
+        Use different data
       </button>
 
       <button
