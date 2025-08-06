@@ -101,14 +101,14 @@ function EditData() {
       showAlert(
         "error",
         "Editing Failed",
-        `We could not generate the chart: ${error.message}.`,
+        `We could not generate the chart: ${error.message}`,
         "Okay"
       );
     } else {
       showAlert(
         "error",
         "Generation Failed",
-        `We could not generate the chart: ${error.message}.. Please try again later.`,
+        `We could not generate the chart: ${error.message} Please try again later.`,
         "Okay"
       );
     }

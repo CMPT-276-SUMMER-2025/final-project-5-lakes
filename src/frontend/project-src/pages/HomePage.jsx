@@ -75,7 +75,7 @@ function HomePage() {
         showAlert(
           'error',
           'Extraction Failed',
-          `We could not parse the file: ${error.message}.`,
+          `We could not parse the file: ${error.message}`,
           'Okay',
           () => navigate('/')
         )
@@ -83,7 +83,7 @@ function HomePage() {
         showAlert(
           'error',
           'Submission Error',
-          `We could not parse the file: ${error.message}. Please try again later.`,
+          `We could not parse the file: ${error.message} Please try again later.`,
           'Okay',
           () => navigate('/')
         )
