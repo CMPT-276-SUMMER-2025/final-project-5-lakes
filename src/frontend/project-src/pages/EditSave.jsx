@@ -99,9 +99,10 @@ function EditSave() {
                 chartConfig.options.plugins.legend = {
                     display: legend,
                     labels: {
+                        color: textColor,
                         font: {
                             family: "Noto Sans",
-                            size: fontSize
+                            size: fontSize,
                         }
                     }
                 };
@@ -110,16 +111,18 @@ function EditSave() {
                 chartConfig.options.scales = {
                     y: {
                         ticks: {
+                            color: textColor,
                             font: {
                                 family: "Noto Sans",
-                                size: fontSize
+                                size: fontSize,
                             }
                         },
                         title: {
                             text: tempYAxisTitle,
+                            color: textColor,
                             font: {
                                 family: "Noto Sans",
-                                size: fontSize
+                                size: fontSize,
                             }
                         },
                         grid: {
@@ -128,16 +131,18 @@ function EditSave() {
                     },
                     x: {
                         ticks: {
+                            color: textColor,
                             font: {
                                 family: "Noto Sans",
-                                size: fontSize
+                                size: fontSize,
                             }
                         },
                         title: {
                             text: tempXAxisTitle,
+                            color: textColor,
                             font: {
                                 family: "Noto Sans",
-                                size: fontSize
+                                size: fontSize,
                             }
                         },
                         grid: {

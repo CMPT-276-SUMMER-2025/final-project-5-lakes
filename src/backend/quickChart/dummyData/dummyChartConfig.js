@@ -36,6 +36,28 @@ const dummyChart = [
             },
             options: {
                 indexAxis: "y",
+                scales: {
+                    x: {
+                        ticks: {
+                            color: "#000",
+                        },
+                        title: {
+                            display: true,
+                            text: "X-axis",
+                            color: "#000",
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: "#000",
+                        },
+                        title: {
+                            display: true,
+                            text: "Y-axis",
+                            color: "#000",
+                        }
+                    }
+                }
             },
         },
     },
@@ -111,9 +133,29 @@ const dummyChart = [
             },
             options: {
                 scales: {
-                x: { stacked: true },
-                y: { stacked: true },
-                },
+                    x: { 
+                        stacked: true,
+                        ticks: {
+                            color: "#000",
+                        },
+                        title: {
+                            display: true,
+                            text: "X-axis",
+                            color: "#000",
+                        }
+                    },
+                    y: { 
+                        stacked: true,
+                        ticks: {
+                            color: "#000",
+                        },
+                        title: {
+                            display: true,
+                            text: "Y-axis",
+                            color: "#000",
+                        }
+                    },
+                }
             },
         },
     },
