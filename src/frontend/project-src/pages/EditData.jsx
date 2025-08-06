@@ -248,10 +248,17 @@ function EditData() {
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
       
       {showInfoPopUp && (
-        <div className="absolute left-20 top-20 z-50">
+        <div className="absolute center right-20 z-50">
           <InfoPopUp
-            title="Data Extracted"
-            message="This is all the info that was extracted from your upload. Please delete any columns or information you don't want to use."
+            title="Additional Information"
+            message={
+              <>
+                Here is all the data extracted from your upload. Please review and remove any information you don't want included in the graphs.<br /><br />
+                <span className="text-sm">
+                  (Note: If your titles have a number suffix (e.g., #1, #2), each number represents a unique dataset.)
+                </span>
+              </>
+            }
             onButtonClick={handleInfoPopUpClick}
           />
         </div>
