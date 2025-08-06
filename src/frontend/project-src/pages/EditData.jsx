@@ -87,6 +87,7 @@ function EditData() {
           error.code = data.code || "";
           throw error;
         }
+        return data;
       })
       .then((data) => {
         navigate("/visual-select", { state: data, replace: true });
