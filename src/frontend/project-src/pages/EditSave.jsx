@@ -259,12 +259,7 @@ function EditSave() {
                     {/* Display the chart image */}
                     <div className="w-full md:w-[55%] bg-white rounded-xl p-4 sm:p-6 shadow-lg relative">
                         <div>
-                            <h2 className="font-semibold flex items-center justify-center gap-4 mb-2">
-                                Edit Chart
-                            </h2>
-
-                            {/* Buttons for undo/redo functionality */}
-                            <div className="flex ml-6 space-x-3">
+                            <div className="flex ml-6 space-x-3 justify-center mb-4">
                                 <button
                                     onClick={handleUndoLocal}
                                     disabled={historyIndex === 0}

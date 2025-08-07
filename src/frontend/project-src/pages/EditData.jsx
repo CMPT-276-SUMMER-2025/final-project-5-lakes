@@ -50,8 +50,7 @@ function EditData() {
     const {table: currentTable}  = convertDeepSeekToTable(edittedData);
 
     setConfirmedData(structuredClone(currentTable));
-    setUndoStack([]);
-    setRedoStack([]);
+    setUndoStack([structuredClone(currentTable)]);
     setOriginalData(structuredClone(originalTable));
   }, [parsedData, edittedData, navigate]);
 
@@ -222,8 +221,6 @@ function EditData() {
 
   // Undo/Redo functionalities
   const updateConfirmedData = (newData) => {
-    setUndoStack((prev) => [...prev, structuredClone(confirmedData)]);
-    setRedoStack([]); 
     setConfirmedData(newData);
   };
 
