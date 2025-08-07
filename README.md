@@ -79,7 +79,7 @@ _To find a record of all our current and fixed bugs, you can filter through our 
 Our website is designed so that you can upload your own data and generate clear, insightful data visualizations. Below we have linked two example reports you can try out to see how it works.
 
 [Quarterly Financial Performance Report](docs/example-files/Quarterly-Financial-Performance-Report.pdf)  
-This report provides an overview of a mock company’s financial performance across the four quarters of the year, focusing on both profit figures and ROI.
+This report provides an overview of a mock company’s financial performance across the four quarters of the year, focusing on profit figures.
 
 [Correlation Between Study Time and Exam Performance](docs/example-files/Study-Time-Grades-Correlation.pdf)  
 This report explores the connection between time spent studying and average exam results for students.
