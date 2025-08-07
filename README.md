@@ -75,3 +75,11 @@ _To find a record of all our current and fixed bugs, you can filter through our 
 - QuickChart API for chart rendering  
 - DeepSeek API for data analysis  
 - Tailwind CSS for styling  
+
+# Example Usage
+To test out our website, here are some sample files you can upload.  
+[Word Document](src/backend/__tests__/files/docx/complex_sample.docx)
+[PDF](src/backend/__tests__/files/pdf/complex_sample.pdf)
+[Excel Spreadsheet](src/backend/__tests__/files/xlsx/simple_sample.xlsx)
+
+You can find additional sample files in multiple different formats in `src/backend/__tests__/files`
