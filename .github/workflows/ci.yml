@@ -49,6 +49,11 @@ jobs:
         working-directory: ./src/frontend
         run: npm run build
 
+      # Run frontend tests
+      - name: Run frontend tests
+        working-directory: ./src/frontend
+        run: npm test -- --coverage --watchAll=false
+
       # Run backend tests
       - name: Run backend tests
         working-directory: ./src/backend

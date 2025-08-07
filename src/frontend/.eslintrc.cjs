@@ -2,6 +2,7 @@ module.exports = {
   env: {
     browser: true,
     es2020: true,
+    jest: true,
   },
   extends: [
     'eslint:recommended',
@@ -27,4 +28,13 @@ module.exports = {
     },
   },
   ignorePatterns: ['dist'],
+  overrides: [
+    {
+      files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+      env: {
+        jest: true,
+        node: true, // also enables `global`
+      },
+    },
+  ],
 };

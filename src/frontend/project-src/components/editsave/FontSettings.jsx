@@ -1,5 +1,5 @@
 // Allows users to choose font family and font size for chart text
-
+import React from 'react';
 import { Edit3 } from 'lucide-react';
 
 // Predefined list of Google Noto fonts supported by QuickChart

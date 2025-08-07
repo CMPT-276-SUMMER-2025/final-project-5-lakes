@@ -1,5 +1,5 @@
 // Allows user to edit and update the X and Y axis titles
-
+import React from 'react';
 import { TextCursorInput } from 'lucide-react';
 
 const AxisTitleSettings = ({ 

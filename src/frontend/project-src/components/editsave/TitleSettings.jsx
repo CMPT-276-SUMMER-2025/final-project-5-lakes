@@ -1,5 +1,5 @@
 // TitleSettings: Allows the user to input and update the chart's title
-
+import React from 'react';
 import { Text } from 'lucide-react';
 
 const TitleSettings = ({ 
