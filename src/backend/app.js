@@ -48,6 +48,18 @@ app.get('/get-session-data', async (req, res) => {
 
 // Handles file uploads or raw text input, parses the content, and stores session data.
 app.post('/file-submit', upload.array('files'), async (req, res) => {
+    sessionData.uploadedFile = null;
+    sessionData.parsedData = null;
+    sessionData.edittedData = null;
+    sessionData.chartConfig = null;
+    sessionData.labels = null;
+    sessionData.summary = null;
+    sessionData.graphRecommendation = null;
+    sessionData.styleConfig = null;
+    sessionData.chartOptions = null;
+    sessionData.visualSelected = null;
+    sessionData.selectedOption = null;
+
     const files = req.files;
     const text = req.body.text;
     if (!files || files.length === 0) {
