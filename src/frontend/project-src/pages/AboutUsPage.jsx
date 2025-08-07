@@ -1,87 +1,70 @@
+// This page provides information about the EasyChart application, its mission, and our team.
+
 import { PlusCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const teamMembers = [
-  {
-    name: "Shelby Haines",
-    role: "Project Manager, Frontend Developer",
-    bio: "Short bio or contribution summary.",
-  },
-  {
-    name: "Tony Wu",
-    role: "Frontend Developer, UI Designer",
-    bio: "Short bio or contribution summary.",
-  },
-  {
-    name: "Nick Lei",
-    role: "Backend Developer, API Integration",
-    bio: "Short bio or contribution summary.",
-  },
-  {
-    name: "Javier Deng Xu",
-    role: "Backend Developer, API Integration",
-    bio: "Short bio or contribution summary.",
-  },
-];
+import teamPhoto from "../assets/about-pictures/team-picture.png";
 
 function AboutUs() {
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-12">
-      <h1 className="text-4xl font-bold text-center mb-14">About EasyChart</h1>
+    <div className="min-h-screen bg-gray-50 px-6 py-12 font-inter">
+      {/* Page Title */}
+      <h1 className="text-4xl font-bold text-center mb-14 text-gray-800">About EasyChart</h1>
 
-      {/* Section Cards */}
+      {/* Description Sections */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto mb-20">
-        {/* About EasyChart */}
+        {/* What is EasyChart */}
         <div className="bg-white shadow-lg rounded-2xl p-6">
           <h2 className="text-xl font-semibold mb-3 text-blue-600 text-center">What is EasyChart?</h2>
-          <p className="text-gray-700 text-sm leading-relaxed">
-            EasyChart is a web app that helps you create professional data visualizations instantly.
-            Just upload a file—PDF, DOCX, Excel—and we’ll auto-generate charts you can customize
-            and export. No Excel skills, no steep learning curve—just clean, clear visuals.
+          <p className="text-gray-700 text-md leading-relaxed">
+            EasyChart is a web application designed to simplify the process of turning data into
+            visual stories. Whether you're working with PDFs, spreadsheets, or raw text, we help you
+            generate clean, clear charts that are easy to customize and ready to share.
           </p>
         </div>
 
         {/* Our Mission */}
         <div className="bg-white shadow-lg rounded-2xl p-6">
           <h2 className="text-xl font-semibold mb-3 text-blue-600 text-center">Our Mission</h2>
-          <p className="text-gray-700 text-sm leading-relaxed">
-            Our goal is to break down the barriers to effective data visualization. We want to give
-            students, educators, and professionals a fast, accessible way to turn complex data into
-            meaningful, presentation-ready visuals.
+          <p className="text-gray-700 text-md leading-relaxed">
+            Our mission is to make data visualization accessible to everyone—no technical background
+            required. We believe that good visuals help people communicate better, and our goal is
+            to eliminate the complexity behind chart creation so that anyone can tell their story
+            with data.
           </p>
         </div>
 
-        {/* Who We Built This For */}
+        {/* Who We Help */}
         <div className="bg-white shadow-lg rounded-2xl p-6">
           <h2 className="text-xl font-semibold mb-3 text-blue-600 text-center">Who We Help</h2>
-          <p className="text-gray-700 text-sm leading-relaxed">
-            Whether you're a student rushing to finish a project, a teacher building worksheets,
-            or a manager preparing a report—EasyChart gives you clear, customizable charts without
-            the tech headache.
+          <p className="text-gray-700 text-md leading-relaxed">
+            EasyChart is built for students, educators, professionals, and anyone who needs to
+            quickly turn information into visuals. Whether it's for a class project, team meeting,
+            or research presentation, we're here to help you make charts that speak for themselves.
           </p>
         </div>
       </div>
 
-      {/* Meet the Team Section */}
-      <h2 className="text-3xl font-bold text-center mb-10">Meet the Team</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          {teamMembers.map((member, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center text-center"
-            >
-              <h3 className="text-xl font-semibold mb-1">{member.name}</h3>
-              <p className="text-blue-600 text-sm font-medium mb-2">{member.role}</p>
-              <p className="text-gray-600 text-sm">{member.bio}</p>
-            </div>
-          ))}
-        </div>
+      {/* Meet the Team */}
+      <div className="max-w-4xl mx-auto text-center mb-20">
+        <img
+          src={teamPhoto}
+          alt="Our Team"
+          className="rounded-xl shadow-md w-full h-auto mb-6 object-cover"
+        />
+        <p className="text-gray-700 text-base leading-relaxed">
+          We’re a team of passionate student developers and designers who created EasyChart as part
+          of a university project. Our diverse skill sets in frontend, backend, and UI/UX design
+          came together to solve a simple but important problem: making data visualization easier
+          for everyone. From brainstorming to deployment, we’ve worked collaboratively to build a
+          tool that empowers users to focus on their message, not the software.
+        </p>
+      </div>
 
       {/* CTA Button */}
       <div className="text-center">
         <Link
           to="/"
-          className="inline-flex items-center justify-center px-6 py-3 mt-12 text-lg font-medium rounded-md shadow-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
+          className="inline-flex items-center justify-center px-6 py-3 text-lg font-medium rounded-md shadow-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200"
         >
           <PlusCircle size={24} className="mr-2" />
           Create a Chart

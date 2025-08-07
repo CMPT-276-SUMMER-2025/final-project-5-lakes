@@ -1,3 +1,4 @@
+// This component displays a stylized animated loader 
 // Source code: https://uiverse.io/Nawsome/curly-goose-54
 
 import "../../styles/PageLoader.css";

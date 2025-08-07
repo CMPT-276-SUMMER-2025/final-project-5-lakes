@@ -1,3 +1,6 @@
+// Reusable informational alert component.
+// Displays an info icon, a title, a message, and an optional confirmation button.
+
 import { Info } from 'lucide-react';
 
 const InfoPopUp = ({
@@ -11,6 +14,7 @@ const InfoPopUp = ({
     return null; 
   }
 
+  // Styling
   const infoAlertStyles = 'bg-blue-50 border-blue-400 text-blue-800';
   const infoIconComponent = <Info className="w-6 h-6 mr-3" />;
   const infoButtonStyles = 'bg-white border-blue-400 text-blue-700 hover:bg-blue-100';
@@ -26,16 +30,18 @@ const InfoPopUp = ({
       `}
       role="alert"
     >
-
+      {/* Icon and title */}
       <div className="flex items-center mb-4"> 
         {infoIconComponent}
         <span className="font-bold text-lg">{title}</span>
       </div>
 
+      {/* Message body */}
       <p className="text-base leading-relaxed mb-6">
         {message}
       </p>
 
+      {/* Optional action button */}
       {onButtonClick && (
         <button
           onClick={onButtonClick}

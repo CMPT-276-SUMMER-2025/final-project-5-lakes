@@ -1,3 +1,8 @@
+// This component renders three buttons: 
+// 1) Go back to the last editing step
+// 2) Start creating a new chart (with warning)
+// 3) Download the current chart (opens modal)
+
 import { ChevronLeft, CirclePlus, Download } from 'lucide-react';
 import useWarningAlert from '../../hooks/useWarningAlert';
 import DefaultWarning from '../messages/DefaultWarning';
@@ -6,103 +11,110 @@ import { useState } from 'react';
 import DownloadOptions from '../editsave/DownloadOptions';
 
 const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-selected`;
-const resetUrl = `${import.meta.env.VITE_API_BASE_URL}/reset-session`
+const resetUrl = `${import.meta.env.VITE_API_BASE_URL}/reset-session`;
 
 function EditSaveButtons({ chartImageUrl }) {
-
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Warning alert state + control handlers
   const {
-  isWarningVisible,
-  warningConfig,
-  showWarning,
-  hideWarning,
-} = useWarningAlert();
+    isWarningVisible,
+    warningConfig,
+    showWarning,
+    hideWarning,
+  } = useWarningAlert();
 
-    const location = useLocation();
-    const { chartConfig } = location.state || {};
+  const location = useLocation();
+  const { chartConfig } = location.state || {};
 
-    const editConfig = {
-        chartLabel: chartConfig.chartLabel,
-        chartData: chartConfig.chartData,
-        chartOptions: chartConfig.chartOptions,
-        chartStyle: chartConfig.chartStyle,
-        chartTheme: chartConfig.chartTheme,
-    };
+  // Prepare chart data to POST back for re-editing
+  const editConfig = {
+    chartLabel: chartConfig.chartLabel,
+    chartData: chartConfig.chartData,
+    chartOptions: chartConfig.chartOptions,
+    chartStyle: chartConfig.chartStyle,
+    chartTheme: chartConfig.chartTheme,
+  };
 
-    const handleGoToLastStep = async () => {
-        fetch(apiUrl, {
-            method: "POST",
-            body: JSON.stringify(editConfig),
-            headers: {
-                "Content-Type": "application/json"
-            }
-        })
-        .then(async (response) => {
-            const data = await response.json();
-            if (!response.ok) {
-                const error = new Error(data.error || 'Something went wrong')
-                error.code = data.code || '';
-                error.status = response.status || 500;
-                throw error;
-            }
-            return data;
-        })
-        .then(data => {
-            navigate("/visual-select", { state: data });
-        })
-        .catch(error => {
-            alert(error.message, 'Please try again.');
-        });
-    }
-
-    const goBackHomepage = async () => {
-        try {
-            await fetch(resetUrl, {
-                method: "DELETE",
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include'
-            });
-            navigate("/");
-        } catch (err) {
-            alert("Something went wrong generating the chart.");
+  // Handle "Go to last step" button
+  const handleGoToLastStep = async () => {
+    fetch(apiUrl, {
+      method: "POST",
+      body: JSON.stringify(editConfig),
+      headers: { "Content-Type": "application/json" },
+    })
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) {
+          const error = new Error(data.error || 'Something went wrong');
+          error.code = data.code || '';
+          error.status = response.status || 500;
+          throw error;
         }
-    };
+        return data;
+      })
+      .then((data) => {
+        navigate("/visual-select", { state: data });
+      })
+      .catch((error) => {
+        alert(error.message || 'Something went wrong. Please try again.');
+      });
+  };
 
-    return (
-        <div className="flex justify-between mt-10 flex-wrap gap-4">
-            <button
-                onClick={handleGoToLastStep}
-                className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
-            >
-                <ChevronLeft size={25} className="mr-2" />
-                Go to the last step
-            </button>
+  // Handle chart reset and navigation to homepage
+  const goBackHomepage = async () => {
+    try {
+      await fetch(resetUrl, {
+        method: "DELETE",
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      navigate("/");
+    } catch (err) {
+      alert("Something went wrong generating the chart.");
+    }
+  };
 
+  return (
+    <div className="flex justify-between mt-10 flex-wrap gap-4">
+
+      {/* Back to last editing step */}
       <button
-        onClick={() => {
-            showWarning(
-              'Did you download your chart?',
-              'Your progress will not be saved if you start creating a new chart. Please make sure you downloaded your chart if needed.',
-              'Make a New Chart'
-            );
-          }}
+        onClick={handleGoToLastStep}
+        className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
+      >
+        <ChevronLeft size={25} className="mr-2" />
+        Go to the last step
+      </button>
+
+      {/* Make new chart (with warning) */}
+      <button
+        onClick={() =>
+          showWarning(
+            'Did you download your chart?',
+            'Your progress will not be saved if you start creating a new chart. Please make sure you downloaded your chart if needed.',
+            'Make a New Chart'
+          )
+        }
         className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
       >
         <CirclePlus size={25} className="mr-3" />
         Create another chart
       </button>
 
+      {/* Download chart */}
       <button
-        className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
         onClick={() => setIsDownloadModalOpen(true)}
+        className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
       >
         <Download size={18} strokeWidth={4} className="mr-2" />
         Download this chart
       </button>
 
+      {/* Warning modal for creating a new chart */}
       {isWarningVisible && (
-        <div className="fixed inset-0  bg-opacity-40 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-opacity-40 z-50 flex items-center justify-center">
           <DefaultWarning
             isVisible={isWarningVisible}
             title={warningConfig.title}
@@ -112,14 +124,13 @@ function EditSaveButtons({ chartImageUrl }) {
               hideWarning();
               goBackHomepage();
             }}
-            onCancel={() => {
-              hideWarning(); 
-            }}
+            onCancel={hideWarning}
             cancelText="Cancel"
           />
         </div>
       )}
 
+      {/* Download format selection modal */}
       {isDownloadModalOpen && (
         <DownloadOptions
           onClose={() => setIsDownloadModalOpen(false)}
@@ -128,7 +139,6 @@ function EditSaveButtons({ chartImageUrl }) {
       )}
     </div>
   );
-
 }
 
 export default EditSaveButtons;

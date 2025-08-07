@@ -1,8 +1,17 @@
-import EditSaveButtons from "../components/editsave/EditSaveButtons";
+// This is page 4 where users can edit and save their chart
+
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import ProgressStepper from "../components/layout/ProgressStepper";
 import { Loader2, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';
+
+import FontSettings from '../components/editsave/FontSettings';
+import TitleSettings from '../components/editsave/TitleSettings';
+import AxisTitleSettings from '../components/editsave/AxisTitleSettings';
+import DatasetSelection from '../components/editsave/DatasetSelection';
+import ColorSettings from '../components/editsave/ColorSettings';
+import GridLegendSettings from '../components/editsave/GridLegendSettings';
+import ProgressStepper from "../components/layout/ProgressStepper";
+import EditSaveButtons from "../components/editsave/EditSaveButtons";
 import {
     getTitleFontSize,
     getBaseFontSize,
@@ -20,22 +29,12 @@ import {
     handleGridLines,
     handleLegend
 } from '../utils/EditSaveUtils';
-import FontSettings from '../components/editsave/FontSettings';
-import TitleSettings from '../components/editsave/TitleSettings';
-import AxisTitleSettings from '../components/editsave/AxisTitleSettings';
-import DatasetSelection from '../components/editsave/DatasetSelection';
-import ColorSettings from '../components/editsave/ColorSettings';
-import GridLegendSettings from '../components/editsave/GridLegendSettings';
 
 const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=white&v=4&c=";
 
 function EditSave() {
-    const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
-    // const chartImageUrl = 'https://dummyimage.com/600x600'; 
     const location = useLocation();
     const { chartConfig: initialConfig, labels: labels } = location.state || {};
-    const [showBackgroundPicker, setShowBackgroundPicker] = useState(false);
-    const [showTextPicker, setShowTextPicker] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
@@ -59,7 +58,6 @@ function EditSave() {
     const [datasetSelected, setDatasetSelected] = useState(0);
     const [segmentSelected, setSegmentSelected] = useState(0);
     
-    // Track selection history for undo/redo
     const [selectionHistory, setSelectionHistory] = useState([{ dataset: 0, segment: 0 }]);
 
     const [tempXAxisTitle, setTempXAxisTitle] = useState("X-axis");
@@ -77,7 +75,6 @@ function EditSave() {
           setGridLines(false);
         }
     }, [chartConfig?.type]);
-      
 
     useEffect(() => {
         if (chartConfig && chartConfig.options) {
@@ -259,40 +256,38 @@ function EditSave() {
                     <div className="w-full md:w-[55%] bg-white rounded-xl p-4 sm:p-6 shadow-lg relative">
                         <div>
                             <h2 className="font-semibold flex items-center justify-center gap-4 mb-2">
-                            {/* <Edit3 size={30} />
-                            Edit Chart */}
+                                Edit Chart
+                            </h2>
 
                             <div className="flex ml-6 space-x-3">
                                 <button
-                                onClick={handleUndoLocal}
-                                disabled={historyIndex === 0}
-                                className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Undo"
-                                >
-                                <RotateCcw size={18} />
+                                    onClick={handleUndoLocal}
+                                    disabled={historyIndex === 0}
+                                    className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title="Undo"
+                                    >
+                                    <RotateCcw size={18} />
                                 </button>
 
                                 <button
-                                onClick={handleRedoLocal}
-                                disabled={historyIndex === history.length - 1}
-                                className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Redo"
-                                >
-                                <RotateCw size={18} />
+                                    onClick={handleRedoLocal}
+                                    disabled={historyIndex === history.length - 1}
+                                    className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    title="Redo"
+                                    >
+                                    <RotateCw size={18} />
                                 </button>
 
                                 <button
-                                onClick={handleResetLocal}
-                                className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100"
-                                title="Reset"
-                                >
-                                <RefreshCw size={18} />
+                                    onClick={handleResetLocal}
+                                    className="flex items-center gap-1 px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100"
+                                    title="Reset"
+                                    >
+                                    <RefreshCw size={18} />
                                 </button>
                             </div>
-                            </h2>
-
-                            {/* !!!! this is where the image is shown */}
                             <>
+                                {/* Loader overlay */}
                                 {isLoading && (
                                     <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-md z-10" style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
                                         <Loader2 size={48} className="animate-spin text-blue-500" />

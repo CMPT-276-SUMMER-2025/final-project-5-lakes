@@ -1,4 +1,6 @@
-// Source code: https://uiverse.io/Nawsome/curly-goose-54
+// Displays a stylized animated loader 
+
+// Source: https://uiverse.io/Nawsome/curly-goose-54
 
 import "../../styles/PageLoader.css";
 

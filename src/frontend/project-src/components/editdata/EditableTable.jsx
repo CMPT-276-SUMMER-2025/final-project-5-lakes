@@ -1,3 +1,6 @@
+// Renders an interactive spreadsheet-like table where users can edit cells and column headers.
+// Tracks changes for undo/redo functionality and handles row/column selection.
+
 function EditableTable({
   tableRef,
   confirmedData,
@@ -13,17 +16,21 @@ function EditableTable({
   setRedoStack,
 }) {
   return (
+    // Wrapper div with scrollable container
     <div ref={tableRef} className="overflow-auto border max-w-full max-h-[400px]">
       <table className="w-full min-w-max border border-gray-300">
         <thead>
           <tr>
+            {/* Render editable column headers */}
             {confirmedData.columns.map((col, colIdx) => (
               <th key={colIdx} className="border px-3 py-2 bg-gray-100">
                 <input
                   value={col}
+                  // Select the column header when clicked
                   onClick={() =>
                     setSelectedCell({ row: -1, col: colIdx })
                   }
+                  // Save snapshot of state for undo when focusing the header
                   onFocus={() => {
                     setSelectedCell({ row: -1, col: colIdx });
                     setColEditHistory({
@@ -32,11 +39,13 @@ function EditableTable({
                       snapshot: structuredClone(confirmedData),
                     });
                   }}
+                  // Update column name on change
                   onChange={(e) => {
                     const updated = structuredClone(confirmedData);
                     updated.columns[colIdx] = e.target.value;
                     updateConfirmedData(updated);
                   }}
+                  // If column value changed, push snapshot to undo stack
                   onBlur={() => {
                     if (
                       colEditHistory &&
@@ -60,11 +69,13 @@ function EditableTable({
           </tr>
         </thead>
         <tbody>
+          {/* Render editable table rows and cells */}
           {confirmedData.rows.map((row, rowIdx) => (
             <tr key={rowIdx}>
               {row.cells.map((cell, colIdx) => (
                 <td
                   key={colIdx}
+                  // Highlight cell when hovering remove row/col buttons
                   className={`border px-3 py-2 ${
                     (() => {
                       if (!selectedCell) return "";
@@ -83,7 +94,9 @@ function EditableTable({
                 >
                   <input
                     value={cell}
+                    // Select the cell on click
                     onClick={() => setSelectedCell({ row: rowIdx, col: colIdx })}
+                    // Save snapshot and previous value when focusing the cell
                     onFocus={() => {
                       setEditHistory({
                         row: rowIdx,
@@ -93,11 +106,13 @@ function EditableTable({
                       });
                       setSelectedCell({ row: rowIdx, col: colIdx });
                     }}
+                    // Update cell value on change
                     onChange={(e) => {
                       const updated = structuredClone(confirmedData);
                       updated.rows[rowIdx].cells[colIdx] = e.target.value;
                       updateConfirmedData(updated);
                     }}
+                    // Push undo snapshot if value was changed
                     onBlur={() => {
                       if (
                         editHistory &&

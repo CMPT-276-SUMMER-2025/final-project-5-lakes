@@ -1,10 +1,14 @@
+// Button component to navigate back to the previous step
+
 import { ChevronLeft } from "lucide-react";
 
+// BackButton: Navigational button to return to the previous step
 function BackButton({ onClick }) {
   return (
     <div className="w-full max-w-6xl mt-6 mb-6 text-center">
       <button
         onClick={onClick}
+        type="button"
         className="primary-button flex items-center justify-center px-6 py-3 rounded-md text-blue-600 font-medium transition-colors hover:bg-gray-100"
       >
         <ChevronLeft size={18} className="mr-1" />

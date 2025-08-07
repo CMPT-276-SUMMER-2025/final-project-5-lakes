@@ -14,6 +14,7 @@ const DefaultError = ({
     return null; 
   }
 
+  // Styles for the alert container and button
   const errorAlertStyles = 'bg-red-50 border-red-400 text-red-800';
   const errorIconComponent = <AlertCircle className="w-6 h-6 mr-3" />;
   const errorButtonStyles = 'bg-white border-red-400 text-red-700 hover:bg-red-100';
@@ -29,16 +30,18 @@ const DefaultError = ({
       `}
       role="alert"
     >
-
+      {/* Error icon and title */}
       <div className="flex items-center mb-4"> 
         {errorIconComponent}
         <span className="font-bold text-lg">{title}</span>
       </div>
 
+      {/* Error message body */}
       <p className="text-base leading-relaxed mb-6">
         {message}
       </p>
 
+      {/* Optional action button */}
       {onButtonClick && (
         <button
           onClick={onButtonClick}

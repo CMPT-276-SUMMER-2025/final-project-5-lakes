@@ -1,19 +1,25 @@
+// Allows user to edit and update the X and Y axis titles
+
 import { TextCursorInput } from 'lucide-react';
 
 const AxisTitleSettings = ({ 
-    tempXAxisTitle, 
-    tempYAxisTitle, 
-    onXAxisTitleChange, 
-    onYAxisTitleChange, 
-    onUpdateXAxisTitle, 
-    onUpdateYAxisTitle 
+    tempXAxisTitle,       
+    tempYAxisTitle,         
+    onXAxisTitleChange,    
+    onYAxisTitleChange,    
+    onUpdateXAxisTitle,     
+    onUpdateYAxisTitle      
 }) => {
     return (
         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+
+            {/* Section: Edit X Axis Title */}
             <div className="flex items-center gap-2 mb-2">
                 <TextCursorInput size={18} className="text-black" strokeWidth={2.5} />
                 <p className="text-lg font-semibold text-gray-800">Edit X Axis Title</p>
             </div>
+
+            {/* X-axis title input and update button */}
             <div className="flex gap-2">
                 <input
                     type="text"
@@ -29,10 +35,14 @@ const AxisTitleSettings = ({
                     Update
                 </button>
             </div>
+
+            {/* Section: Edit Y Axis Title */}
             <div className="flex items-center gap-2 mb-2">
                 <TextCursorInput size={18} className="text-black" strokeWidth={2.5} />
                 <p className="text-lg font-semibold text-gray-800">Edit Y Axis Title</p>
             </div>
+
+            {/* Y-axis title input and update button */}
             <div className="flex gap-2">
                 <input
                     type="text"
@@ -52,4 +62,4 @@ const AxisTitleSettings = ({
     );
 };
 
-export default AxisTitleSettings; 
+export default AxisTitleSettings;
