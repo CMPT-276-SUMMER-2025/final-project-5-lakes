@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-// Sends a prompt to the DeepSeek Chat V3 model via OpenRouter API and returns the response content.
+// Sends a prompt to the DeepSeek Chat model via OpenRouter API and returns the response content.
 async function queryDeepSeekV3(prompt) {
   try{
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -12,9 +12,12 @@ async function queryDeepSeekV3(prompt) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "deepseek/deepseek-chat-v3-0324:free",
+        models: [
+          "tngtech/deepseek-r1t2-chimera:free",
+          "tngtech/deepseek-r1t-chimera:free"
+        ],
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 1000,
+        max_tokens: 3000,
         temperature: 0.0,
       }),
     });
