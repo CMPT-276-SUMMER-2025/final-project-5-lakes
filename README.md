@@ -64,9 +64,13 @@ final-project-5-lakes/
 6. Lastly, in the terminal where you are in the frontend (`final-project-5-lakes/src/frontend`), run `npm run dev`. Click on the link that is provided to you (it should look like "http://localhost:5173") and view the website through your browser.
 
 # Known Issues and Limitations
-- Occasionally, the DeepSeek API doesn’t work properly, and users may see an error message. When this happens, users can simply dismiss the error and try again.
-- The DeepSeek API can sometimes take a long time to respond, leading to delays in loading results.
-- Users need to navigate between pages using the buttons provided on the page. Using their browser navigation buttons can sometimes cause unexpected behaviour.   
+- Irregularly, the website will display an error message saying "Failed to fetch". This happens when the deployed frontend & backend is having communication issues. Users must wait a few minutes then try again.
+- Occasionally, the DeepSeek API would deny requests, and users may see an error message saying "Too Many Requests". When this happens, users can simply dismiss the error and try again.
+- The DeepSeek API can sometimes take a long time to respond, leading to delays in loading results. But as long as no error messages pop up, it is trying to read the user's input.
+- Users need to navigate between pages using the buttons provided on the page. Using their browser navigation buttons can sometimes cause unexpected behaviour.
+- When the user upload a file with over around 10 columns or rows worth of data, the website may no read their input as the DeepSeek API has token limitations (of 1000), meaning it cannot extract all the data.
+- When the user includes symbols or non-numeric character in a column for values (e.g., "$10" for price), the charts will not generate.
+- When the user process data with vast value difference (e.g., "10000" compared to "10"), the graphs will generate correctly, yet it would look wrong as the smaller value is negligible. (Users can fix this issue by modifying the larger data to be in greater units (e.g., "10(Thousands)" compared to "10")
 
 _To find a record of all our current and fixed bugs, you can filter through our tickets using the 'bug' label._
 
