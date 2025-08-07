@@ -49,8 +49,9 @@ function AboutUs() {
         <img
           src={teamPhoto}
           alt="Our Team"
-          className="rounded-xl shadow-md w-full h-auto mb-6 object-cover"
+          className="rounded-xl shadow-md max-w-md w-full h-auto mb-6 object-cover mx-auto"
         />
+        <p className="text-xs text-gray-400 mt-2 italic">Generated with ChatGPT</p>
         <p className="text-gray-700 text-base leading-relaxed">
           We’re a team of passionate student developers and designers who created EasyChart as part
           of a university project. Our diverse skill sets in frontend, backend, and UI/UX design
