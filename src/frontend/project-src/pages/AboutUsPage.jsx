@@ -1,6 +1,6 @@
 // This page provides information about the EasyChart application, its mission, and our team.
 
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, MessageCircleQuestionMark, Rocket, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import teamPhoto from "../assets/about-pictures/team-picture.png";
 
@@ -14,6 +14,7 @@ function AboutUs() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto mb-20">
         {/* What is EasyChart */}
         <div className="bg-white shadow-lg rounded-2xl p-6">
+          <MessageCircleQuestionMark size={32} className="text-blue-600 mb-4 mx-auto" />
           <h2 className="text-xl font-semibold mb-3 text-blue-600 text-center">What is EasyChart?</h2>
           <p className="text-gray-700 text-md leading-relaxed">
             EasyChart is a web application designed to simplify the process of turning data into
@@ -24,6 +25,7 @@ function AboutUs() {
 
         {/* Our Mission */}
         <div className="bg-white shadow-lg rounded-2xl p-6">
+          <Rocket size={32} className="text-blue-600 mb-4 mx-auto" />
           <h2 className="text-xl font-semibold mb-3 text-blue-600 text-center">Our Mission</h2>
           <p className="text-gray-700 text-md leading-relaxed">
             Our mission is to make data visualization accessible to everyone—no technical background
@@ -35,6 +37,7 @@ function AboutUs() {
 
         {/* Who We Help */}
         <div className="bg-white shadow-lg rounded-2xl p-6">
+          <Users size={32} className="text-blue-600 mb-4 mx-auto" />
           <h2 className="text-xl font-semibold mb-3 text-blue-600 text-center">Who We Help</h2>
           <p className="text-gray-700 text-md leading-relaxed">
             EasyChart is built for students, educators, professionals, and anyone who needs to
