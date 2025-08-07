@@ -10,6 +10,7 @@ const { multipleDatasetsChartGenerator } = require('./quickChart/QCFeature1.js')
 const path = require('path');
 const fs = require('fs');
 
+// Sets up the Express server with routes for file upload, data parsing, editing, chart generation, and session management.
 const app = express();
 
 app.use(express.json());
@@ -45,6 +46,7 @@ app.get('/get-session-data', async (req, res) => {
     return res.json(sessionData);
 });
 
+// Handles file uploads or raw text input, parses the content, and stores session data.
 app.post('/file-submit', upload.array('files'), async (req, res) => {
     const files = req.files;
     const text = req.body.text;
@@ -95,6 +97,7 @@ app.post('/file-submit', upload.array('files'), async (req, res) => {
     }
 });
 
+// Receives edited data, updates session labels, summary, and graph recommendations accordingly.
 app.post('/edit-data', async (req, res) => {
     const data = req.body;
     
@@ -160,6 +163,7 @@ app.post('/edit-data', async (req, res) => {
     }
 });
 
+// Handles selection of a chart type by the user and generates the corresponding Chart.js configuration.
 app.post('/visual-selected', async (req, res) => {
     const data = req.body;
     sessionData.visualSelected = data.id;
@@ -179,6 +183,7 @@ app.post('/visual-selected', async (req, res) => {
     }
 });
 
+// Updates the session's chart configuration after user edits and returns current summary, recommendation, and graph options.
 app.post('/edit-selected', async (req, res) => {
     const data = req.body;
     sessionData.chartConfig = data.chartConfig;

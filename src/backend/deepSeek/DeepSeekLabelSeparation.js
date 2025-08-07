@@ -1,6 +1,7 @@
 const prompts = require('./prompts/deepseekPrompts.js');
 const { queryDeepSeekV3 } = require('./APIdeepseek.js');
 
+// Sends data to DeepSeek to separate chart labels from values and returns the structured result.
 async function separateLabels(data) {
     const prompt = prompts.labelsSeparatorPrompt('', data);
 
