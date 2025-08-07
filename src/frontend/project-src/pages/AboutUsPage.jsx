@@ -1,3 +1,5 @@
+// This page provides information about the EasyChart application, its mission, and our team.
+
 import { PlusCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import teamPhoto from "../assets/about-pictures/team-picture.png";

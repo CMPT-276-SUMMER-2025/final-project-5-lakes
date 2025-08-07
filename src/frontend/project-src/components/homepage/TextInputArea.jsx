@@ -1,6 +1,7 @@
+// TextInputArea: Allows user to type or paste input manually (disables if file is uploaded)
+
 import { Clipboard } from 'lucide-react';
 
-// TextInputArea: Allows user to type or paste input manually (disables if file is uploaded)
 function TextInputArea({ text, setText, files, showAlert }) {
 
   // Handle text area changes: update state and localStorage

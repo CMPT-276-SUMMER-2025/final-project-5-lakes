@@ -1,3 +1,5 @@
+// This component renders the footer of the application with links to About Us and FAQs
+
 import { Link } from 'react-router-dom';
 
 function Footer() {

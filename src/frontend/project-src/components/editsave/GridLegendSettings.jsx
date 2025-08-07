@@ -1,7 +1,6 @@
-import { Columns3Cog } from 'lucide-react';
-
 // GridLegendSettings: Toggles visibility of grid lines and legend for the chart
-// If the chart is a pie/doughnut chart, grid line toggle is hidden
+// If the chart is a pie/doughnut chart, grid line toggle is hiddenimport { Columns3Cog } from 'lucide-react';
+
 const GridLegendSettings = ({ 
   gridLines,          
   legend,                 

@@ -1,8 +1,8 @@
-// Import icons and color picker UI
+// Manages UI for editing background and text colors on a chart
+
 import { Paintbrush, Check } from 'lucide-react';
 import { SketchPicker } from 'react-color';
 
-// ColorSettings: Manages UI for editing background and text colors on a chart
 const ColorSettings = ({ 
     chartConfig,                 
     datasetSelected,

@@ -1,7 +1,8 @@
+// Displays the EasyChart logo and navigation links
+
 import websiteLogo from '../../assets/websitelogo.png';
 import { Link } from 'react-router-dom';
 
-// Header: Displays the EasyChart logo and navigation links
 function Header() {
   return (
     <header className="bg-white px-8 py-2 flex items-center justify-between shadow-sm">

@@ -1,7 +1,8 @@
+// Renders a set of buttons for modifying the table structure
+// Includes options to insert/remove rows and columns relative to the selected cell
+
 import { Plus, Trash } from "lucide-react";
 
-// TableButtons: Renders a set of buttons for modifying the table structure
-// Includes options to insert/remove rows and columns relative to the selected cell
 function TableButtons({
   selectedCell,           
   insertRowAbove,         

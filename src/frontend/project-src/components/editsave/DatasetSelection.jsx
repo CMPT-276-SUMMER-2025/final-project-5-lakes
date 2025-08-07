@@ -1,6 +1,7 @@
+// DatasetSelection: Renders buttons to allow users to select a dataset or segment (for coloring/editing)
+
 import { MousePointerClick } from 'lucide-react';
 
-// DatasetSelection: Renders buttons to allow users to select a dataset or segment (for coloring/editing)
 const DatasetSelection = ({ 
     chartConfig,           
     datasetSelected,       

@@ -1,7 +1,8 @@
+// Displays a full-screen loading overlay while data is being processed
+
 import { ChartColumnIncreasing } from "lucide-react";
 import PageLoader from "./PageLoader";
 
-// LoadingPopUp: Displays a full-screen loading overlay while data is being processed
 function LoadingPopUp({ show }) {
   // If not loading, render nothing
   if (!show) return null;

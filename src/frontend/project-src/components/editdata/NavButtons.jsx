@@ -1,6 +1,8 @@
+// Renders three navigation buttons for going back, restoring data, and proceeding to the next step
+
+
 import { ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
 
-// NavButtons: Renders three navigation buttons for going back, restoring data, and proceeding to the next step
 function NavButtons({ onBack, onRestore, onNext }) {
   return (
     // Container with spacing and wrap support for responsiveness

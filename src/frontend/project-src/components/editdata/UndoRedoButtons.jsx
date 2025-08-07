@@ -1,6 +1,7 @@
+// Renders undo and redo buttons with optional disabled states
+
 import { Undo, Redo } from "lucide-react";
 
-// UndoRedoButtons: Renders undo and redo buttons with optional disabled states
 function UndoRedoButtons({ undo, redo, undoDisabled, redoDisabled }) {
   return (
     // Container with horizontal spacing between buttons

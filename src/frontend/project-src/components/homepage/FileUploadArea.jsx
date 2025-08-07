@@ -1,7 +1,8 @@
+// Handles file uploads via drag-and-drop or button click, with validation
+
 import { CloudUpload, Paperclip, CheckCircle } from 'lucide-react';
 import { useState } from 'react';
 
-// FileUploadArea: Handles file uploads via drag-and-drop or button click, with validation
 function FileUploadArea({ setFiles, files, showAlert, text }) {
   const [isDragOver, setIsDragOver] = useState(false); 
   const [hasUploaded, setHasUploaded] = useState(files.length > 0); 

@@ -1,3 +1,5 @@
+// Allows users to choose font family and font size for chart text
+
 import { Edit3 } from 'lucide-react';
 
 // Predefined list of Google Noto fonts supported by QuickChart
@@ -8,7 +10,6 @@ const notoFonts = [
   { name: "Noto Color Emoji", value: "Noto Color Emoji" }
 ];
 
-// FontSettings: Allows users to choose font family and font size for chart text
 const FontSettings = ({ 
   activeFontFamily,    
   fontSize,           

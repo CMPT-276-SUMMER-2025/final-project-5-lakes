@@ -1,3 +1,5 @@
+// Button component to navigate back to the previous step
+
 import { ChevronLeft } from "lucide-react";
 
 // BackButton: Navigational button to return to the previous step
