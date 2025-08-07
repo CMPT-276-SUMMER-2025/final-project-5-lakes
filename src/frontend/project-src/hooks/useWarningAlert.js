@@ -1,3 +1,6 @@
+// useWarningAlert - Manages visibility and content of a warning alert.
+// Returns state and functions to show or hide the alert.
+
 import { useState, useCallback } from 'react';
 
 const useWarningAlert = () => {
