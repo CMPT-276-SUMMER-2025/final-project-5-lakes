@@ -1,5 +1,6 @@
 // Manages UI for editing background and text colors on a chart
 
+import React from 'react'; //MUST KEEP THIS FOR TESTING EVEN THOUGH IT SAYS "UNUSED VARIABLE"
 import { Paintbrush, Check } from 'lucide-react';
 import { SketchPicker } from 'react-color';
 

@@ -4,7 +4,7 @@
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
-const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/visual-selected`;
+const apiUrl = `${process.env.VITE_API_BASE_URL}/visual-selected`;
 
 const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText = "Select Option" }) => {
   const navigate = useNavigate(); 
