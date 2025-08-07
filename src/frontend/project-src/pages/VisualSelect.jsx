@@ -1,3 +1,5 @@
+// This is page 3 where users can select a chart type based on the extracted data
+
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -13,23 +15,23 @@ function VisualSelect() {
 
   const [chartOptions, setChartOptions] = useState([]);
 
-  // Function to get session data and navigate back to edit-data
+  // Fetch session data and navigate back to edit-data page
   const getSessionDataAndNavigateBack = async () => {
-      fetch(`${import.meta.env.VITE_API_BASE_URL}/get-session-data`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include"
-      })
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/get-session-data`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include"
+    })
       .then(async (response) => {
         const data = await response.json();
-        if (!response.ok){
+        if (!response.ok) {
           const error = new Error(`HTTP error! status: ${response.status}`);
           throw error;
         }
         return data;
       })
       .then((data) => {
-        navigate('/edit-data', {state: data, replace: true});
+        navigate('/edit-data', { state: data, replace: true });
       })
       .catch((error) => {
         alert(error.message, "Please try again.");
@@ -50,9 +52,11 @@ function VisualSelect() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start p-6 sm:p-10 font-inter">
+      {/* Progress stepper showing user is on the "Choose Visual" step */}
       <ProgressStepper currentStep="Choose Visual" />
+
+      {/* Chart selection area */}
       <div className="w-full max-w-6xl bg-blue-50 shadow-md rounded-xl p-6 sm:p-8">
-        {/* Chart Selection Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {chartOptions.map((chart) => (
             <ChartSelectionCard
@@ -66,8 +70,12 @@ function VisualSelect() {
             />
           ))}
         </div>
+
+        {/* Summary of extracted data */}
         <SummaryBox summary={summary} />
       </div>
+
+      {/* Navigation button to go back to edit-data step */}
       <BackButton onClick={goPreviousPage} />
     </div>
   );

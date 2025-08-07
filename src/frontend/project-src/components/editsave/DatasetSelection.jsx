@@ -1,30 +1,39 @@
 import { MousePointerClick } from 'lucide-react';
 
+// DatasetSelection: Renders buttons to allow users to select a dataset or segment (for coloring/editing)
 const DatasetSelection = ({ 
-    chartConfig, 
-    datasetSelected, 
-    segmentSelected, 
-    onDatasetSelect, 
-    onSegmentSelect 
+    chartConfig,           
+    datasetSelected,       
+    segmentSelected,       
+    onDatasetSelect,       
+    onSegmentSelect       
 }) => {
+    // Check if chart is pie or doughnut type
     const isPieChart = chartConfig?.type === 'pie' || chartConfig?.type === 'doughnut';
+
+    // Determine whether there's more than one dataset or segment to allow selection
     const shouldShowSelection = isPieChart 
         ? chartConfig?.data?.datasets?.[0]?.data?.length > 1
         : chartConfig?.data?.datasets?.length > 1;
 
+    // If there's nothing to select from, render nothing
     if (!shouldShowSelection) return null;
 
     return (
         <div className="bg-white rounded-2xl shadow-md p-4 border border-gray-200 space-y-4">
+
+            {/* Header */}
             <div className="flex items-center gap-2 mb-2">
                 <MousePointerClick size={18} className="text-black" strokeWidth={2.5} />
                 <p className="text-lg font-semibold text-gray-800">
                     {isPieChart ? 'Select Segment' : 'Select Dataset'}
                 </p>
             </div>
+
+            {/* Render selectable buttons */}
             <div className="flex flex-wrap gap-2">
                 {isPieChart ? (
-                    // Pie chart segments
+                    // Render buttons for each pie/doughnut segment
                     chartConfig.data.datasets[0].data.map((value, index) => (
                         <button
                             key={index}
@@ -39,7 +48,7 @@ const DatasetSelection = ({
                         </button>
                     ))
                 ) : (
-                    // Regular chart datasets
+                    // Render buttons for each dataset
                     chartConfig.data.datasets.map((dataset, index) => (
                         <button
                             key={index}
@@ -55,6 +64,8 @@ const DatasetSelection = ({
                     ))
                 )}
             </div>
+
+            {/* Display currently selected item */}
             <p className="text-sm text-gray-600">
                 Selected: {isPieChart 
                     ? (chartConfig.data.labels?.[segmentSelected] || `Segment ${segmentSelected + 1}`)
@@ -65,4 +76,4 @@ const DatasetSelection = ({
     );
 };
 
-export default DatasetSelection; 
+export default DatasetSelection;

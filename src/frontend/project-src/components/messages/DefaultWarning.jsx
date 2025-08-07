@@ -1,3 +1,6 @@
+// Reusable warning alert component that displays a message with optional confirm and cancel buttons.
+// This can be used when user confirmation or acknowledgment is needed.
+
 import { AlertTriangle } from 'lucide-react';
 
 const DefaultWarning = ({
@@ -5,12 +8,13 @@ const DefaultWarning = ({
   message,
   buttonText = 'Okay',
   onButtonClick,
-  onCancel,            
-  cancelText = 'Cancel', 
+  onCancel,
+  cancelText = 'Cancel',
   isVisible = true,
 }) => {
-  if (!isVisible) return null;
+  if (!isVisible) return null; 
 
+  // Styling classes
   const containerStyle = 'bg-yellow-50 border-yellow-400 text-yellow-800';
   const icon = <AlertTriangle className="w-6 h-6 mr-3" />;
   const buttonStyle = 'bg-white border-yellow-400 text-yellow-700 hover:bg-yellow-100';
@@ -26,13 +30,16 @@ const DefaultWarning = ({
       `}
       role="alert"
     >
+      {/* Warning icon and title */}
       <div className="flex items-center mb-4">
         {icon}
         <span className="font-bold text-lg">{title}</span>
       </div>
 
+      {/* Warning message */}
       <p className="text-base leading-relaxed mb-6">{message}</p>
 
+      {/* Button actions (cancel + confirm) */}
       <div className="flex gap-4">
         {onCancel && (
           <button

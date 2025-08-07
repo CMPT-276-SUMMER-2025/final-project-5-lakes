@@ -1,5 +1,6 @@
 /* Buttons CSS */
 
+/* Primary blue buttons */
 .primary-button {
   background-color: #2563eb;     
   color: white;
@@ -20,6 +21,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* Secondary white buttons */
 .white-base-button {
   padding: 0.75rem 1.5rem;             
   background-color: #ffffff;              
@@ -77,7 +79,6 @@
 }
 
 /* Segment Select Buttons - EditSave.jsx */
-
 .segment-button-blue {
   background-color: #2563eb; 
   color: white;
@@ -154,8 +155,3 @@
   background-color: #dc2626; 
   cursor: pointer;
 }
-
-
-
-
-

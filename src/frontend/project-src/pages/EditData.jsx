@@ -1,3 +1,6 @@
+// This is page 2, where users can edit the extracted table data before generating charts.
+// It features an interactive table with editable cells, undo/redo functionality, and options to add/remove rows/columns.
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRef } from "react";
@@ -46,10 +49,12 @@ function EditData() {
     const {table: currentTable}  = convertDeepSeekToTable(edittedData);
 
     setConfirmedData(structuredClone(currentTable));
-    setUndoStack([structuredClone(currentTable)]);
+    setUndoStack([]);
+    setRedoStack([]);
     setOriginalData(structuredClone(originalTable));
   }, [parsedData, edittedData, navigate]);
 
+  // Deselect cell when clicking outside the table
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (tableRef.current && !tableRef.current.contains(event.target)) {
@@ -63,7 +68,6 @@ function EditData() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
 
   // Handle form submission
   const handleNext = async (e) => {
@@ -217,6 +221,8 @@ function EditData() {
 
   // Undo/Redo functionalities
   const updateConfirmedData = (newData) => {
+    setUndoStack((prev) => [...prev, structuredClone(confirmedData)]);
+    setRedoStack([]); 
     setConfirmedData(newData);
   };
 
@@ -243,7 +249,7 @@ function EditData() {
   // Main render
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter relative">
-      
+      {/* Info pop-up */}
       {showInfoPopUp && (
         <div className="absolute center right-20 z-50">
           <InfoPopUp
@@ -260,9 +266,10 @@ function EditData() {
           />
         </div>
       )}
-      
+      {/* Loading pop-up setup */}
       <LoadingPopUp show={isLoading} />
 
+      {/* Alert pop-up setup */}
       {isAlertVisible && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <DefaultError
@@ -275,23 +282,28 @@ function EditData() {
         </div>
       )}
 
+      {/* Progress stepper */}
       <ProgressStepper currentStep="Edit Data" />
+      {/* Editable table form */}
       <form onSubmit={handleNext}>
         <div className="bg-blue-50 rounded-2xl shadow-lg px-4 sm:px-6 md:px-8 py-6 w-full max-w-7xl">
           <div className="flex flex-col md:flex-row items-center gap-1 w-full">
             <div className="w-full bg-white rounded-xl p-4 sm:p-6 shadow-lg">
+              {/* Editable table header */}
               <h2 className="font-semibold text-center">Edit Data</h2>
               <p className="text-md text-gray-600 text-center mb-4">
                 Click on a cell to modify its value, add/remove rows or columns as needed.
               </p>
               {confirmedData && (
                 <>
+                  {/* Undo/Redo buttons */}
                   <UndoRedoButtons
                     undo={undo}
                     redo={redo}
                     undoDisabled={undoStack.length === 0}
                     redoDisabled={redoStack.length === 0}
                   />
+                  {/* Editable table and action buttons */}
                   <EditableTable
                     tableRef={tableRef}
                     confirmedData={confirmedData}
@@ -322,6 +334,7 @@ function EditData() {
           </div>
         </div>
 
+        {/* Navigation buttons */}
         <NavButtons
           onBack={() => navigate("/")}
           onRestore={() => setConfirmedData(structuredClone(originalData))}
