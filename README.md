@@ -28,7 +28,8 @@ Below is a simplified overview of our folder structure:
 final-project-5-lakes/
 ├── README.md
 ├── docs/
-│   └── ai-disclosure/
+│   ├── ai-disclosure/
+│   └── example-files/
 ├── src/
 │   ├── backend/
 │   │   ├── app.js
@@ -69,17 +70,19 @@ final-project-5-lakes/
 
 _To find a record of all our current and fixed bugs, you can filter through our tickets using the 'bug' label._
 
+
+# Example Usage
+Our website is designed so that you can upload your own data and generate clear, insightful data visualizations. Below we have linked two example reports you can try out to see how it works.
+
+[Quarterly Financial Performance Report](docs/example-files/Quarterly-Financial-Performance-Report.pdf)
+This report provides an overview of a mock company’s financial performance across the four quarters of the year, focusing on both profit figures and ROI.
+
+[Correlation Between Study Time and Exam Performance](docs/example-files/Study-Time-Grades-Correlation.pdf)
+This report explores the connection between time spent studying and average exam results for students.
+
 # Technologies Used
 - React (frontend)  
 - Node.js (backend)  
 - QuickChart API for chart rendering  
 - DeepSeek API for data analysis  
 - Tailwind CSS for styling  
-
-# Example Usage
-To test out our website, here are some sample files you can upload.  
-[Word Document](src/backend/__tests__/files/docx/complex_sample.docx)
-[PDF](src/backend/__tests__/files/pdf/complex_sample.pdf)
-[Excel Spreadsheet](src/backend/__tests__/files/xlsx/simple_sample.xlsx)
-
-You can find additional sample files in multiple different formats in `src/backend/__tests__/files`
