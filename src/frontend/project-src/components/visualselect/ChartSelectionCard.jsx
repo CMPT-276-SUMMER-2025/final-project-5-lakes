@@ -9,7 +9,6 @@ const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/visual-selected`;
 const ChartSelectionCard = ({ id, chartImageUrl, title, description, buttonText = "Select Option" }) => {
   const navigate = useNavigate(); 
   const location = useLocation(); 
-  const { chartConfig } = location.state || {}; 
 
   const handleSelectOption = () => {
     fetch(apiUrl, {

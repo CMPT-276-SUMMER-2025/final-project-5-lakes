@@ -7,14 +7,12 @@ EasyChart
 **Group Members:**
 Nick Ze Kun Lei, Javier Deng Xu, Shelby Haines, Tony Junxiang Wu
 
+**Project website link:** 
+easychart-omega.vercel.app  
+
 # Brief Description of Project
 EasyChart is a website that provides a simple way for users to visualize data, without having to learn complex tools. Users can upload data in various formats, and the platform will automatically generate relevant visualizations such as charts and graphs. These visuals can then be edited and exported in various formats.
 
-# Links
-**Project website link:** easychart-omega.vercel.app  
-**Project Report link:**  
-**Project  M1 video link:** [M1 Group 5 Video](https://www.google.com/url?q=https://drive.google.com/file/d/1T4y1QCeSbcONjlZ-4wep66cwlItRHwUW/view&sa=D&source=editors&ust=1754398172556768&usg=AOvVaw3dkA3paY9PeDAzT2hVgkcb)    
-**Project  M2 video link:**
 
 # Folder Structure
 This project is organized into directories for documentation, source code, and dependencies:
@@ -30,7 +28,8 @@ Below is a simplified overview of our folder structure:
 final-project-5-lakes/
 ├── README.md
 ├── docs/
-│   └── ai-disclosure/
+│   ├── ai-disclosure/
+│   └── example-files/
 ├── src/
 │   ├── backend/
 │   │   ├── app.js
@@ -68,7 +67,18 @@ final-project-5-lakes/
 - Occasionally, the DeepSeek API doesn’t work properly, and users may see an error message. When this happens, users can simply dismiss the error and try again.
 - The DeepSeek API can sometimes take a long time to respond, leading to delays in loading results.
 - Users need to navigate between pages using the buttons provided on the page. Using their browser navigation buttons can sometimes cause unexpected behaviour.   
+
 _To find a record of all our current and fixed bugs, you can filter through our tickets using the 'bug' label._
+
+
+# Example Usage
+Our website is designed so that you can upload your own data and generate clear, insightful data visualizations. Below we have linked two example reports you can try out to see how it works.
+
+[Quarterly Financial Performance Report](docs/example-files/Quarterly-Financial-Performance-Report.pdf)  
+This report provides an overview of a mock company’s financial performance across the four quarters of the year, focusing on both profit figures and ROI.
+
+[Correlation Between Study Time and Exam Performance](docs/example-files/Study-Time-Grades-Correlation.pdf)  
+This report explores the connection between time spent studying and average exam results for students.
 
 # Technologies Used
 - React (frontend)  

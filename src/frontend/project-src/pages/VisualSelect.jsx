@@ -1,4 +1,8 @@
-// This is page 3 where users can select a chart type based on the extracted data
+// This is the page for step 3 of the chart making process
+// Allows users to choose a chart type based on the data extracted in previous steps.
+// Displays chart previews generated with placeholder data, along with a summary of extracted information.
+// On selection, navigates to the "edit-save" page with the chosen chart.
+// Includes a back button to return to the "edit-data" step using stored session data.
 
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
