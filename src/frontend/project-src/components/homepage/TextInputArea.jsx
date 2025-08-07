@@ -44,8 +44,9 @@ function TextInputArea({ text, setText, files, showAlert }) {
         value={text}
         onChange={handleChange}
         onFocus={handleFocus}
+        onClick={handleFocus}
         name="text"
-        disabled={isDisabled} 
+        readOnly={isDisabled}
       ></textarea>
 
     </div>
