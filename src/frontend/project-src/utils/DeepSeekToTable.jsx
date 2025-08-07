@@ -1,3 +1,6 @@
+// This function converts parsed DeepSeek data into a table format
+// It expects the input to be an array of objects, where each object represents a row of data
+
 function convertDeepSeekToTable(parsedData) {
   if (!Array.isArray(parsedData) || parsedData.length === 0) {
     return {

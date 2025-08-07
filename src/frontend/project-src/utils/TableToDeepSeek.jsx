@@ -1,3 +1,6 @@
+// This function converts a table structure into a format suitable for DeepSeek
+// It expects the input to be an object with 'columns' and 'rows' properties
+
 function convertTableToDeepSeekFormat(table) {
   const { columns, rows } = table;
 
