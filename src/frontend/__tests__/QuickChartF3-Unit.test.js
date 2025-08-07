@@ -21,7 +21,6 @@ document.createElement = jest.fn((tagName) => {
 
 // Store original methods for our custom render
 const originalAppendChild = document.body.appendChild;
-const originalRemoveChild = document.body.removeChild;
 
 // Custom render function that provides a container
 const customRender = (ui, options = {}) => {
