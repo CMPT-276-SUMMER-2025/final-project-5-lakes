@@ -68,7 +68,7 @@ final-project-5-lakes/
 - Occasionally, the DeepSeek API would deny requests, and users may see an error message saying "Too Many Requests". When this happens, users can simply dismiss the error and try again.
 - The DeepSeek API can sometimes take a long time to respond, leading to delays in loading results. But as long as no error messages pop up, it is trying to read the user's input.
 - Users need to navigate between pages using the buttons provided on the page. Using their browser navigation buttons can sometimes cause unexpected behaviour.
-- When the user upload a file with over around 10 columns or rows worth of data, the website may no read their input as the DeepSeek API has token limitations (of 1000), meaning it cannot extract all the data.
+- When the user upload a file with over around 10 columns or rows worth of data, the website may not read their input as the DeepSeek API has token limitations (of 1000), meaning it cannot extract all the data.
 - When the user includes symbols or non-numeric character in a column for values (e.g., "$10" for price), the charts will not generate.
 - When the user process data with vast value difference (e.g., "10000" compared to "10"), the graphs will generate correctly, yet it would look wrong as the smaller value is negligible. (Users can fix this issue by modifying the larger data to be in greater units (e.g., "10(Thousands)" compared to "10")
 
