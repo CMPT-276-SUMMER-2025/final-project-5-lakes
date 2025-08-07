@@ -17,9 +17,7 @@ import ProgressStepper from "../components/layout/ProgressStepper";
 import EditSaveButtons from "../components/editsave/EditSaveButtons";
 import {
     getTitleFontSize,
-    getBaseFontSize,
     hexToRgb,
-    rgbToHex,
     handleColorChange,
     handleTitleChange,
     handleAxisTitleChange,
@@ -37,7 +35,7 @@ const quickChartURL = "https://quickchart.io/chart?height=500&backgroundColor=wh
 
 function EditSave() {
     const location = useLocation();
-    const { chartConfig: initialConfig, labels: labels } = location.state || {};
+    const { chartConfig: initialConfig } = location.state || {};
     const [isLoading, setIsLoading] = useState(false);
 
     const [chartConfig, setChartConfig] = useState(initialConfig);
