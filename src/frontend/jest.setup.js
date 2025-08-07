@@ -1,3 +1,4 @@
+/* eslint-env node */
 import { TextEncoder, TextDecoder } from 'util';
 
 if (!global.TextEncoder) {
