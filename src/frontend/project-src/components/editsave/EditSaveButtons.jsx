@@ -3,7 +3,6 @@
 // 2) Start creating a new chart (with warning)
 // 3) Download the current chart (opens modal)
 
-import React from 'react'; //MUST KEEP THIS FOR TESTING EVEN THOUGH IT SAYS "UNUSED VARIABLE"
 import { ChevronLeft, CirclePlus, Download } from 'lucide-react';
 import useWarningAlert from '../../hooks/useWarningAlert';
 import DefaultWarning from '../messages/DefaultWarning';
@@ -11,8 +10,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from 'react';
 import DownloadOptions from '../editsave/DownloadOptions';
 
-const apiUrl = `${process.env.VITE_API_BASE_URL}/edit-selected`;
-const resetUrl = `${process.env.VITE_API_BASE_URL}/reset-session`;
+const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/edit-selected`;
+const resetUrl = `${import.meta.env.VITE_API_BASE_URL}/reset-session`;
 
 function EditSaveButtons({ chartImageUrl }) {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);

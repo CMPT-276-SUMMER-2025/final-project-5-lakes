@@ -2,7 +2,7 @@
 // Allows users to customize chart styling (title, font, colors, grid, legend).
 // Users can preview changes live, undo/redo edits, and save or download the chart.
 
-import React from 'react'; //MUST KEEP THIS FOR TESTING EVEN THOUGH IT SAYS "UNUSED VARIABLE"
+
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Loader2, RotateCcw, RotateCw, RefreshCw } from 'lucide-react';

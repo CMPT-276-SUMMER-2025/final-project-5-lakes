@@ -1,7 +1,6 @@
 // Stepper component to visually track user progress through a multi-step process
 // Styling reference from https://tailwindcss.com/plus/ui-blocks/application-ui/navigation/progress-bars
 
-import React from 'react'; //MUST KEEP THIS FOR TESTING EVEN THOUGH IT SAYS "UNUSED VARIABLE"
 import { Upload, Check, SquareMousePointer, Pencil } from 'lucide-react';
 
 // Step definitions for the progress bar
