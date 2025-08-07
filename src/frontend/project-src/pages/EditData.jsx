@@ -105,6 +105,13 @@ function EditData() {
           `We could not generate the chart: ${error.message}`,
           "Okay"
         );
+      } else if(error.status === 429){
+          showAlert(
+            'error', 
+            'API Error', 
+            `DeepSeek is overwhelmed: ${error.message}. Please try again later.`, 
+            'Okay'
+          )
       } else {
         showAlert(
           "error",

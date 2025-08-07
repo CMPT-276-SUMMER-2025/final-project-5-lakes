@@ -72,6 +72,8 @@ function HomePage() {
           showAlert('error', 'Extraction Failed', `We could not parse the file: ${error.message}`, 'Okay', () => navigate('/'));
         } else if (error.status === 410) {
           showAlert('error', 'Submission Error', `We could not parse the file: ${error.message} Please upload a different file.`, 'Okay', () => navigate('/'));
+        } else if(error.status === 429){
+          showAlert('error', 'API Error', `DeepSeek is overwhelmed: ${error.message}. Please try again later.`, 'Okay', () => navigate('/'));
         } else {
           showAlert('error', 'Submission Error', `We could not parse the file: ${error.message} Please try again later.`, 'Okay', () => navigate('/'));
         }
