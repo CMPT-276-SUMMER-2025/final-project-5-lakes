@@ -1,4 +1,7 @@
-// This is page 4 where users can edit and save their chart
+// Page 4: Edit & Save (last step)
+// Allows users to customize chart styling (title, font, colors, grid, legend).
+// Users can preview changes live, undo/redo edits, and save or download the chart.
+
 
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -245,7 +248,8 @@ function EditSave() {
     }
 }, [chartConfig]);
     
-{/* BELOW IS WHERE ALL OF THE BUTTONS ARE LOCATED */}
+
+// Render the Edit & Save page layout with live chart preview, editing controls, and save buttons
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8 font-inter">

@@ -1,5 +1,6 @@
-// This is page 2, where users can edit the extracted table data before generating charts.
-// It features an interactive table with editable cells, undo/redo functionality, and options to add/remove rows/columns.
+/* This is page 2, where users can edit the extracted table data before generating charts.
+It features an interactive table with editable cells, undo/redo functionality, 
+and options to add/remove rows/columns. */
 
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
