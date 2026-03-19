@@ -13,9 +13,12 @@ async function queryDeepSeekV3(prompt) {
       },
       body: JSON.stringify({
         models: [
-          "tngtech/deepseek-r1t2-chimera:free",
-          "tngtech/deepseek-r1t-chimera:free"
+          "nousresearch/hermes-3-llama-3.1-405b:free",
+          "google/gemini-2.0-flash-exp:free",
+          "google/gemma-3-12b-it:free",
+          "meta-llama/llama-3.3-70b-instruct:free",
         ],
+        route: "fallback",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 3000,
         temperature: 0.0,
